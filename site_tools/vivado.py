@@ -255,7 +255,8 @@ def ip_create_scripts(env, src):
     res     = []
     src_sfx = '.'+env['IP_CONFIG_SUFFIX']
     trg_sfx = '-create.'+env['TOOL_SCRIPT_SUFFIX']
-    trg_dir = env['IP_SCRIPT_PATH']
+    trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
+    create_dirs([trg_dir])
     builder = env.IpCreateScript
     for i in src:
         ip_src = os.path.join(env['CFG_IP_PATH'], i + '.' + env['IP_CONFIG_SUFFIX'])
@@ -267,7 +268,7 @@ def ip_syn_scripts(env, src):
     res     = []
     src_sfx = '.'+env['IP_CONFIG_SUFFIX']
     trg_sfx = '-syn.'+env['TOOL_SCRIPT_SUFFIX']
-    trg_dir = env['IP_SCRIPT_PATH']
+    trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
     builder = env.IpSynScript
     for i in src:
         ip_src = os.path.join(env['CFG_IP_PATH'], i + '.' + env['IP_CONFIG_SUFFIX'])
@@ -327,17 +328,25 @@ def generate(env):
     env['SYNCOM']   = VIVADO + ' -mode batch '
     env['SYNSHELL'] = VIVADO + ' -mode tcl '
     env['SYNGUI']   = VIVADO + ' -mode gui '
+
+    env.Append(SYNFLAGS = ' -notrace')
+    env.Append(SYNFLAGS = ' -nojournal')
+    
     
     env['VERBOSE'] = True
     
     env['CFG_PATH']             = os.path.abspath(os.curdir)  # current configuration path
+    env['IP_SCRIPT_DIRNAME']    = '_script'
 
     env['CONFIG_SUFFIX']        = 'yml'
     env['IP_CONFIG_SUFFIX']     = 'yml'
     env['TOOL_SCRIPT_SUFFIX']   = 'tcl'
     env['IP_CORE_SUFFIX']       = 'xci'
     env['DCP_SUFFIX']           = 'dcp'
-    
+    env['VERILOG']              = 'v'
+    env['SYSTEMVERILOG']        = 'sv'
+    env['VERILOGHEADER']        = 'vh'
+    env['SYSTEMVERILOGHEADER']  = 'svh'
     
     #-----------------------------------------------------------------
     #
