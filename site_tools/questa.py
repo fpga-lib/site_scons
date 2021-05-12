@@ -26,10 +26,6 @@ QUESTA  = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
 #
 def ip_simlib_script(target, source, env):
 
-    cfg  = env['CFG']
-    ext  = env['EXT']
-    dirs = env['DIRS']
-
     src = source[0]
     trg = target[0]
 
@@ -41,12 +37,12 @@ def ip_simlib_script(target, source, env):
     print('generate script:   \'' + trg.name + '\'')
 
     param_sect = 'config'
-    ip_path    = os.path.join(dirs.CFG_IP, ip_name) + '.' + ext.IP_CONFIG
+    ip_path    = os.path.join(env['CFG_IP_PATH'], ip_name) + '.' + env['IP_CONFIG_SUFFIX']
     ip_cfg     = read_ip_config(ip_path, param_sect, env['CFG_PATH'])
     
     param_sect  = 'sources'
     search_root = env['IPSIM_CONFIG_PATH']
-    src_sim     =  read_ipsim_config(ip_cfg['type'] + '.' + ext.CONFIG, search_root)
+    src_sim     =  read_ipsim_config(ip_cfg['type'] + '.' + env['CONFIG_SUFFIX'], search_root)
     
     src_str = ' '.join(src_sim).replace('${ip_name}', ip_name)
     
@@ -73,9 +69,6 @@ def ip_simlib_script(target, source, env):
 #-------------------------------------------------------------------------------
 def compile_simlib(target, source, env):
 
-    dirs = env['DIRS']
-    ext  = env['EXT']
-    
     trg = target[0]
 
     trg_path = str(trg)
@@ -110,10 +103,10 @@ def compile_simlib(target, source, env):
         cmd.append(' -do ' + os.path.abspath(str(src)))
         cmd = ' '.join(cmd)
         
-        ip_name = src.name.replace('-ipsim.'+ext.SIM_SCRIPT, '')
+        ip_name = src.name.replace('-ipsim.'+env['SIM_SCRIPT_SUFFIX'], '')
         print('-'*80)
         print(' '*8, 'Compile simlib for', '\'' + ip_name + '\'')
-        rcode = pexec(cmd, dirs.IP_OOC)
+        rcode = pexec(cmd, env['IP_OOC_PATH'])
         print('-'*80)
         if rcode: 
             Execute( Delete(src) )        
@@ -160,15 +153,13 @@ def make_trg_nodes(src, src_suffix, trg_suffix, trg_dir, builder):
 #    Pseudo-builders: IP simulation library stuff
 #
 def ip_simlib_scripts(env, src):
-    ext     = env['EXT']
-    dirs    = env['DIRS']
     res     = []
-    src_sfx = '.'+ext.IP_CORE
-    trg_sfx = '-ipsim.'+ext.SIM_SCRIPT
-    trg_dir = dirs.IP_SIMSCRIPT
+    src_sfx = '.'+env['IP_CORE_SUFFIX']
+    trg_sfx = '-ipsim.'+env['SIM_SCRIPT_SUFFIX']
+    trg_dir = env['IP_SCRIPT_PATH']
     builder = env.IpSimLibScript
     for i in src:
-        #ip_src = os.path.join(dirs.CFG_IP, i + src_sfx) # '.' + ext.IP_CONFIG)
+        #ip_src = os.path.join(env['CFG_IP_PATH'], i + src_sfx) # '.' + env['IP_CONFIG_SUFFIX'])
         #res.append(make_trg_nodes(ip_src, src_sfx, trg_sfx, trg_dir, builder))    
         res.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))    
 
@@ -186,8 +177,6 @@ def ip_simlib_scripts(env, src):
 #
 def generate(env):
     
-    ext = env['EXT']
-    
     Scanner = SCons.Scanner.Scanner
     Builder = SCons.Builder.Builder
     
@@ -203,6 +192,9 @@ def generate(env):
         env['VOPT_FLAGS']        = ' glbl'
     
 
+    env['SIM_SCRIPT_SUFFIX'] = 'do'
+        
+        
     env['VERBOSE'] = True
     
     env['IPSIM_CONFIG_PATH'] = os.path.join(str(env.Dir('#')), 'lib', 'ipsim')
@@ -213,7 +205,7 @@ def generate(env):
     #
 #   CfgImportScanner = Scanner(name          = 'CfgImportScanner',
 #                      function      = scan_cfg_files,
-#                      skeys         = ['.' + ext.IP_CONFIG],
+#                      skeys         = ['.' + env['IP_CONFIG_SUFFIX']],
 #                      recursive     = True,
 #                      path_function = SCons.Scanner.FindPathDirs('SETTINGS_SEARCH_PATH')
 #                     )
