@@ -67,7 +67,7 @@ def ip_simlib_script(target, source, env):
     return None
 
 #-------------------------------------------------------------------------------
-def compile_simlib(target, source, env):
+def ip_simlib(target, source, env):
 
     trg = target[0]
 
@@ -105,7 +105,7 @@ def compile_simlib(target, source, env):
         
         ip_name = src.name.replace('-ipsim.'+env['SIM_SCRIPT_SUFFIX'], '')
         print('-'*80)
-        print(' '*8, 'Compile simlib for', '\'' + ip_name + '\'')
+        print(' '*8, 'Compile', '\'' + ip_name + '\'', 'modules for simlib')
         rcode = pexec(cmd, env['IP_OOC_PATH'])
         print('-'*80)
         if rcode: 
@@ -156,7 +156,7 @@ def ip_simlib_scripts(env, src):
     res     = []
     src_sfx = '.'+env['IP_CORE_SUFFIX']
     trg_sfx = '-ipsim.'+env['SIM_SCRIPT_SUFFIX']
-    trg_dir = env['IP_SCRIPT_PATH']
+    trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
     builder = env.IpSimLibScript
     for i in src:
         #ip_src = os.path.join(env['CFG_IP_PATH'], i + src_sfx) # '.' + env['IP_CONFIG_SUFFIX'])
@@ -166,6 +166,9 @@ def ip_simlib_scripts(env, src):
     return res
 
 #-------------------------------------------------------------------------------
+def compile_simlib(env, src):
+    trg = os.path.join(env['IP_OOC_PATH'], env['IP_SIMLIB_NAME'])
+    return env.IpSimlib(trg, src)
 
 #-------------------------------------------------------------------------------
 
@@ -192,6 +195,7 @@ def generate(env):
         env['VOPT_FLAGS']        = ' glbl'
     
 
+    env['IP_SIMLIB_NAME']    = 'ipsimlib'
     env['SIM_SCRIPT_SUFFIX'] = 'do'
         
         
@@ -216,12 +220,12 @@ def generate(env):
     #
     IpSimLibScript = Builder(action = ip_simlib_script)
     
-    CompileSimLib  = Builder(action = compile_simlib, target_factory = env.fs.Dir)
+    IpSimLib       = Builder(action = ip_simlib, target_factory = env.fs.Dir)
         
     
     Builders = {
         'IpSimLibScript'     : IpSimLibScript,
-        'CompileSimlib'      : CompileSimLib
+        'IpSimlib'      : IpSimLib
     }
     
     
@@ -232,6 +236,7 @@ def generate(env):
     #   IP core processing pseudo-builders
     #
     env.AddMethod(ip_simlib_scripts, 'IpSimLibScripts')
+    env.AddMethod(compile_simlib, 'CompileSimlib')
         
 #-------------------------------------------------------------------------------
 def exists(env):
