@@ -66,14 +66,14 @@ def search_file(fn, search_root=''):
     if os.path.exists(fpath):
         full_path = str.split(fpath)
     else:
-        full_path = glob.glob( os.path.join(search_root, '**', fname) )
-
+        full_path = glob.glob( os.path.join(search_root, '**', fname), recursive=True )
+        
     if not len(full_path):
-        print('E: config file not found:', fn)
+        print('E: file not found:', fn)
         sys.exit(1)
 
     if len(full_path) > 1:
-        print('E: duplicate config files:', full_path)
+        print('E: duplicate files found:', full_path)
         sys.exit(1)
         
     return full_path[0]
@@ -158,7 +158,7 @@ def read_ip_config(fn, param_sect, search_root=''):
     return ip_cfg
 
 #-------------------------------------------------------------------------------
-def read_ipsim_config(fn: str, search_root):
+def read_src_list(fn: str, search_root=''):
 
     path = search_file(fn, search_root)
     with open( path ) as f:
@@ -166,6 +166,12 @@ def read_ipsim_config(fn: str, search_root):
         
     return cfg['sources']
     
+#-------------------------------------------------------------------------------
+def read_sources(fn):
+    src = read_src_list(fn)
+    root_dir = str(Dir('#'))
+    return [os.path.join(root_dir, i) for i in src]
+
 #-------------------------------------------------------------------------------
 def generate_title(text: str, comment: str) -> str:
     
