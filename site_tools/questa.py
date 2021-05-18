@@ -7,7 +7,6 @@
 #-------------------------------------------------------------------------------
 
 import os
-import sys
 
 import SCons.Builder
 import SCons.Scanner
@@ -18,8 +17,9 @@ from utils import *
 #
 #    External Environment
 #
-MENTOR  = os.environ['MENTOR']
-QUESTA  = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
+MENTOR        = os.environ['MENTOR']
+QUESTA        = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
+XILINX_VIVADO = os.environ['XILINX_VIVADO']
 
 #-------------------------------------------------------------------------------
 #
@@ -149,6 +149,10 @@ def work_lib(target, source, env):
     #   Create handoff file
     #
     src_list = ['{' + os.path.join(f.abspath) + '}' for f in source]
+    if 'vivado' in env['TOOLS']:
+        glbl_path = os.path.join(XILINX_VIVADO, 'data/verilog/src/glbl.v')
+        src_list.append(glbl_path)
+    
     out = ''
 
     out += 'set CFG_DIR {'    +  env['CFG_PATH'] + '}'         + os.linesep
@@ -165,38 +169,21 @@ def work_lib(target, source, env):
         
     #-----------------------------------------------------------------
     #
-    #   Create lauch script
-    #
-    tool_cmd = os.path.abspath(search_file('questa.tcl'))
-    out = 'do ' + tool_cmd  + os.linesep
-    out += 'c'              + os.linesep
-    out += 'exit'           + os.linesep
-        
-    launch_script_path = os.path.join( str(trg.dir), 'wlib_compile.do')
-    with open(launch_script_path, 'w') as ofile:
-        ofile.write(out)
-        
-    #-----------------------------------------------------------------
-    #
     #   Compile work library
     #
-    print(tool_cmd)
-    cmd = []
-    cmd.append(env['VSIMCOM'])
-    cmd.append(' -batch')
-    cmd.append(' -do ' + os.path.abspath( launch_script_path) )
-    #cmd.append(' exit')
-    cmd = ' '.join(cmd)
+    tool_cmd_script = os.path.abspath(search_file('questa.tcl'))
+    cmd  = env['VSIMCOM'] + ' -c'
+    cmd += ' -do ' + tool_cmd_script
+    cmd += ' -do c'             
+    cmd += ' -do exit'          
 
+    print(cmd)
     print('-'*80)
-    print(' '*8, 'Compile project work library')
+    print(' '*8, 'Compile project work library' + os.linesep)
     rcode = pexec(cmd, trg_dir)
     print('-'*80)
-    print('rcode: ', rcode)
     if rcode:
-        sys.exit(rcode)
         return rcode
-    
                 
     return None
 
@@ -292,7 +279,6 @@ def generate(env):
     if 'vivado' in env['TOOLS']:
         env['VOPT_FLAGS']        = ' glbl'
     
-
     env['IP_SIMLIB_NAME']    = 'ipsimlib'
     env['SIM_SCRIPT_SUFFIX'] = 'do'
     env['SIM_WORKLIB_NAME']  = 'wlib'
@@ -319,11 +305,8 @@ def generate(env):
     #   Builders
     #
     IpSimLibScript = Builder(action = ip_simlib_script)
-    
     IpSimLib       = Builder(action = ip_simlib, target_factory = env.fs.Dir)
-        
-    WorkLib        = Builder(action = work_lib, target_factory = env.fs.Dir)
-    
+    WorkLib        = Builder(action = work_lib,  target_factory = env.fs.Dir)
     
     Builders = {
         'IpSimLibScript' : IpSimLibScript,

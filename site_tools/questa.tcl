@@ -9,7 +9,7 @@ onerror {quit}
 #
 #     Settings
 #
-source handoff.do
+quietly source handoff.do
 
 quietly set PROLOGUE_SCRIPT "prologue.tcl"
 
@@ -18,7 +18,6 @@ quietly set WaveFileName    ${DesignName}
 quietly append WaveFileName "_wave.do"
 
 quietly set WorkLib $WLIB_NAME
-puts $WorkLib
 
 #---------------------------------------------------------------------
 #
