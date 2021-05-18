@@ -272,7 +272,7 @@ def scan_cfg_files(node, env, path):
 def make_trg_nodes(src, src_suffix, trg_suffix, trg_dir, builder):
 
     s0 = src
-    if(type(s0)) != str:
+    if SCons.Util.is_List(s0):
         s0 = str(s0[0])
 
     src_name = os.path.split(s0)[1]
