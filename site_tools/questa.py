@@ -17,8 +17,9 @@ from utils import *
 #
 #    External Environment
 #
-MENTOR  = os.environ['MENTOR']
-QUESTA  = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
+MENTOR        = os.environ['MENTOR']
+QUESTA        = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
+XILINX_VIVADO = os.environ['XILINX_VIVADO']
 
 #-------------------------------------------------------------------------------
 #
@@ -42,7 +43,7 @@ def ip_simlib_script(target, source, env):
     
     param_sect  = 'sources'
     search_root = env['IPSIM_CONFIG_PATH']
-    src_sim     =  read_ipsim_config(ip_cfg['type'] + '.' + env['CONFIG_SUFFIX'], search_root)
+    src_sim     =  read_src_list(ip_cfg['type'] + '.' + env['CONFIG_SUFFIX'], search_root)
     
     src_str = ' '.join(src_sim).replace('${ip_name}', ip_name)
     
@@ -114,12 +115,84 @@ def ip_simlib(target, source, env):
         
     return None
 #-------------------------------------------------------------------------------
+def work_lib(target, source, env):
+    
+    trg      = target[0]
+    trg_path = str(trg)
+    trg_dir  = str(trg.dir)
+    
+    #-----------------------------------------------------------------
+    #
+    #   Create work library
+    #
+    if not os.path.exists(trg_path):
+        rcode = pexec(env['VLIBCOM'] + ' ' + trg.name, trg_dir)   # create lib
+        if rcode: return rcode
+
+        rcode = pexec(env['VMAPCOM'] + ' -c', trg_dir)            # copy modelsim.ini from queta
+        if rcode: return rcode
+    
+        cmd = []
+        cmd.append(env['VMAPCOM'])
+        cmd.append(trg.name)
+        cmd.append(os.path.abspath(trg_path))
+        cmd = ' '.join(cmd)
+        
+        if env['VERBOSE']:
+            print(cmd)
+        
+        rcode = pexec(cmd, trg_dir)                               # map logical name to physical lib
+        if rcode: return rcode
+    
+    #-----------------------------------------------------------------
+    #
+    #   Create handoff file
+    #
+    src_list = ['{' + os.path.join(f.abspath) + '}' for f in source]
+    if 'vivado' in env['TOOLS']:
+        glbl_path = os.path.join(XILINX_VIVADO, 'data/verilog/src/glbl.v')
+        src_list.append(glbl_path)
+    
+    out = ''
+
+    out += 'set CFG_DIR {'    +  env['CFG_PATH'] + '}'         + os.linesep
+    out += 'set TB_NAME {'    +  env['TESTBENCH_NAME'] + '}'   + os.linesep
+    out += 'set WLIB_NAME {'  +  env['SIM_WORKLIB_NAME'] + '}' + os.linesep
+    out += 'set SRC [list '   +  ' '.join(src_list) + ']'      + os.linesep
+    out += 'set INC_PATH {'   +  env['SIM_INC_PATH'] + '}'     + os.linesep
+    out += 'set VLOG_FLAGS {' +  env['VLOG_FLAGS'] + '}'       + os.linesep
+    out += 'set VOPT_FLAGS {' +  env['VOPT_FLAGS'] + '}'       + os.linesep
+    
+    handoff_path = os.path.join( str(trg.dir), 'handoff.do')
+    with open(handoff_path, 'w') as ofile:
+        ofile.write(out)
+        
+    #-----------------------------------------------------------------
+    #
+    #   Compile work library
+    #
+    tool_cmd_script = os.path.abspath(search_file('questa.tcl'))
+    cmd  = env['VSIMCOM'] + ' -c'
+    cmd += ' -do ' + tool_cmd_script
+    cmd += ' -do c'             
+    cmd += ' -do exit'          
+
+    #print(cmd)
+    print('-'*80)
+    print(' '*8, 'Compile project work library' + os.linesep)
+    rcode = pexec(cmd, trg_dir)
+    print('-'*80)
+    if rcode:
+        return rcode
+                
+    return None
+
+#-------------------------------------------------------------------------------
 #
 #    Helper functions
 #
-def compile_simlib_emmitter(target, source, env):
-    pass
-    
+
+#-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 #
@@ -137,7 +210,7 @@ def compile_simlib_emmitter(target, source, env):
 def make_trg_nodes(src, src_suffix, trg_suffix, trg_dir, builder):
 
     s0 = src
-    if(type(s0)) != str:
+    if SCons.Util.is_List(s0):
         s0 = str(s0[0])
 
     src_name = os.path.split(s0)[1]
@@ -171,9 +244,12 @@ def compile_simlib(env, src):
     return env.IpSimlib(trg, src)
 
 #-------------------------------------------------------------------------------
+def compile_worklib(env, src):
+    trg     = env.Dir(os.path.join(env['BUILD_SIM_PATH'], env['SIM_WORKLIB_NAME']))
+    trg_dir = str(trg.dir)
+    create_dirs([trg_dir])
+    return env.WorkLib(trg, src)
 
-    
-    
 #-------------------------------------------------------------------------------
 #
 #    Set up tool construction environment
@@ -183,6 +259,11 @@ def generate(env):
     Scanner = SCons.Scanner.Scanner
     Builder = SCons.Builder.Builder
     
+    root_dir = str(env.Dir('#'))
+    
+    cfg_name        = os.path.abspath(os.curdir)
+    env['CFG_NAME'] = cfg_name
+
     env['VLOGCOM'] = os.path.join(QUESTA, 'vlog')
     env['VLIBCOM'] = os.path.join(QUESTA, 'vlib')
     env['VMAPCOM'] = os.path.join(QUESTA, 'vmap')
@@ -192,42 +273,32 @@ def generate(env):
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
     if 'vivado' in env['TOOLS']:
-        env['VOPT_FLAGS']        = ' glbl'
+        env['VOPT_FLAGS'] = ' glbl'
     
-
     env['IP_SIMLIB_NAME']    = 'ipsimlib'
+    env['SIM_WORKLIB_NAME']  = 'wlib'
+    env['SIM_INC_PATH']      = ''
+    
     env['SIM_SCRIPT_SUFFIX'] = 'do'
-        
-        
+    
+    env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
+    env['IPSIM_CONFIG_PATH'] = os.path.join(root_dir, 'lib', 'ipsim')
+    
     env['VERBOSE'] = True
-    
-    env['IPSIM_CONFIG_PATH'] = os.path.join(str(env.Dir('#')), 'lib', 'ipsim')
-    
-    #-----------------------------------------------------------------
-    #
-    #   Scanners
-    #
-#   CfgImportScanner = Scanner(name          = 'CfgImportScanner',
-#                      function      = scan_cfg_files,
-#                      skeys         = ['.' + env['IP_CONFIG_SUFFIX']],
-#                      recursive     = True,
-#                      path_function = SCons.Scanner.FindPathDirs('SETTINGS_SEARCH_PATH')
-#                     )
 
     #-----------------------------------------------------------------
     #
     #   Builders
     #
     IpSimLibScript = Builder(action = ip_simlib_script)
-    
     IpSimLib       = Builder(action = ip_simlib, target_factory = env.fs.Dir)
-        
+    WorkLib        = Builder(action = work_lib,  target_factory = env.fs.Dir)
     
     Builders = {
-        'IpSimLibScript'     : IpSimLibScript,
-        'IpSimlib'      : IpSimLib
+        'IpSimLibScript' : IpSimLibScript,
+        'IpSimlib'       : IpSimLib,
+        'WorkLib'        : WorkLib
     }
-    
     
     env.Append(BUILDERS = Builders)
 
@@ -236,7 +307,8 @@ def generate(env):
     #   IP core processing pseudo-builders
     #
     env.AddMethod(ip_simlib_scripts, 'IpSimLibScripts')
-    env.AddMethod(compile_simlib, 'CompileSimlib')
+    env.AddMethod(compile_simlib,    'CompileSimLib')
+    env.AddMethod(compile_worklib,   'CompileWorkLib')
         
 #-------------------------------------------------------------------------------
 def exists(env):

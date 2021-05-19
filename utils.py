@@ -66,14 +66,14 @@ def search_file(fn, search_root=''):
     if os.path.exists(fpath):
         full_path = str.split(fpath)
     else:
-        full_path = glob.glob( os.path.join(search_root, '**', fname) )
-
+        full_path = glob.glob( os.path.join(search_root, '**', fname), recursive=True )
+        
     if not len(full_path):
-        print('E: config file not found:', fn)
+        print('E: file not found:', fn)
         sys.exit(1)
 
     if len(full_path) > 1:
-        print('E: duplicate config files:', full_path)
+        print('E: duplicate files found:', full_path)
         sys.exit(1)
         
     return full_path[0]
@@ -109,11 +109,11 @@ def eval_cfg_dict(cfg_dict: dict, imps=None) -> dict:
         exec(var + '= cfg_dict[key]')
 
     for key in cfg_dict:
-        if type(cfg_dict[key]) == str:
+        if isinstance(cfg_dict[key], str):
             if cfg_dict[key][0] == '=':
                 cfg_dict[key] = eval(cfg_dict[key][1:])            # evaluate new dict value
-                if type(cfg_dict[key]) == str:
-                    exec(key + ' = "' + str(cfg_dict[key]) + '"')  # update local variable
+                if isinstance(cfg_dict[key], str):
+                    exec(key + ' = "' + cfg_dict[key] + '"')       # update local variable
                 else:
                     exec(key + ' = ' + str(cfg_dict[key]))         # update local variable
                 
@@ -133,7 +133,6 @@ def read_config(fn: str, param_sect='parameters', search_root=''):
         for i in imports:
             imp_fn = i + '.yml'                         # file name of imported data
             imps[i] = read_config(imp_fn, search_root=search_root)
-           # print('read ', imp_fn, ':', imps[i])
                 
     params = cfg[param_sect]
     params = eval_cfg_dict(params, imps)
@@ -158,7 +157,7 @@ def read_ip_config(fn, param_sect, search_root=''):
     return ip_cfg
 
 #-------------------------------------------------------------------------------
-def read_ipsim_config(fn: str, search_root):
+def read_src_list(fn: str, search_root=''):
 
     path = search_file(fn, search_root)
     with open( path ) as f:
@@ -166,6 +165,12 @@ def read_ipsim_config(fn: str, search_root):
         
     return cfg['sources']
     
+#-------------------------------------------------------------------------------
+def read_sources(fn):
+    src = read_src_list(fn)
+    root_dir = str(Dir('#'))
+    return [os.path.join(root_dir, i) for i in src]
+
 #-------------------------------------------------------------------------------
 def generate_title(text: str, comment: str) -> str:
     
@@ -199,7 +204,7 @@ def generate_footer(comment: str) -> str:
 #-------------------------------------------------------------------------------
 def get_ip_name(node, suffix):
     
-    if type(node) != str:
+    if SCons.Util.is_List(node):
         path = str(node[0])
     name = os.path.split(path)[1]
     ip_name = name.replace(suffix, '')
