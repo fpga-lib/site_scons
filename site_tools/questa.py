@@ -177,7 +177,7 @@ def work_lib(target, source, env):
     cmd += ' -do c'             
     cmd += ' -do exit'          
 
-    print(cmd)
+    #print(cmd)
     print('-'*80)
     print(' '*8, 'Compile project work library' + os.linesep)
     rcode = pexec(cmd, trg_dir)
@@ -249,11 +249,7 @@ def compile_worklib(env, src):
     trg_dir = str(trg.dir)
     create_dirs([trg_dir])
     return env.WorkLib(trg, src)
-    
-#-------------------------------------------------------------------------------
 
-    
-    
 #-------------------------------------------------------------------------------
 #
 #    Set up tool construction environment
@@ -277,28 +273,18 @@ def generate(env):
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
     if 'vivado' in env['TOOLS']:
-        env['VOPT_FLAGS']        = ' glbl'
+        env['VOPT_FLAGS'] = ' glbl'
     
     env['IP_SIMLIB_NAME']    = 'ipsimlib'
-    env['SIM_SCRIPT_SUFFIX'] = 'do'
     env['SIM_WORKLIB_NAME']  = 'wlib'
     env['SIM_INC_PATH']      = ''
+    
+    env['SIM_SCRIPT_SUFFIX'] = 'do'
     
     env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
     env['IPSIM_CONFIG_PATH'] = os.path.join(root_dir, 'lib', 'ipsim')
     
     env['VERBOSE'] = True
-        
-    #-----------------------------------------------------------------
-    #
-    #   Scanners
-    #
-#   CfgImportScanner = Scanner(name          = 'CfgImportScanner',
-#                      function      = scan_cfg_files,
-#                      skeys         = ['.' + env['IP_CONFIG_SUFFIX']],
-#                      recursive     = True,
-#                      path_function = SCons.Scanner.FindPathDirs('SETTINGS_SEARCH_PATH')
-#                     )
 
     #-----------------------------------------------------------------
     #
@@ -313,7 +299,6 @@ def generate(env):
         'IpSimlib'       : IpSimLib,
         'WorkLib'        : WorkLib
     }
-    
     
     env.Append(BUILDERS = Builders)
 
