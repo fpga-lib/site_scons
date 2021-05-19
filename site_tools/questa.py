@@ -171,9 +171,8 @@ def work_lib(target, source, env):
     #
     #   Compile work library
     #
-    tool_cmd_script = os.path.abspath(search_file('questa.tcl'))
     cmd  = env['VSIMCOM'] + ' -c'
-    cmd += ' -do ' + tool_cmd_script
+    cmd += ' -do ' + env['SIM_CMD_SCRIPT']
     cmd += ' -do c'             
     cmd += ' -do exit'          
 
@@ -283,6 +282,7 @@ def generate(env):
     
     env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
     env['IPSIM_CONFIG_PATH'] = os.path.join(root_dir, 'lib', 'ipsim')
+    env['SIM_CMD_SCRIPT']    = os.path.abspath(search_file('questa.tcl', str(Dir('#'))))
     
     env['VERBOSE'] = True
 
