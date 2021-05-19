@@ -204,6 +204,7 @@ def cfg_params_header(target, source, env):
     trg      = target[0]
     trg_path = str(trg)
     
+    print('create configuration parameters header file \'' + trg.name + '\'')
     params = {}
     for src in source:
         params.update( read_config(str(src), search_root = env['CFG_PATH']) )
