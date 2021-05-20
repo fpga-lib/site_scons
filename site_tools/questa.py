@@ -34,8 +34,8 @@ def ip_simlib_script(target, source, env):
     trg_path = str(trg)
     
     ip_name = drop_suffix(src.name)
-    
-    print('generate script:   \'' + trg.name + '\'')
+          
+    print('generate script:           \'' + trg.name + '\'')
 
     param_sect = 'config'
     ip_path    = os.path.join(env['CFG_IP_PATH'], ip_name) + '.' + env['IP_CONFIG_SUFFIX']
@@ -74,8 +74,8 @@ def ip_simlib(target, source, env):
 
     trg_path = str(trg)
     trg_dir  = str(trg.dir)
-
-    print('compile lib  \'' + trg.name + '\'')
+          
+    print('compile library:           \'' + trg.name + '\'')
     
     if not os.path.exists(trg_path):
         #print('create lib  \'' + trg.name + '\'')
