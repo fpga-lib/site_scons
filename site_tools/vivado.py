@@ -35,8 +35,8 @@ def ip_create_script(target, source, env):
     
     src_path = str(src)
     trg_path = str(trg)
-
-    print('generate script:   \'' + trg.name + '\'')
+          
+    print('generate script:           \'' + trg.name + '\'')
 
     param_sect = 'config'
 
@@ -98,8 +98,8 @@ def ip_syn_script(target, source, env):
     
     src_path = str(src)
     trg_path = str(trg)
-
-    print('generate script:   \'' + trg.name + '\'')
+          
+    print('generate script:           \'' + trg.name + '\'')
 
     with open(src_path) as src_f:
         ip_create_script = src_f.read()
@@ -145,8 +145,8 @@ def ip_create(target, source, env):
     ip_name  = drop_suffix(trg.name)
     trg_dir  = os.path.join(env['IP_OOC_PATH'], ip_name)
     logfile  = os.path.join(trg_dir, 'create.log')
-
-    print('create IP core     \'' + trg.name + '\'')
+          
+    print('create IP core:            \'' + trg.name + '\'')
 
     Execute( Delete(trg_dir) )        
     Execute( Mkdir(trg_dir) )
@@ -179,8 +179,8 @@ def ip_synthesize(target, source, env):
     ip_name  = drop_suffix(trg.name)
     trg_dir  = os.path.join(env['IP_OOC_PATH'], ip_name)
     logfile  = os.path.join(trg_dir, 'syn.log')
-
-    print('synthesize IP core \'' + trg.name + '\'')
+          
+    print('synthesize IP core:        \'' + trg.name + '\'')
 
     cmd = []
     cmd.append(env['SYNCOM'])
@@ -203,8 +203,8 @@ def cfg_params_header(target, source, env):
     
     trg      = target[0]
     trg_path = str(trg)
-    
-    print('create configuration parameters header file \'' + trg.name + '\'')
+           
+    print('create cfg params header:  \'' + trg.name + '\'')
     params = {}
     for src in source:
         params.update( read_config(str(src), search_root = env['CFG_PATH']) )
@@ -431,7 +431,7 @@ def generate(env):
                               suffix     = env['DCP_SUFFIX'],
                               src_suffix = env['IP_CORE_SUFFIX'])
                     
-    CfgParamsHeader = Builder(action = cfg_params_header)
+    CfgParamsHeader = Builder(action = cfg_params_header, source_scanner = CfgImportScanner)
         
     Builders = {
         'IpCreateScript'  : IpCreateScript,
