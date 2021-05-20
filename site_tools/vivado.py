@@ -431,7 +431,7 @@ def generate(env):
                               suffix     = env['DCP_SUFFIX'],
                               src_suffix = env['IP_CORE_SUFFIX'])
                     
-    CfgParamsHeader = Builder(action = cfg_params_header)
+    CfgParamsHeader = Builder(action = cfg_params_header, source_scanner = CfgImportScanner)
         
     Builders = {
         'IpCreateScript'  : IpCreateScript,
