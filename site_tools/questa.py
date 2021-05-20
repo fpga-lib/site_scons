@@ -187,6 +187,13 @@ def work_lib(target, source, env):
     return None
 
 #-------------------------------------------------------------------------------
+def questa_gui(target, source, env):
+    cmd = env['VSIMGUI'] + ' -do ' + env['SIM_CMD_SCRIPT']
+    env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
+    
+    return None
+    
+#-------------------------------------------------------------------------------
 #
 #    Helper functions
 #
@@ -231,8 +238,6 @@ def ip_simlib_scripts(env, src):
     trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
     builder = env.IpSimLibScript
     for i in src:
-        #ip_src = os.path.join(env['CFG_IP_PATH'], i + src_sfx) # '.' + env['IP_CONFIG_SUFFIX'])
-        #res.append(make_trg_nodes(ip_src, src_sfx, trg_sfx, trg_dir, builder))    
         res.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))    
 
     return res
@@ -250,6 +255,12 @@ def compile_worklib(env, src):
     return env.WorkLib(trg, src)
 
 #-------------------------------------------------------------------------------
+def launch_questa_gui(env):
+    return env.QuestaGui('dummy', [])
+    
+#-------------------------------------------------------------------------------
+
+#-------------------------------------------------------------------------------
 #
 #    Set up tool construction environment
 #
@@ -258,16 +269,19 @@ def generate(env):
     Scanner = SCons.Scanner.Scanner
     Builder = SCons.Builder.Builder
     
-    root_dir = str(env.Dir('#'))
-    
+    env['ENV']['CAD']     = os.environ['CAD']
+    env['ENV']['DISPLAY'] = os.environ['DISPLAY']
+    env['ENV']['HOME'] = os.environ['HOME']
+        
+    root_dir        = str(env.Dir('#'))
     cfg_name        = os.path.abspath(os.curdir)
-    env['CFG_NAME'] = cfg_name
 
-    env['VLOGCOM'] = os.path.join(QUESTA, 'vlog')
-    env['VLIBCOM'] = os.path.join(QUESTA, 'vlib')
-    env['VMAPCOM'] = os.path.join(QUESTA, 'vmap')
-    env['VSIMCOM'] = os.path.join(QUESTA, 'vsim')
-    env['VSIMGUI'] = os.path.join(MENTOR, 'questa', 'questa.sh') + ' -gui'
+    env['CFG_NAME'] = cfg_name
+    env['VLOGCOM']  = os.path.join(QUESTA, 'vlog')
+    env['VLIBCOM']  = os.path.join(QUESTA, 'vlib')
+    env['VMAPCOM']  = os.path.join(QUESTA, 'vmap')
+    env['VSIMCOM']  = os.path.join(QUESTA, 'vsim')
+    env['VSIMGUI']  = os.path.join(MENTOR, 'questa.sh') + ' -gui'
     
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
@@ -293,11 +307,13 @@ def generate(env):
     IpSimLibScript = Builder(action = ip_simlib_script)
     IpSimLib       = Builder(action = ip_simlib, target_factory = env.fs.Dir)
     WorkLib        = Builder(action = work_lib,  target_factory = env.fs.Dir)
+    QuestaGui      = Builder(action = questa_gui)
     
     Builders = {
         'IpSimLibScript' : IpSimLibScript,
         'IpSimlib'       : IpSimLib,
-        'WorkLib'        : WorkLib
+        'WorkLib'        : WorkLib,
+        'QuestaGui'      : QuestaGui
     }
     
     env.Append(BUILDERS = Builders)
@@ -309,6 +325,7 @@ def generate(env):
     env.AddMethod(ip_simlib_scripts, 'IpSimLibScripts')
     env.AddMethod(compile_simlib,    'CompileSimLib')
     env.AddMethod(compile_worklib,   'CompileWorkLib')
+    env.AddMethod(launch_questa_gui, 'LaunchQuestaGui')
         
 #-------------------------------------------------------------------------------
 def exists(env):
