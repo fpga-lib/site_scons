@@ -74,9 +74,9 @@ def ip_create_script(target, source, env):
         text += line + os.linesep
 
     text += os.linesep
-    text += 'generate_target all [get_ips  ${ip_name}]'             + os.linesep
+    text += 'generate_target all [get_ips  ${ip_name}]'              + os.linesep
     text += 'export_ip_user_files -of_objects [get_ips ${ip_name}] '
-    text += '-sync -force -quiet'                                   + os.linesep
+    text += '-sync -force -quiet'                                    + os.linesep
     text += 'exit'
 
     out = generate_title(title_text, '#')
@@ -116,9 +116,20 @@ def ip_syn_script(target, source, env):
     text += 'set IP_OOC_DIR ' + env['IP_OOC_PATH']                          + os.linesep
     text += 'set OUT_DIR    [file join ${IP_OOC_DIR} ${ip_name}]'           + os.linesep*2
     text += 'set_part  ${DEVICE}'                                           + os.linesep
+
+    if env['VIVADO_PROJECT_MODE']:
+        text += 'create_project -force managed_ip_project '
+        text += '${OUT_DIR}/ip_managed_project -p ${DEVICE} -ip'            + os.linesep
+
     text += 'read_ip   [file join ${IP_OOC_DIR} ' 
     text += '${ip_name} ${ip_name} ${ip_name}.' + env['IP_CORE_SUFFIX']+']' + os.linesep
-    text += 'synth_ip  [get_ips ${ip_name}]'                                + os.linesep
+    if env['VIVADO_PROJECT_MODE']:
+        text += 'create_ip_run [get_ips ${ip_name}]'                        + os.linesep
+        text += 'launch_runs -job 6 ${ip_name}_synth_1'                     + os.linesep
+        text += 'wait_on_run ${ip_name}_synth_1'                            + os.linesep
+        text += 'close_project'                                             + os.linesep
+    else:
+        text += 'synth_ip  [get_ips ${ip_name}]'                            + os.linesep
     text += 'exit'
 
     out = generate_title(title_text, '#')
@@ -374,6 +385,8 @@ def generate(env):
     
     Scanner = SCons.Scanner.Scanner
     Builder = SCons.Builder.Builder
+    
+    env['VIVADO_PROJECT_MODE'] = True
     
     env['SYNCOM']   = VIVADO + ' -mode batch '
     env['SYNSHELL'] = VIVADO + ' -mode tcl '
