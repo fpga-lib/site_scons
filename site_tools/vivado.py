@@ -1,6 +1,6 @@
 #-------------------------------------------------------------------------------
 #
-#    Xilinx Vivado Non-Project Flow Configuration Tool
+#    Xilinx Vivado Configuration Tool
 #
 #    Author: Harry E. Zhurov
 #
