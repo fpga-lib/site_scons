@@ -307,8 +307,7 @@ def ip_create_scripts(env, src):
     create_dirs([trg_dir])
     builder = env.IpCreateScript
     for i in src:
-        ip_src = os.path.join(env['CFG_IP_PATH'], i + '.' + env['CONFIG_SUFFIX'])
-        res.append(make_trg_nodes(ip_src, src_sfx, trg_sfx, trg_dir, builder))    
+        res.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))    
 
     return res
 #---------------------------------------------------------------------
@@ -319,8 +318,7 @@ def ip_syn_scripts(env, src):
     trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
     builder = env.IpSynScript
     for i in src:
-        ip_src = os.path.join(env['CFG_IP_PATH'], i + '.' + env['CONFIG_SUFFIX'])
-        res.append(make_trg_nodes(ip_src, src_sfx, trg_sfx, trg_dir, builder))    
+        res.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))    
 
     return res
 #---------------------------------------------------------------------
