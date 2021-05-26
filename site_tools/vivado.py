@@ -301,25 +301,25 @@ def make_trg_nodes(src, src_suffix, trg_suffix, trg_dir, builder):
 #
 def ip_create_scripts(env, src):
     res     = []
-    src_sfx = '.'+env['IP_CONFIG_SUFFIX']
+    src_sfx = '.'+env['CONFIG_SUFFIX']
     trg_sfx = '-create.'+env['TOOL_SCRIPT_SUFFIX']
     trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
     create_dirs([trg_dir])
     builder = env.IpCreateScript
     for i in src:
-        ip_src = os.path.join(env['CFG_IP_PATH'], i + '.' + env['IP_CONFIG_SUFFIX'])
+        ip_src = os.path.join(env['CFG_IP_PATH'], i + '.' + env['CONFIG_SUFFIX'])
         res.append(make_trg_nodes(ip_src, src_sfx, trg_sfx, trg_dir, builder))    
 
     return res
 #---------------------------------------------------------------------
 def ip_syn_scripts(env, src):
     res     = []
-    src_sfx = '.'+env['IP_CONFIG_SUFFIX']
+    src_sfx = '.'+env['CONFIG_SUFFIX']
     trg_sfx = '-syn.'+env['TOOL_SCRIPT_SUFFIX']
     trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
     builder = env.IpSynScript
     for i in src:
-        ip_src = os.path.join(env['CFG_IP_PATH'], i + '.' + env['IP_CONFIG_SUFFIX'])
+        ip_src = os.path.join(env['CFG_IP_PATH'], i + '.' + env['CONFIG_SUFFIX'])
         res.append(make_trg_nodes(ip_src, src_sfx, trg_sfx, trg_dir, builder))    
 
     return res
@@ -397,6 +397,7 @@ def generate(env):
     
     
     env['VERBOSE'] = True
+    env['CONFIG_SUFFIX']         = 'yml'
     
     env['CFG_PATH']             = os.path.abspath(os.curdir)  # current configuration path
     env['IP_SCRIPT_DIRNAME']    = '_script'
@@ -417,7 +418,7 @@ def generate(env):
     #
     CfgImportScanner = Scanner(name          = 'CfgImportScanner',
                        function      = scan_cfg_files,
-                       skeys         = ['.' + env['IP_CONFIG_SUFFIX']],
+                       skeys         = ['.' + env['CONFIG_SUFFIX']],
                        recursive     = True,
                        path_function = SCons.Scanner.FindPathDirs('SETTINGS_SEARCH_PATH')
                       )    

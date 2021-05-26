@@ -38,7 +38,7 @@ def ip_simlib_script(target, source, env):
     print('generate script:           \'' + trg.name + '\'')
 
     param_sect = 'config'
-    ip_path    = os.path.join(env['CFG_IP_PATH'], ip_name) + '.' + env['IP_CONFIG_SUFFIX']
+    ip_path    = os.path.join(env['CFG_IP_PATH'], ip_name) + '.' + env['CONFIG_SUFFIX']
     ip_cfg     = read_ip_config(ip_path, param_sect, env['CFG_PATH'])
     
     param_sect  = 'sources'
