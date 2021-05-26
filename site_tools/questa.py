@@ -269,6 +269,8 @@ def generate(env):
     Scanner = SCons.Scanner.Scanner
     Builder = SCons.Builder.Builder
     
+    env['TESTBENCH_NAME'] = 'top_tb'
+    
     env['ENV']['CAD']     = os.environ['CAD']
     env['ENV']['DISPLAY'] = os.environ['DISPLAY']
     env['ENV']['HOME'] = os.environ['HOME']
