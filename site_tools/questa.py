@@ -273,7 +273,7 @@ def generate(env):
     
     env['ENV']['CAD']     = os.environ['CAD']
     env['ENV']['DISPLAY'] = os.environ['DISPLAY']
-    env['ENV']['HOME'] = os.environ['HOME']
+    env['ENV']['HOME']    = os.environ['HOME']
         
     root_dir        = str(env.Dir('#'))
     cfg_name        = os.path.abspath(os.curdir)
