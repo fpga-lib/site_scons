@@ -51,7 +51,7 @@ def ip_simlib_script(target, source, env):
     
     # read IP sim sources
     param_sect  = 'sources'
-    search_root = env['IPSIM_CONFIG_PATH']
+    search_root = env['IPSIM_SRC_CFG_PATH']
     src_sim     =  read_src_list(ip_type + '.' + env['CONFIG_SUFFIX'], search_root)
     
     src_str = ' '.join(src_sim).replace('${ip_name}', ip_name)
@@ -315,16 +315,16 @@ def generate(env):
     if 'vivado' in env['TOOLS']:
         env['VOPT_FLAGS'] = ' glbl'
     
-    env['IP_SIMLIB_NAME']    = 'ipsimlib'
-    env['SIM_WORKLIB_NAME']  = 'wlib'
-    env['SIM_INC_PATH']      = ''
-    
-    env['SIM_SCRIPT_SUFFIX'] = 'do'
-    
-    env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
-    env['IP_SIMLIB_PATH']    = os.path.join(env['IP_OOC_PATH'], env['IP_SIMLIB_NAME'])
-    env['IPSIM_CONFIG_PATH'] = os.path.join(root_dir, 'lib', 'ipsim')
-    env['SIM_CMD_SCRIPT']    = os.path.abspath(search_file('questa.tcl', str(Dir('#'))))
+    env['IP_SIMLIB_NAME']     = 'ipsimlib'
+    env['SIM_WORKLIB_NAME']   = 'wlib'
+    env['SIM_INC_PATH']       = ''
+                              
+    env['SIM_SCRIPT_SUFFIX']  = 'do'
+                              
+    env['BUILD_SIM_PATH']     = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
+    env['IP_SIMLIB_PATH']     = os.path.join(env['IP_OOC_PATH'], env['IP_SIMLIB_NAME'])
+    env['IPSIM_SRC_CFG_PATH'] = os.path.join(root_dir, 'lib', 'ipsim')
+    env['SIM_CMD_SCRIPT']     = os.path.abspath(search_file('questa.tcl', str(Dir('#'))))
     
     env['VERBOSE'] = True
 
