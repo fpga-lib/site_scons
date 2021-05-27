@@ -173,10 +173,11 @@ def work_lib(target, source, env):
     #
     #   Create handoff file
     #
-    src_list = ['{' + os.path.join(f.abspath) + '}' for f in source]
     if 'vivado' in env['TOOLS']:
-        glbl_path = os.path.join(XILINX_VIVADO, 'data/verilog/src/glbl.v')
-        src_list.append(glbl_path)
+        glbl_path = File(os.path.join(XILINX_VIVADO, 'data/verilog/src/glbl.v'))
+        source.append(glbl_path)
+        
+    src_list = ['{' + os.path.join(f.abspath) + '}' for f in source]
     
     out = ''
 
