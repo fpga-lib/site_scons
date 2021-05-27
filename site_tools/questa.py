@@ -142,6 +142,20 @@ def work_lib(target, source, env):
         rcode = pexec(env['VMAPCOM'] + ' -c', trg_dir)            # copy modelsim.ini from queta
         if rcode: return rcode
     
+        # map IP simulation library
+        cmd = []
+        cmd.append(env['VMAPCOM'])
+        cmd.append(env['IP_SIMLIB_NAME'])
+        cmd.append(env['IP_SIMLIB_PATH'])
+        cmd = ' '.join(cmd)
+        
+        if env['VERBOSE']:
+          print(cmd)
+        
+        rcode = pexec(cmd, trg_dir)                               # map logical name to physical lib
+        if rcode: return rcode
+        
+        # map work library      
         cmd = []
         cmd.append(env['VMAPCOM'])
         cmd.append(trg.name)
@@ -153,6 +167,7 @@ def work_lib(target, source, env):
         
         rcode = pexec(cmd, trg_dir)                               # map logical name to physical lib
         if rcode: return rcode
+             
     
     #-----------------------------------------------------------------
     #
@@ -307,6 +322,7 @@ def generate(env):
     env['SIM_SCRIPT_SUFFIX'] = 'do'
     
     env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
+    env['IP_SIMLIB_PATH']    = os.path.join(env['IP_OOC_PATH'], env['IP_SIMLIB_NAME'])
     env['IPSIM_CONFIG_PATH'] = os.path.join(root_dir, 'lib', 'ipsim')
     env['SIM_CMD_SCRIPT']    = os.path.abspath(search_file('questa.tcl', str(Dir('#'))))
     
