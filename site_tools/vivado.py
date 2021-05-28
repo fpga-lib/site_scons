@@ -371,6 +371,10 @@ def vivado_project(target, source, env):
     for i in ip:
         text += 'read_ip ' + i + os.linesep
         
+    text += 'set_property used_in_simulation false [get_files  -filter {file_type == systemverilog} -of [get_filesets sources_1]]' + os.linesep
+    text += 'set_property used_in_simulation false [get_files  -filter {file_type == verilog} -of [get_filesets sources_1]]'       + os.linesep
+    
+        
     text += os.linesep
     text += '# Properties'                                                     + os.linesep
     text += 'set_property part ${DEVICE} [current_project]'                    + os.linesep
