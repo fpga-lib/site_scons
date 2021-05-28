@@ -351,16 +351,23 @@ def vivado_project(target, source, env):
     text += 'set_property FLOW "Vivado Implementation ' + env['VIVADO_VERNUM'] + '" [get_runs impl_1]' + os.linesep*2
     
     text += '# Add sources' + os.linesep
-    for h in hdl:
-        text += 'add_files -scan_for_includes ' + h + os.linesep
-        
-    text += os.linesep
+    text += 'puts "add HDL sources"' + os.linesep
+    flist = ['    ' + h for h in hdl]
+    text += 'add_files -scan_for_includes \\' + os.linesep
+    text += (' \\' + os.linesep).join(flist)
+    text += os.linesep*2
+    
     text += '# Add constraints' + os.linesep
-    for x in xdc:
-        text += 'add_files -fileset constrs_1 -norecurse ' + x + os.linesep
+    text += 'puts "add constraints"' + os.linesep
+    flist = ['    ' + x for x in xdc]
+    text += 'add_files -fileset constrs_1 -norecurse \\'  + os.linesep
+    text += (' \\' + os.linesep).join(flist)
+    text += os.linesep*2
+    
                 
     text += os.linesep
     text += '# Add IP' + os.linesep
+    text += 'puts "add IPs"' + os.linesep
     for i in ip:
         text += 'read_ip ' + i + os.linesep
         
