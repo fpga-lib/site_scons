@@ -114,6 +114,7 @@ def eval_cfg_dict(cfg_dict: dict, imps=None) -> dict:
                 cfg_dict[key] = eval(cfg_dict[key][1:])            # evaluate new dict value
                 if isinstance(cfg_dict[key], str):
                     exec(key + ' = "' + cfg_dict[key] + '"')       # update local variable
+                    cfg_dict[key] = re.sub('`', '"', cfg_dict[key])
                 else:
                     exec(key + ' = ' + str(cfg_dict[key]))         # update local variable
                 
