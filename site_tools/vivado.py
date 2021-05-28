@@ -415,7 +415,14 @@ def vivado_project(target, source, env):
         
     rcode = pexec(cmd, trg_dir)    
     if rcode:
+        print('\n' + '*'*60)
+        print('E: project create ends with error code, see log for details')
+        print('*'*60 + '\n')
         Execute( Delete(trg_path) )        
+    else:
+        print('\n' + '*'*35)
+        print('Vivado project successfully created')
+        print('*'*35 + '\n')
         
     return None
 
