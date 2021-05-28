@@ -580,6 +580,9 @@ def create_vivado_project(env, src, ip_cores):
     
     source   = []
     for s in src:
+        if os.path.isabs(s):
+            source.append(s)
+            continue
         path = search_file(s)
         path = os.path.abspath(path)
         source.append(path) 
