@@ -342,9 +342,11 @@ def vivado_project(target, source, env):
     text += 'set TOP_NAME '     + env['TOP_NAME']            + os.linesep
     text += 'set DEVICE '       + env['DEVICE']              + os.linesep*2
 
-    text += 'set ROOT_DIR '     + env['ROOT_PATH']           + os.linesep
-    text += 'set CFG_DIR '      + env['CFG_PATH']            + os.linesep*2
-    
+    user_params = env['USER_DEFINED_PARAMS']
+    for key in user_params:
+        text += 'set ' + key + ' ' + user_params[key] + os.linesep
+        
+    text += os.linesep
     text += '# Project structure'                                                                      + os.linesep
     text += 'create_project ' + '${PROJECT_NAME}.' + env['VIVADO_PROJECT_SUFFIX'] + ' .'               + os.linesep*2
     text += 'set_property FLOW "Vivado Synthesis ' + env['VIVADO_VERNUM'] + '" [get_runs synth_1]'     + os.linesep
@@ -363,7 +365,6 @@ def vivado_project(target, source, env):
     text += 'add_files -fileset constrs_1 -norecurse \\'  + os.linesep
     text += (' \\' + os.linesep).join(flist)
     text += os.linesep*2
-    
                 
     text += os.linesep
     text += '# Add IP' + os.linesep
@@ -635,7 +636,7 @@ def generate(env):
                                  
     env['ROOT_PATH']             = os.path.abspath(str(Dir('#')))
     env['CFG_PATH']              = os.path.abspath(os.curdir)  # current configuration path
-    #env['SRC_PATH']              = os.path.join(root_dir, 'src', 'syn')
+    env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'src')
     env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
     env['INC_PATH']              = ''
@@ -652,6 +653,8 @@ def generate(env):
     env['SV_SUFFIX']             = 'sv'
     env['V_HEADER_SUFFIX']       = 'vh'
     env['SV_HEADER_SUFFIX']      = 'svh'
+    
+    env['USER_DEFINED_PARAMS']   = {}
     
     env.Append(SYNFLAGS = env['SYN_TRACE'])
     env.Append(SYNFLAGS = env['SYN_JOURNAL'])
