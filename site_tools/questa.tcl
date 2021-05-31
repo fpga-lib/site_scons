@@ -167,6 +167,13 @@ proc s { { res empty} { wave_ena 1 } } {
     view transcript
 }
 #-------------------------------------------------------------------------------
+proc run_sim {} {
+
+    sim_begin;
+    run -all
+    exit
+}
+#-------------------------------------------------------------------------------
 proc r { { wave_ena 1 } } {
     restart -force
     run -all

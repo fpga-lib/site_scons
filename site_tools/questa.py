@@ -214,11 +214,20 @@ def work_lib(target, source, env):
 
 #-------------------------------------------------------------------------------
 def questa_gui(target, source, env):
-    cmd = env['VSIMGUI'] + ' -do ' + env['SIM_CMD_SCRIPT']
+    cmd = env['QUESTA'] + ' -gui ' + ' -do ' + env['SIM_CMD_SCRIPT']
+    print(cmd)
     env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
     
     return None
     
+#-------------------------------------------------------------------------------
+def questa_run(target, source, env):
+    cmd = env['QUESTA'] + ' -batch ' + ' -do ' + env['SIM_CMD_SCRIPT'] + ' -do run_sim'
+    print(cmd)
+    env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
+
+    return None
+
 #-------------------------------------------------------------------------------
 #
 #    Helper functions
@@ -282,8 +291,12 @@ def compile_worklib(env, src):
 
 #-------------------------------------------------------------------------------
 def launch_questa_gui(env):
-    return env.QuestaGui('dummy', [])
+    return env.QuestaGui('launch_questa_gui', [])
     
+#-------------------------------------------------------------------------------
+def launch_questa_run(env):
+    return env.QuestaRun('launch_questa_run', [])
+
 #-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
@@ -309,7 +322,7 @@ def generate(env):
     env['VLIBCOM']  = os.path.join(QUESTA, 'vlib')
     env['VMAPCOM']  = os.path.join(QUESTA, 'vmap')
     env['VSIMCOM']  = os.path.join(QUESTA, 'vsim')
-    env['VSIMGUI']  = os.path.join(MENTOR, 'questa.sh') + ' -gui'
+    env['QUESTA']   = os.path.join(MENTOR, 'questa.sh')
     
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
@@ -337,12 +350,14 @@ def generate(env):
     IpSimLib       = Builder(action = ip_simlib, target_factory = env.fs.Dir)
     WorkLib        = Builder(action = work_lib,  target_factory = env.fs.Dir)
     QuestaGui      = Builder(action = questa_gui)
+    QuestaRun      = Builder(action = questa_run)
     
     Builders = {
         'IpSimLibScript' : IpSimLibScript,
         'IpSimlib'       : IpSimLib,
         'WorkLib'        : WorkLib,
-        'QuestaGui'      : QuestaGui
+        'QuestaGui'      : QuestaGui,
+        'QuestaRun'      : QuestaRun
     }
     
     env.Append(BUILDERS = Builders)
@@ -355,6 +370,7 @@ def generate(env):
     env.AddMethod(compile_simlib,    'CompileSimLib')
     env.AddMethod(compile_worklib,   'CompileWorkLib')
     env.AddMethod(launch_questa_gui, 'LaunchQuestaGui')
+    env.AddMethod(launch_questa_run, 'LaunchQuestaRun')
         
 #-------------------------------------------------------------------------------
 def exists(env):
