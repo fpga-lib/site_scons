@@ -453,6 +453,7 @@ def scan_cfg_files(node, env, path):
 
             if not found:
                 print('E: import config file', fn, 'not found')
+                sys.exit(-2)
 
         return env.File(imports)
 
