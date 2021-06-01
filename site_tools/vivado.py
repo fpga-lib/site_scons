@@ -515,6 +515,34 @@ def build_vivado_project(target, source, env):
 
     return None
 
+#---------------------------------------------------------------------
+#
+#    Launch Vivado
+#
+def open_vivado_project(target, source, env):
+    
+    src          = source[0]
+    src_path     = os.path.abspath(str(src))
+    src_dir      = os.path.abspath(str(src.dir))
+    project_name = drop_suffix(src.name)
+
+    print('open Vivado project:       \'' + src.name + '\'')
+    
+    logfile  = os.path.join(src_dir, project_name + '-project-open.log')
+    if os.path.exists(logfile):
+        Execute( Delete(logfile))
+    
+    cmd = []
+    cmd.append(env['SYNGUI'])
+    cmd.append(env['SYNFLAGS'])
+    cmd.append('-log ' + logfile)
+    cmd.append(src_path)
+    cmd = ' '.join(cmd)
+    
+    print(cmd)
+    env.Execute('cd ' + src_dir + ' && ' + cmd + ' &')
+    
+    return None
 
 #-------------------------------------------------------------------------------
 #
@@ -688,6 +716,11 @@ def launch_build_vivado_project(env, src):
     return env.BuildVivadoProject('build_vivado_project', src)
 
 #---------------------------------------------------------------------
+def launch_open_vivado_project(env, src):
+    
+    return env.OpenVivadoProject('open_vivado_project', src)
+
+#---------------------------------------------------------------------
 
 #---------------------------------------------------------------------
 #
@@ -795,6 +828,7 @@ def generate(env):
 
     VivadoProject      = Builder(action = vivado_project)
     BuildVivadoProject = Builder(action = build_vivado_project)
+    OpenVivadoProject  = Builder(action = open_vivado_project)
 
     Builders = {
         'IpCreateScript'      : IpCreateScript,
@@ -804,7 +838,8 @@ def generate(env):
         'CfgParamsHeader'     : CfgParamsHeader,
         'CfgParamsTcl'        : CfgParamsTcl,
         'VivadoProject'       : VivadoProject,
-        'BuildVivadoProject'  : BuildVivadoProject
+        'BuildVivadoProject'  : BuildVivadoProject,
+        'OpenVivadoProject'   : OpenVivadoProject
     }
 
     env.Append(BUILDERS = Builders)
@@ -822,6 +857,7 @@ def generate(env):
     env.AddMethod(create_cfg_params_tcl,       'CreateCfgParamsTcl')
     env.AddMethod(create_vivado_project,       'CreateVivadoProject')
     env.AddMethod(launch_build_vivado_project, 'LaunchBuildVivadoProject')
+    env.AddMethod(launch_open_vivado_project,  'LaunchOpenVivadoProject')
 
 
 #-------------------------------------------------------------------------------
