@@ -7,6 +7,27 @@
 onerror {quit}
 #-------------------------------------------------------------------------------
 #
+#     Info
+#
+puts "**************************************************************************"
+puts "*"
+puts "*    Info"
+puts "*"
+puts "Available commands:\n"
+puts "    * 'c'       : compile work library."
+puts "    * 's'       : launch simulation run."
+puts "    * 'r'       : restart simulation run."
+puts "    * 'rr'      : restart simulation run with reset transcript file."
+puts "    * 'show_res': show results of existing simulation run (see below)."
+puts "\n"
+puts "Memo:\n"
+puts "    'vsim -view <log-name>.wlf' can be used to view resutls of completed run."
+puts "         Use 'show_res <cfg-name> to view waveform, memory view, etc of "
+puts "         specified simulation run log."
+puts "**************************************************************************"
+
+#-------------------------------------------------------------------------------
+#
 #     Settings
 #
 quietly source handoff.do
@@ -165,6 +186,13 @@ proc s { { res empty} { wave_ena 1 } } {
         view wave
     }
     view transcript
+}
+#-------------------------------------------------------------------------------
+proc run_sim {} {
+
+    sim_begin;
+    run -all
+    exit
 }
 #-------------------------------------------------------------------------------
 proc r { { wave_ena 1 } } {
