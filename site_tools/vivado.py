@@ -37,7 +37,7 @@ def ip_create_script(target, source, env):
     src_path = str(src)
     trg_path = str(trg)
 
-    print('generate script:           \'' + trg.name + '\'')
+    print_action('generate script:           \'' + trg.name + '\'')
 
     param_sect = 'config'
 
@@ -100,7 +100,7 @@ def ip_syn_script(target, source, env):
     src_path = str(src)
     trg_path = str(trg)
 
-    print('generate script:           \'' + trg.name + '\'')
+    print_action('generate script:           \'' + trg.name + '\'')
 
     with open(src_path) as src_f:
         ip_create_script = src_f.read()
@@ -158,7 +158,7 @@ def ip_create(target, source, env):
     trg_dir  = os.path.join(env['IP_OOC_PATH'], ip_name)
     logfile  = os.path.join(trg_dir, 'create.log')
 
-    print('create IP core:            \'' + trg.name + '\'')
+    print_action('create IP core:            \'' + trg.name + '\'')
 
     Execute( Delete(trg_dir) )
     Execute( Mkdir(trg_dir) )
@@ -192,7 +192,7 @@ def ip_synthesize(target, source, env):
     trg_dir  = os.path.join(env['IP_OOC_PATH'], ip_name)
     logfile  = os.path.join(trg_dir, 'syn.log')
 
-    print('synthesize IP core:        \'' + trg.name + '\'')
+    print_action('synthesize IP core:        \'' + trg.name + '\'')
 
     cmd = []
     cmd.append(env['SYNCOM'])
@@ -216,7 +216,7 @@ def cfg_params_header(target, source, env):
     trg      = target[0]
     trg_path = str(trg)
 
-    print('create cfg params header:  \'' + trg.name + '\'')
+    print_action('create cfg params header:  \'' + trg.name + '\'')
     params = {}
     for src in source:
         params.update( read_config(str(src), search_root = env['CFG_PATH']) )
@@ -253,7 +253,7 @@ def cfg_params_tcl(target, source, env):
     trg      = target[0]
     trg_path = str(trg)
 
-    print('create cfg params tcl:     \'' + trg.name + '\'')
+    print_action('create cfg params tcl:     \'' + trg.name + '\'')
     params = {}
     for src in source:
         params.update( read_config(str(src), search_root = env['CFG_PATH']) )
@@ -282,7 +282,7 @@ def vivado_project(target, source, env):
     trg_dir      = os.path.abspath(str(trg.dir))
     project_name = drop_suffix(trg.name)
 
-    print('create Vivado project:     \'' + trg.name + '\'')
+    print_action('create Vivado project:     \'' + trg.name + '\'')
 
     #-------------------------------------------------------
     #
@@ -316,7 +316,7 @@ def vivado_project(target, source, env):
                             if src_suffix in env['CONSTRAINTS_SUFFIX']:
                                 xdc.append( os.path.abspath(item))
             else:
-                print('E: unsupported file type. Only \'yml\', \'tcl\' file types supported')
+                print_error('E: unsupported file type. Only \'yml\', \'tcl\' file types supported')
                 return -1
 
         else:
@@ -414,9 +414,9 @@ def vivado_project(target, source, env):
 
     rcode = pexec(cmd, trg_dir)
     if rcode:
-        print('\n' + '*'*60)
-        print('E: project create ends with error code, see log for details')
-        print('*'*60 + '\n')
+        print_error('\n' + '*'*60)
+        print_error('E: project create ends with error code, see log for details')
+        print_error('*'*60 + '\n')
         Execute( Delete(trg_path) )
     else:
         print('\n' + '*'*35)
@@ -436,7 +436,7 @@ def build_vivado_project(target, source, env):
     src_dir      = os.path.abspath(str(src.dir))
     project_name = drop_suffix(src.name)
 
-    print('build Vivado project:      \'' + src.name + '\'')
+    print_action('build Vivado project:      \'' + src.name + '\'')
     #-------------------------------------------------------
     #
     #   Project build script
@@ -505,9 +505,9 @@ def build_vivado_project(target, source, env):
 
     rcode = pexec(cmd, src_dir)
     if rcode:
-        print('\n' + '*'*58)
-        print('E: project build ends with error code, see log for details')
-        print('*'*58 + '\n')
+        print_error('\n' + '*'*58)
+        print_error('E: project build ends with error code, see log for details')
+        print_error('*'*58 + '\n')
     else:
         print('\n' + '*'*42)
         print('Vivado project has been successfully built')
@@ -526,7 +526,7 @@ def open_vivado_project(target, source, env):
     src_dir      = os.path.abspath(str(src.dir))
     project_name = drop_suffix(src.name)
 
-    print('open Vivado project:       \'' + src.name + '\'')
+    print_action('open Vivado project:       \'' + src.name + '\'')
     
     logfile  = os.path.join(src_dir, project_name + '-project-open.log')
     if os.path.exists(logfile):
@@ -571,7 +571,7 @@ def scan_cfg_files(node, env, path):
                     break
 
             if not found:
-                print('E: import config file', fn, 'not found')
+                print_error('E: import config file', fn, 'not found')
                 sys.exit(-2)
 
         return env.File(imports)
@@ -639,12 +639,12 @@ def create_ips(env, src):
 def syn_ips(env, src, deps=None):
     if deps:
         if len(src) != len(deps):
-            print('E: ip_syn: src count:', len(src), 'must be equal deps count:', len(deps))
+            print_error('E: ip_syn: src count:', len(src), 'must be equal deps count:', len(deps))
             sys.exit(2)
 
         src = list(zip(src, deps))
     else:
-        print('E: ip_syn: "deps" argument (typically xci IP Core node list) not specified')
+        print_error('E: ip_syn: "deps" argument (typically xci IP Core node list) not specified')
         sys.exit(2)
 
     res         = []

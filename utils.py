@@ -16,6 +16,7 @@ import glob
 import yaml
 
 from SCons.Script import *
+from colorama import Fore, Style
 
 #-------------------------------------------------------------------------------
 # 
@@ -46,6 +47,18 @@ def pexec(cmd, wdir = os.curdir):
     return rcode
     
 #-------------------------------------------------------------------------------
+def print_info(text):
+    print(Fore.LIGHTCYAN_EX + text + Style.RESET_ALL)
+#-------------------------------------------------------------------------------
+def print_action(text):
+    print(Fore.LIGHTGREEN_EX + text + Style.RESET_ALL)
+    #print(Fore.LIGHTYELLOW_EX + text + Style.RESET_ALL)
+               
+#-------------------------------------------------------------------------------
+def print_error(text):
+    print(Fore.LIGHTRED_EX + text + Style.RESET_ALL)
+                   
+#-------------------------------------------------------------------------------
 def clog2(n: int) -> int:
     if n < 1:
         raise ValueError("expected argument value >= 1")
@@ -69,11 +82,11 @@ def search_file(fn, search_root=''):
         full_path = glob.glob( os.path.join(search_root, '**', fname), recursive=True )
         
     if not len(full_path):
-        print('E: file not found:', fn)
+        print_error('E: file not found:', fn)
         sys.exit(1)
 
     if len(full_path) > 1:
-        print('E: duplicate files found:', full_path)
+        print_error('E: duplicate files found:', full_path)
         sys.exit(1)
         
     return full_path[0]

@@ -36,7 +36,7 @@ def ip_simlib_script(target, source, env):
     
     ip_name = drop_suffix(src.name)
           
-    print('generate script:           \'' + trg.name + '\'')
+    print_action('generate script:           \'' + trg.name + '\'')
     
     # IP type
     pattern = 'componentRef\s+.+spirit\:name=\"(\w+)\"'
@@ -85,7 +85,7 @@ def ip_simlib(target, source, env):
     trg_path = str(trg)
     trg_dir  = str(trg.dir)
           
-    print('compile library:           \'' + trg.name + '\'')
+    print_action('compile library:           \'' + trg.name + '\'')
     
     if not os.path.exists(trg_path):
         #print('create lib  \'' + trg.name + '\'')
