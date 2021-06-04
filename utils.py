@@ -63,6 +63,18 @@ def print_success(text):
     print(Fore.GREEN + text + Style.RESET_ALL)
 
 #-------------------------------------------------------------------------------
+def colorize(text, color):
+    c = Fore.WHITE
+    if color == 'red':
+        c = Fore.RED
+    elif color == 'green':
+        c = Fore.GREEN
+    elif color == 'yellow':
+        c = Fore.YELLOW
+        
+    return c + text + Style.RESET_ALL
+    
+#-------------------------------------------------------------------------------
 def clog2(n: int) -> int:
     if n < 1:
         raise ValueError("expected argument value >= 1")
