@@ -59,6 +59,22 @@ def print_error(text):
     print(Fore.LIGHTRED_EX + text + Style.RESET_ALL)
                    
 #-------------------------------------------------------------------------------
+def print_success(text):
+    print(Fore.GREEN + text + Style.RESET_ALL)
+
+#-------------------------------------------------------------------------------
+def colorize(text, color):
+    c = Fore.WHITE
+    if color == 'red':
+        c = Fore.RED
+    elif color == 'green':
+        c = Fore.GREEN
+    elif color == 'yellow':
+        c = Fore.YELLOW
+        
+    return c + text + Style.RESET_ALL
+    
+#-------------------------------------------------------------------------------
 def clog2(n: int) -> int:
     if n < 1:
         raise ValueError("expected argument value >= 1")
@@ -82,11 +98,11 @@ def search_file(fn, search_root=''):
         full_path = glob.glob( os.path.join(search_root, '**', fname), recursive=True )
         
     if not len(full_path):
-        print_error('E: file not found:', fn)
+        print_error('E: file not found: ' + fn)
         sys.exit(1)
 
     if len(full_path) > 1:
-        print_error('E: duplicate files found:', full_path)
+        print_error('E: duplicate files found: ' + ' AND '.join(full_path))
         sys.exit(1)
         
     return full_path[0]
