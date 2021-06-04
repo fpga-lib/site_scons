@@ -88,7 +88,6 @@ def ip_simlib(target, source, env):
     print_action('compile library:           \'' + trg.name + '\'')
     
     if not os.path.exists(trg_path):
-        #print('create lib  \'' + trg.name + '\'')
         rcode = pexec(env['VLIBCOM'] + ' ' + trg.name, trg_dir)
         if rcode: return rcode
         
@@ -203,10 +202,11 @@ def work_lib(target, source, env):
     cmd += ' -do exit'          
 
     #print(cmd)
-    print('-'*80)
-    print(' '*8, 'Compile project work library' + os.linesep)
+    msg = colorize('Compile project work library', 'yellow')
+    print(colorize('-'*80, 'yellow'))
+    print(' '*20, msg, os.linesep)
     rcode = pexec(cmd, trg_dir)
-    print('-'*80)
+    print(colorize('-'*80, 'yellow'))
     if rcode:
         return rcode
                 
