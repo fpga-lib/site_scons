@@ -419,9 +419,9 @@ def vivado_project(target, source, env):
         print_error('*'*60 + '\n')
         Execute( Delete(trg_path) )
     else:
-        print('\n' + '*'*35)
-        print('Vivado project successfully created')
-        print('*'*35 + '\n')
+        print_success('\n' + '*'*35)
+        print_success('Vivado project successfully created')
+        print_success('*'*35 + '\n')
 
     return None
 
@@ -509,9 +509,9 @@ def build_vivado_project(target, source, env):
         print_error('E: project build ends with error code, see log for details')
         print_error('*'*58 + '\n')
     else:
-        print('\n' + '*'*42)
-        print('Vivado project has been successfully built')
-        print('*'*42 + '\n')
+        print_success('\n' + '*'*42)
+        print_success('Vivado project has been successfully built')
+        print_success('*'*42 + '\n')
 
     return None
 

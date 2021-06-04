@@ -59,6 +59,10 @@ def print_error(text):
     print(Fore.LIGHTRED_EX + text + Style.RESET_ALL)
                    
 #-------------------------------------------------------------------------------
+def print_success(text):
+    print(Fore.GREEN + text + Style.RESET_ALL)
+
+#-------------------------------------------------------------------------------
 def clog2(n: int) -> int:
     if n < 1:
         raise ValueError("expected argument value >= 1")
