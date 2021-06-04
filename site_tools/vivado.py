@@ -448,7 +448,9 @@ def build_vivado_project(target, source, env):
     text  = 'open_project ' + src_path                                          + os.linesep
 
     text += os.linesep
-    text += 'puts "\n>>>>>>>> Run Synthesis: Compiling and Mapping <<<<<<<<\n"' + os.linesep
+    text += 'puts ""' + os.linesep
+    text += 'puts "' + '\033\[1;33m>>>>>>>> Run Synthesis: Compiling and Mapping <<<<<<<<\\033\[0m' + '"' + os.linesep
+    text += 'puts ""' + os.linesep
 
     text += os.linesep
     text += 'reset_run synth_1'                                                 + os.linesep
@@ -461,7 +463,9 @@ def build_vivado_project(target, source, env):
     text += '}'                                                                 + os.linesep
 
     text += os.linesep
-    text += 'puts "\n>>>>>>>> Run Implementation: Place and Route <<<<<<<<\n"'  + os.linesep
+    text += 'puts ""' + os.linesep
+    text += 'puts "' + '\033\[1;33m>>>>>>>> Run Implementation: Place and Route <<<<<<<<\\033\[0m' + '"' + os.linesep
+    text += 'puts ""' + os.linesep
 
     text += os.linesep
     text += 'reset_run impl_1'                                                  + os.linesep
