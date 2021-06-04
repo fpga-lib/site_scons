@@ -82,11 +82,11 @@ def search_file(fn, search_root=''):
         full_path = glob.glob( os.path.join(search_root, '**', fname), recursive=True )
         
     if not len(full_path):
-        print_error('E: file not found:', fn)
+        print_error('E: file not found: ' + fn)
         sys.exit(1)
 
     if len(full_path) > 1:
-        print_error('E: duplicate files found:', full_path)
+        print_error('E: duplicate files found: ' + ' AND '.join(full_path))
         sys.exit(1)
         
     return full_path[0]
