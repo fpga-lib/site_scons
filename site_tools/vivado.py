@@ -388,6 +388,7 @@ def vivado_project(target, source, env):
     for t in tcl:
         text += 'source ' + t + os.linesep
 
+    text += 'write_project_tcl -use_bd_files {' + trg_path + '}'  + os.linesep
     text += 'close_project' + os.linesep
 
     out = generate_title(title_text, '#')
