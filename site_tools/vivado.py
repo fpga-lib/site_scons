@@ -784,13 +784,19 @@ def create_vivado_project(env, src, ip_cores):
     return target
 
 #---------------------------------------------------------------------
-def launch_synth_vivado_project(env, src):
+def launch_synth_vivado_project(env, prj, src):
+
+    if not SCons.Util.is_List(prj):
+        prj = prj.split()
+
+    if not SCons.Util.is_List(src):
+        src = src.split()
 
     prj_name = env['VIVADO_PROJECT_NAME']
     top_name = env['TOP_NAME']
     trg = os.path.join(env['BUILD_SYN_PATH'], prj_name + '.runs', 'synth_1', top_name + '.' + env['DCP_SUFFIX'])
-    
-    return env.SynthVivadoProject(trg, src)
+
+    return env.SynthVivadoProject(trg, prj + src)
 
 #---------------------------------------------------------------------
 def launch_impl_vivado_project(env, src):
