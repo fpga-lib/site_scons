@@ -176,17 +176,18 @@ def work_lib(target, source, env):
         glbl_path = File(os.path.join(XILINX_VIVADO, 'data/verilog/src/glbl.v'))
         source.append(glbl_path)
         
-    src_list = ['{' + os.path.join(f.abspath) + '}' for f in source]
+    src_list = ' '.join(['{' + os.path.join(f.abspath) + '}' for f in source])
+    incpath  = ' '.join(env['SIM_INC_PATH'])
     
     out = ''
 
-    out += 'set CFG_DIR {'    +  env['CFG_PATH'] + '}'         + os.linesep
-    out += 'set TB_NAME {'    +  env['TESTBENCH_NAME'] + '}'   + os.linesep
-    out += 'set WLIB_NAME {'  +  env['SIM_WORKLIB_NAME'] + '}' + os.linesep
-    out += 'set SRC [list '   +  ' '.join(src_list) + ']'      + os.linesep
-    out += 'set INC_PATH {'   +  env['SIM_INC_PATH'] + '}'     + os.linesep
-    out += 'set VLOG_FLAGS {' +  env['VLOG_FLAGS'] + '}'       + os.linesep
-    out += 'set VOPT_FLAGS {' +  env['VOPT_FLAGS'] + '}'       + os.linesep
+    out += 'set CFG_DIR {'    + env['CFG_PATH'] + '}'         + os.linesep
+    out += 'set TB_NAME {'    + env['TESTBENCH_NAME'] + '}'   + os.linesep
+    out += 'set WLIB_NAME {'  + env['SIM_WORKLIB_NAME'] + '}' + os.linesep
+    out += 'set SRC [list '   + src_list + ']'                + os.linesep
+    out += 'set INC_PATH {'   + incpath  + '}'                + os.linesep
+    out += 'set VLOG_FLAGS {' + env['VLOG_FLAGS'] + '}'       + os.linesep
+    out += 'set VOPT_FLAGS {' + env['VOPT_FLAGS'] + '}'       + os.linesep
     
     handoff_path = os.path.join( str(trg.dir), 'handoff.do')
     with open(handoff_path, 'w') as ofile:

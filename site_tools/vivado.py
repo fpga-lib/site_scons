@@ -294,7 +294,7 @@ def vivado_project(target, source, env):
     ip      = []
     xdc     = []
     tcl     = []
-    incpath = [env['INC_PATH']]
+    incpath = env['INC_PATH']
 
     for s in source:
         s = str(s)
