@@ -420,6 +420,7 @@ def vivado_project(target, source, env):
         print_error('E: project create ends with error code, see log for details')
         print_error('*'*60 + '\n')
         Execute( Delete(trg_path) )
+        return -2
     else:
         print_success('\n' + '*'*35)
         print_success('Vivado project successfully created')
@@ -499,6 +500,7 @@ def synth_vivado_project(target, source, env):
         print_error('\n' + '*'*len(msg))
         print_error(msg)
         print_error('*'*len(msg) + '\n')
+        return -2
     else:
         msg = 'Vivado project has been successfully synthesized'
         print_success(os.linesep + '*'*len(msg))
