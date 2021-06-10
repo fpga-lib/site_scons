@@ -595,14 +595,20 @@ def impl_vivado_project(target, source, env):
 #
 def open_vivado_project(target, source, env):
     
-    src          = source[0]
-    src_path     = os.path.abspath(str(src))
-    src_dir      = os.path.abspath(str(src.dir))
     project_name = env['VIVADO_PROJECT_NAME']
+    project_dir  = env['BUILD_SYN_PATH']
+    project_path = os.path.join( project_dir, project_name + '.' + env['VIVADO_PROJECT_SUFFIX'] )
+    
+        
+#   src          = source[0]
+#   srce = os.path.splitext(src)[0] + '.' + env['VIVADO_PROJECT_SUFFIX']
+#   src_path     = os.path.abspath(str(src))
+#   src_dir      = os.path.abspath(str(src.dir))
+#   project_name = env['VIVADO_PROJECT_NAME']
 
     print_action('open Vivado project:       \'' + project_name + '\'')
     
-    logfile  = os.path.join(src_dir, project_name + '-project-open.log')
+    logfile  = os.path.join(project_dir, project_name + '-project-open.log')
     if os.path.exists(logfile):
         Execute( Delete(logfile))
     
@@ -610,11 +616,11 @@ def open_vivado_project(target, source, env):
     cmd.append(env['SYNGUI'])
     cmd.append(env['SYNFLAGS'])
     cmd.append('-log ' + logfile)
-    cmd.append(src_path)
+    cmd.append(project_path)
     cmd = ' '.join(cmd)
     
     print(cmd)
-    env.Execute('cd ' + src_dir + ' && ' + cmd + ' &')
+    env.Execute('cd ' + project_dir + ' && ' + cmd + ' &')
     
     return None
 
@@ -838,8 +844,7 @@ def launch_impl_vivado_project(env, src):
 #---------------------------------------------------------------------
 def launch_open_vivado_project(env, src):
     
-    source = os.path.splitext(src)[0] + '.' + env['VIVADO_PROJECT_SUFFIX']
-    return env.OpenVivadoProject('open_vivado_project', source)
+    return env.OpenVivadoProject('open_vivado_project', src)
 
 #---------------------------------------------------------------------
 
