@@ -202,6 +202,10 @@ def read_sources(fn):
     return [os.path.join(root_dir, i) for i in src]
 
 #-------------------------------------------------------------------------------
+def get_dirs(flist):
+    return [os.path.dirname(f) for f in flist]
+
+#-------------------------------------------------------------------------------
 def generate_title(text: str, comment: str) -> str:
     
     hsep_len = 81 - len(comment)
