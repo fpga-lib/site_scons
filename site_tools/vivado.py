@@ -624,7 +624,7 @@ def open_vivado_project(target, source, env):
 #
 #---------------------------------------------------------------------
 #
-#    Scanner functions
+#    Config scanner
 #
 def scan_cfg_files(node, env, path):
 
@@ -652,6 +652,33 @@ def scan_cfg_files(node, env, path):
 
     else:
         return env.File([])
+    
+#---------------------------------------------------------------------
+#
+#    HDL scanner
+#
+def scan_hdl_files(node, env, path):
+
+    pattern = '`include\s+\"(\w+\.\w+)\"'
+           
+    inclist = [] 
+    contents = node.get_text_contents()
+    includes = re.findall(pattern, contents)
+    
+    for i in includes:
+        found = False
+        for p in path:
+            full_path = os.path.join( os.path.abspath(str(p)), i)
+            if os.path.exists(full_path):
+                inclist.append(full_path)
+                found = True
+                break
+
+        if not found:
+            print_error('E: include file ' + i + ' not found')
+            sys.exit(-2)
+    
+    return env.File(inclist)
 
 #-------------------------------------------------------------------------------
 #
@@ -888,13 +915,19 @@ def generate(env):
     #
     #   Scanners
     #
-    CfgImportScanner = Scanner(name          = 'CfgImportScanner',
+    CfgImportScanner = Scanner(name  = 'CfgImportScanner',
                        function      = scan_cfg_files,
                        skeys         = ['.' + env['CONFIG_SUFFIX']],
                        recursive     = True,
                        path_function = SCons.Scanner.FindPathDirs('SETTINGS_SEARCH_PATH')
                       )
 
+    HdlSourceScanner = Scanner(name  = 'HldSourceScanner',
+                       function      = scan_hdl_files,
+                       skeys         = ['.' + env['V_SUFFIX'], '.' + env['SV_SUFFIX']],
+                       recursive     = True,
+                       path_function = SCons.Scanner.FindPathDirs('INC_PATH')
+                      )
     #-----------------------------------------------------------------
     #
     #   Builders
@@ -922,7 +955,7 @@ def generate(env):
 
     VivadoProject      = Builder(action = vivado_project)
 
-    SynthVivadoProject = Builder(action = synth_vivado_project)
+    SynthVivadoProject = Builder(action = synth_vivado_project, source_scanner = HdlSourceScanner)
     ImplVivadoProject  = Builder(action = impl_vivado_project)
     
     
