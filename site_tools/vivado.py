@@ -838,7 +838,8 @@ def launch_impl_vivado_project(env, src):
 #---------------------------------------------------------------------
 def launch_open_vivado_project(env, src):
     
-    return env.OpenVivadoProject('open_vivado_project', src)
+    source = os.path.splitext(src)[0] + '.' + env['VIVADO_PROJECT_SUFFIX']
+    return env.OpenVivadoProject('open_vivado_project', source)
 
 #---------------------------------------------------------------------
 
