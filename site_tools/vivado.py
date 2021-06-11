@@ -680,9 +680,9 @@ def scan_hdl_files(node, env, path):
                 found = True
                 break
 
-        if not found:
-            print_error('E: include file ' + i + ' not found')
-            sys.exit(-2)
+#       if not found:
+#           print_error('E: include file ' + i + ' not found')
+#           sys.exit(-2)
     
     return env.File(inclist)
 
