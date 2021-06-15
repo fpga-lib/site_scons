@@ -14,12 +14,6 @@ import SCons.Scanner
 
 from utils import *
 
-#-------------------------------------------------------------------------------
-#
-#    External Environment
-#
-XILINX_VIVADO = os.environ['XILINX_VIVADO']
-VIVADO        = os.path.join(XILINX_VIVADO, 'bin', 'vivado')
 
 #-------------------------------------------------------------------------------
 #
@@ -872,11 +866,21 @@ def generate(env):
     Scanner = SCons.Scanner.Scanner
     Builder = SCons.Builder.Builder
 
-    env['VIVADO_VERNUM']         = vivado_vernum(XILINX_VIVADO)
-
+    #-----------------------------------------------------------------
+    #
+    #    External Environment
+    #
+    XILINX_VIVADO                = os.environ['XILINX_VIVADO']
+    VIVADO                       = os.path.join(XILINX_VIVADO, 'bin', 'vivado')
+    
+    #-----------------------------------------------------------------
+    #
+    #    Construction Variables
+    #
     root_dir                     = str(env.Dir('#'))
     cfg_name                     = os.path.abspath(os.curdir)
 
+    env['VIVADO_VERNUM']         = vivado_vernum(XILINX_VIVADO)
     env['VIVADO_PROJECT_NAME']   = 'vivado_project'
     env['TOP_NAME']              = 'top'
     env['DEVICE']                = 'xc7a200tfbg676-2'
