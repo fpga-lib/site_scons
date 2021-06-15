@@ -16,14 +16,6 @@ from utils import *
 
 #-------------------------------------------------------------------------------
 #
-#    External Environment
-#
-MENTOR        = os.environ['MENTOR']
-QUESTA        = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
-XILINX_VIVADO = os.environ['XILINX_VIVADO']
-
-#-------------------------------------------------------------------------------
-#
 #    Action functions
 #
 def ip_simlib_script(target, source, env):
@@ -173,7 +165,7 @@ def work_lib(target, source, env):
     #   Create handoff file
     #
     if 'vivado' in env['TOOLS']:
-        glbl_path = File(os.path.join(XILINX_VIVADO, 'data/verilog/src/glbl.v'))
+        glbl_path = File(os.path.join(env['XILINX_VIVADO'], 'data/verilog/src/glbl.v'))
         source.append(glbl_path)
         
     src_list = ' '.join(['{' + os.path.join(f.abspath) + '}' for f in source])
@@ -309,22 +301,34 @@ def generate(env):
     Scanner = SCons.Scanner.Scanner
     Builder = SCons.Builder.Builder
     
-    env['TESTBENCH_NAME'] = 'top_tb'
+    #-----------------------------------------------------------------
+    #
+    #    External Environment
+    #
+    MENTOR        = os.environ['MENTOR']
+    QUESTA        = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
+    XILINX_VIVADO = os.environ['XILINX_VIVADO']
+        
     
     env['ENV']['CAD']     = os.environ['CAD']
     env['ENV']['DISPLAY'] = os.environ['DISPLAY']
     env['ENV']['HOME']    = os.environ['HOME']
         
-    root_dir        = str(env.Dir('#'))
-    cfg_name        = os.path.abspath(os.curdir)
-
-    env['CFG_NAME'] = cfg_name
-    env['VLOGCOM']  = os.path.join(QUESTA, 'vlog')
-    env['VLIBCOM']  = os.path.join(QUESTA, 'vlib')
-    env['VMAPCOM']  = os.path.join(QUESTA, 'vmap')
-    env['VSIMCOM']  = os.path.join(QUESTA, 'vsim')
-    env['QUESTA']   = os.path.join(MENTOR, 'questa.sh')
+    #-----------------------------------------------------------------
+    #
+    #    Construction Variables
+    #
+    root_dir              = str(env.Dir('#'))
     cfg_name              = os.path.basename( os.getcwd() )
+                          
+    env['TESTBENCH_NAME'] = 'top_tb'
+    env['CFG_NAME']       = cfg_name
+    env['VLOGCOM']        = os.path.join(QUESTA, 'vlog')
+    env['VLIBCOM']        = os.path.join(QUESTA, 'vlib')
+    env['VMAPCOM']        = os.path.join(QUESTA, 'vmap')
+    env['VSIMCOM']        = os.path.join(QUESTA, 'vsim')
+    env['QUESTA']         = os.path.join(MENTOR, 'questa.sh')
+    env['XILINX_VIVADO']  = XILINX_VIVADO
     
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
