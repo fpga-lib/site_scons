@@ -324,6 +324,7 @@ def generate(env):
     env['VMAPCOM']  = os.path.join(QUESTA, 'vmap')
     env['VSIMCOM']  = os.path.join(QUESTA, 'vsim')
     env['QUESTA']   = os.path.join(MENTOR, 'questa.sh')
+    cfg_name              = os.path.basename( os.getcwd() )
     
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
@@ -337,7 +338,7 @@ def generate(env):
                                 
     env['SIM_SCRIPT_SUFFIX']    = 'do'
                               
-    env['BUILD_SIM_PATH']       = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
+    env['BUILD_SIM_PATH']       = os.path.join(root_dir, 'build', cfg_name, 'sim')
     env['IP_SIMLIB_PATH']       = os.path.join(env['IP_OOC_PATH'], env['IP_SIMLIB_NAME'])
     env['IP_SIM_SRC_LIST_PATH'] = os.path.join(root_dir, 'site_scons', 'ip_simsrc_list_xilinx')
     env['SIM_CMD_SCRIPT']       = os.path.abspath(search_file('questa.tcl', root_dir))
