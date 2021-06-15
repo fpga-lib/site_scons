@@ -16,14 +16,6 @@ from utils import *
 
 #-------------------------------------------------------------------------------
 #
-#    External Environment
-#
-MENTOR        = os.environ['MENTOR']
-QUESTA        = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
-XILINX_VIVADO = os.environ['XILINX_VIVADO']
-
-#-------------------------------------------------------------------------------
-#
 #    Action functions
 #
 def ip_simlib_script(target, source, env):
@@ -173,7 +165,7 @@ def work_lib(target, source, env):
     #   Create handoff file
     #
     if 'vivado' in env['TOOLS']:
-        glbl_path = File(os.path.join(XILINX_VIVADO, 'data/verilog/src/glbl.v'))
+        glbl_path = File(os.path.join(env['XILINX_VIVADO'], 'data/verilog/src/glbl.v'))
         source.append(glbl_path)
         
     src_list = ' '.join(['{' + os.path.join(f.abspath) + '}' for f in source])
@@ -215,7 +207,7 @@ def work_lib(target, source, env):
 
 #-------------------------------------------------------------------------------
 def questa_gui(target, source, env):
-    cmd = env['QUESTA'] + ' -gui ' + ' -do ' + env['SIM_CMD_SCRIPT']
+    cmd = env['QUESTASIM'] + ' -gui ' + ' -do ' + env['SIM_CMD_SCRIPT']
     print(cmd)
     env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
     
@@ -223,7 +215,7 @@ def questa_gui(target, source, env):
     
 #-------------------------------------------------------------------------------
 def questa_run(target, source, env):
-    cmd = env['QUESTA'] + ' -batch ' + ' -do ' + env['SIM_CMD_SCRIPT'] + ' -do run_sim'
+    cmd = env['QUESTASIM'] + ' -batch ' + ' -do ' + env['SIM_CMD_SCRIPT'] + ' -do run_sim'
     print(cmd)
     env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
 
@@ -309,24 +301,39 @@ def generate(env):
     Scanner = SCons.Scanner.Scanner
     Builder = SCons.Builder.Builder
     
-    env['TESTBENCH_NAME'] = 'top_tb'
-    
-    env['ENV']['CAD']     = os.environ['CAD']
-    env['ENV']['DISPLAY'] = os.environ['DISPLAY']
-    env['ENV']['HOME']    = os.environ['HOME']
+    #-----------------------------------------------------------------
+    #
+    #    Externally Defined Variables
+    #
+    XILINX_VIVADO = os.environ['XILINX_VIVADO']
+    if 'QUESTABIN' not in env:
+        print_error('E: "QUESTABIN" construction environment variable must be defined and point to "bin" directory')
+        Exit(-2)
         
-    root_dir        = str(env.Dir('#'))
-    cfg_name        = os.path.abspath(os.curdir)
-
-    env['CFG_NAME'] = cfg_name
-    env['VLOGCOM']  = os.path.join(QUESTA, 'vlog')
-    env['VLIBCOM']  = os.path.join(QUESTA, 'vlib')
-    env['VMAPCOM']  = os.path.join(QUESTA, 'vmap')
-    env['VSIMCOM']  = os.path.join(QUESTA, 'vsim')
-    env['QUESTA']   = os.path.join(MENTOR, 'questa.sh')
+    if 'QUESTASIM' not in env:
+        print_error('E: "QUESTASIM" construction environment variable must be defined and point to "vsim" executable')
+        Exit(-2)
+        
+        
+    #-----------------------------------------------------------------
+    #
+    #    Construction Variables
+    #
+    root_dir              = str(env.Dir('#'))
+    cfg_name              = os.path.basename( os.getcwd() )
+                          
+    env['TESTBENCH_NAME'] = 'top_tb'
+    env['CFG_NAME']       = cfg_name
+    env['VLOGCOM']        = os.path.join(env['QUESTABIN'], 'vlog')
+    env['VLIBCOM']        = os.path.join(env['QUESTABIN'], 'vlib')
+    env['VMAPCOM']        = os.path.join(env['QUESTABIN'], 'vmap')
+    env['VSIMCOM']        = os.path.join(env['QUESTABIN'], 'vsim')
+    env['XILINX_VIVADO']  = XILINX_VIVADO
+    
     
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
+    env['VOPT_FLAGS']        = ''
     if 'vivado' in env['TOOLS']:
         env['VOPT_FLAGS'] = ' glbl'
     
@@ -336,10 +343,10 @@ def generate(env):
                                 
     env['SIM_SCRIPT_SUFFIX']    = 'do'
                               
-    env['BUILD_SIM_PATH']       = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
+    env['BUILD_SIM_PATH']       = os.path.join(root_dir, 'build', cfg_name, 'sim')
     env['IP_SIMLIB_PATH']       = os.path.join(env['IP_OOC_PATH'], env['IP_SIMLIB_NAME'])
     env['IP_SIM_SRC_LIST_PATH'] = os.path.join(root_dir, 'site_scons', 'ip_simsrc_list_xilinx')
-    env['SIM_CMD_SCRIPT']       = os.path.abspath(search_file('questa.tcl', str(Dir('#'))))
+    env['SIM_CMD_SCRIPT']       = os.path.abspath(search_file('questa.tcl', root_dir))
     
     env['VERBOSE'] = True
 
