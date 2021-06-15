@@ -894,6 +894,7 @@ def generate(env):
 
     env['ROOT_PATH']             = os.path.abspath(str(Dir('#')))
     env['CFG_PATH']              = os.path.abspath(os.curdir)  # current configuration path
+    env['SETTINGS_SEARCH_PATH']  = env['CFG_PATH']
     env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'src')
     env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
