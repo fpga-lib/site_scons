@@ -207,7 +207,7 @@ def work_lib(target, source, env):
 
 #-------------------------------------------------------------------------------
 def questa_gui(target, source, env):
-    cmd = env['QUESTA'] + ' -gui ' + ' -do ' + env['SIM_CMD_SCRIPT']
+    cmd = env['QUESTASIM'] + ' -gui ' + ' -do ' + env['SIM_CMD_SCRIPT']
     print(cmd)
     env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
     
@@ -215,7 +215,7 @@ def questa_gui(target, source, env):
     
 #-------------------------------------------------------------------------------
 def questa_run(target, source, env):
-    cmd = env['QUESTA'] + ' -batch ' + ' -do ' + env['SIM_CMD_SCRIPT'] + ' -do run_sim'
+    cmd = env['QUESTASIM'] + ' -batch ' + ' -do ' + env['SIM_CMD_SCRIPT'] + ' -do run_sim'
     print(cmd)
     env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
 
@@ -303,16 +303,17 @@ def generate(env):
     
     #-----------------------------------------------------------------
     #
-    #    External Environment
+    #    Externally Defined Variables
     #
-    MENTOR        = os.environ['MENTOR']
-    QUESTA        = os.path.join(MENTOR, 'questa', 'questasim', 'bin')
     XILINX_VIVADO = os.environ['XILINX_VIVADO']
+    if 'QUESTABIN' not in env:
+        print_error('E: "QUESTABIN" construction environment variable must be defined and point to "bin" directory')
+        Exit(-2)
         
-    
-    env['ENV']['CAD']     = os.environ['CAD']
-    env['ENV']['DISPLAY'] = os.environ['DISPLAY']
-    env['ENV']['HOME']    = os.environ['HOME']
+    if 'QUESTASIM' not in env:
+        print_error('E: "QUESTASIM" construction environment variable must be defined and point to "vsim" executable')
+        Exit(-2)
+        
         
     #-----------------------------------------------------------------
     #
@@ -323,12 +324,12 @@ def generate(env):
                           
     env['TESTBENCH_NAME'] = 'top_tb'
     env['CFG_NAME']       = cfg_name
-    env['VLOGCOM']        = os.path.join(QUESTA, 'vlog')
-    env['VLIBCOM']        = os.path.join(QUESTA, 'vlib')
-    env['VMAPCOM']        = os.path.join(QUESTA, 'vmap')
-    env['VSIMCOM']        = os.path.join(QUESTA, 'vsim')
-    env['QUESTA']         = os.path.join(MENTOR, 'questa.sh')
+    env['VLOGCOM']        = os.path.join(env['QUESTABIN'], 'vlog')
+    env['VLIBCOM']        = os.path.join(env['QUESTABIN'], 'vlib')
+    env['VMAPCOM']        = os.path.join(env['QUESTABIN'], 'vmap')
+    env['VSIMCOM']        = os.path.join(env['QUESTABIN'], 'vsim')
     env['XILINX_VIVADO']  = XILINX_VIVADO
+    
     
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
