@@ -340,7 +340,7 @@ def generate(env):
     env['BUILD_SIM_PATH']       = os.path.join(root_dir, 'build', os.path.basename(cfg_name), 'sim')
     env['IP_SIMLIB_PATH']       = os.path.join(env['IP_OOC_PATH'], env['IP_SIMLIB_NAME'])
     env['IP_SIM_SRC_LIST_PATH'] = os.path.join(root_dir, 'site_scons', 'ip_simsrc_list_xilinx')
-    env['SIM_CMD_SCRIPT']       = os.path.abspath(search_file('questa.tcl', str(Dir('#'))))
+    env['SIM_CMD_SCRIPT']       = os.path.abspath(search_file('questa.tcl', root_dir))
     
     env['VERBOSE'] = True
 
