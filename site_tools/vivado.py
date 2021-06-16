@@ -59,6 +59,8 @@ def ip_create_script(target, source, env):
 
     for p in ip_params:
         v             = str(ip_params[p])
+        if v == 'True' or v == 'False':
+            v =  v.lower()
         name_len      = len(p)
         value_len     = len(v)
         name_padding  = len(param_sect) + max_pn_len - name_len + 2
