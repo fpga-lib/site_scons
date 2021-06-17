@@ -55,21 +55,23 @@ def ip_create_script(target, source, env):
 
     ip_params  = ip_cfg[param_sect]
     max_pn_len = max_str_len(ip_params.keys())
-    max_pv_len = max_str_len([str(i) for i in ip_params.values()])
 
+    text += 'set_property -dict {' + os.linesep
+    
     for p in ip_params:
-        v             = str(ip_params[p])
+        v = str(ip_params[p])
         if v == 'True' or v == 'False':
             v =  v.lower()
+        v = '{' + v + '}'
         name_len      = len(p)
         value_len     = len(v)
         name_padding  = len(param_sect) + max_pn_len - name_len + 2
-        value_padding = max_pv_len - value_len + 2
-        line  = 'set_property ' + param_sect + '.' + p + ' '*name_padding + v
-        line += ' '*value_padding + '[get_ips ${ip_name}]'
+        line  = ' '*4 + param_sect + '.' + p + ' '*name_padding + v
 
         text += line + os.linesep
 
+    text += '} [get_ips ${ip_name}]' + os.linesep
+    
     text += os.linesep
     text += 'generate_target all [get_ips  ${ip_name}]'              + os.linesep
     text += 'export_ip_user_files -of_objects [get_ips ${ip_name}] '
