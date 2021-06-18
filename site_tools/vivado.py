@@ -504,7 +504,7 @@ def synth_vivado_project(target, source, env):
         print_error('*'*len(msg) + '\n')
         return -2
     else:
-        msg = 'Vivado project has been successfully synthesized'
+        msg = 'Vivado project successfully synthesized'
         print_success(os.linesep + '*'*len(msg))
         print_success(msg)
         print_success('*'*len(msg) + os.linesep)
@@ -583,7 +583,7 @@ def impl_vivado_project(target, source, env):
         print_error(msg)
         print_error('*'*len(msg) + '\n')
     else:
-        msg = 'Vivado project has been successfully implemented'
+        msg = 'Vivado project successfully implemented'
         print_success(os.linesep + '*'*len(msg))
         print_success(msg)
         print_success('*'*len(msg) + os.linesep)
