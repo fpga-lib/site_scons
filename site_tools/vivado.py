@@ -217,7 +217,9 @@ def cfg_params_header(target, source, env):
     print_action('create cfg params header:  \'' + trg.name + '\'')
     params = {}
     for src in source:
-        params.update( read_config(str(src), search_root = env['CFG_PATH']) )
+        cfg_params = read_config(str(src), search_root = env['CFG_PATH'])
+        cfg_params = prefix_suffix(str(src), cfg_params)
+        params.update(cfg_params)
 
     max_len = max_str_len(params.keys()) + 2
     guard   = 'GUARD_' + os.path.splitext(trg.name)[0].upper() + '_SVH'
@@ -254,7 +256,9 @@ def cfg_params_tcl(target, source, env):
     print_action('create cfg params tcl:     \'' + trg.name + '\'')
     params = {}
     for src in source:
-        params.update( read_config(str(src), search_root = env['CFG_PATH']) )
+        cfg_params = read_config(str(src), search_root = env['CFG_PATH'])
+        cfg_params = prefix_suffix(str(src), cfg_params)
+        params.update(cfg_params)
 
     max_len = max_str_len(params.keys()) + 2
 

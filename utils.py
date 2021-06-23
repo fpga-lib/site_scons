@@ -206,6 +206,29 @@ def get_dirs(flist):
     return [os.path.dirname(f) for f in flist]
 
 #-------------------------------------------------------------------------------
+def prefix_suffix(fn, params):
+    prefix = ''
+    suffix = ''
+    with open( fn ) as f:
+        cfg = yaml.safe_load(f)
+        
+    if 'options' in cfg:
+        opt = cfg['options']
+        if 'prefix' in opt:
+            prefix = opt['prefix']
+        if 'suffix' in opt:
+            suffix = opt['suffix']
+            
+        out = {}
+        for p in params:
+            new_key =  prefix + p + suffix
+            out[new_key] = params[p]
+            
+        return out
+    else:
+        return params
+    
+#-------------------------------------------------------------------------------
 def generate_title(text: str, comment: str) -> str:
     
     hsep_len = 81 - len(comment)
