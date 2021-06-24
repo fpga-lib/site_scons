@@ -352,9 +352,11 @@ def vivado_project(target, source, env):
     for key in user_params:
         text += 'set ' + key + ' ' + user_params[key] + os.linesep
 
+    project_create_args = [env['PROJECT_CREATE_FLAGS'], '${PROJECT_NAME}.' + env['VIVADO_PROJECT_SUFFIX'], '.']
+        
     text += os.linesep
     text += '# Project structure'                                                                      + os.linesep
-    text += 'create_project ' + '${PROJECT_NAME}.' + env['VIVADO_PROJECT_SUFFIX'] + ' .'               + os.linesep*2
+    text += 'create_project ' + ' '.join(project_create_args)                                          + os.linesep*2
     text += 'set_property FLOW "Vivado Synthesis ' + env['VIVADO_VERNUM'] + '" [get_runs synth_1]'     + os.linesep
     text += 'set_property FLOW "Vivado Implementation ' + env['VIVADO_VERNUM'] + '" [get_runs impl_1]' + os.linesep*2
 
@@ -484,7 +486,7 @@ def synth_vivado_project(target, source, env):
 
     #-------------------------------------------------------
     #
-    #   Run build project
+    #   Run synthesize project
     #
     logfile  = os.path.join(env['BUILD_SYN_PATH'], project_name + '-project-synth.log')
     if os.path.exists(logfile):
@@ -564,7 +566,7 @@ def impl_vivado_project(target, source, env):
 
     #-------------------------------------------------------
     #
-    #   Run build project
+    #   Run place&route project
     #
     logfile = os.path.join(env['BUILD_SYN_PATH'], project_name + '-project-impl.log')
     if os.path.exists(logfile):
@@ -903,6 +905,7 @@ def generate(env):
 
     env['SYN_TRACE']             = ' -notrace'
     env['SYN_JOURNAL']           = ' -nojournal'
+    env['PROJECT_CREATE_FLAGS']  = ''
 
     env['VERBOSE']               = True
 
