@@ -63,14 +63,13 @@ def print_success(text):
     print(Fore.GREEN + text + Style.RESET_ALL)
 
 #-------------------------------------------------------------------------------
-def colorize(text, color):
-    c = Fore.WHITE
-    if color == 'red':
-        c = Fore.RED
-    elif color == 'green':
-        c = Fore.GREEN
-    elif color == 'yellow':
-        c = Fore.YELLOW
+def colorize(text, color, light=False):
+    
+    color = color.upper()
+    if light:
+        color = 'LIGHT' + color + '_EX'
+    
+    c = eval('Fore.' + color)
         
     return c + text + Style.RESET_ALL
     
