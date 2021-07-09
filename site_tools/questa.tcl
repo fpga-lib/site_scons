@@ -32,8 +32,6 @@ puts "**************************************************************************
 #
 quietly source handoff.do
 
-#quietly set PROLOGUE_SCRIPT "prologue.tcl"
-
 quietly set DesignName $TB_NAME
 quietly set WaveFileName    ${DesignName} 
 quietly append WaveFileName "_wave.do"
@@ -79,10 +77,7 @@ set vlog_flags {}
 if {[info exists WorkLib]} {
         quietly append vlog_flags " -work $WorkLib";
 }
-#quietly append vlog_flags " -incr";
 quietly append vlog_flags " +incdir+" "$IncDirs";
-#quietly append vlog_flags " -sv";
-#quietly append vlog_flags " -mfcu";          # (?) is it reaaly need?
 quietly append vlog_flags " " ${VLOG_FLAGS}
 
 #-----------------------------------------------------------
@@ -223,30 +218,5 @@ proc show_res { res } {
         puts "E: result script file does not exist"
     }
 }
-#-------------------------------------------------------------------------------
-#
-#     Run service tasks
-#
-#source ${SCRIPT_DIR}/cfg_header_gen.tcl
-#cfg_header_gen ${SCRIPT_DIR} ${CFG_DIR}
-#-------------------------------------------------------------------------------
-#if {[file exists ${CFG_DIR}/${PROLOGUE_SCRIPT}] == 1} {
-#    source ${CFG_DIR}/${PROLOGUE_SCRIPT}
-#}
-#-------------------------------------------------------------------------------
-#if {$argc > 0} {
-#    set cmd_arg [lindex $argv 0];
-#
-#    switch $cmd_arg {
-#        "-c" {
-#            puts "Compile project"
-#            Compile
-#        }
-#        default {
-#            puts "Unrecognized command $cmd_arg"
-#        }
-#    }
-#    #puts " Args $argc are: $cmd_arg"
-#}
 #-------------------------------------------------------------------------------
 
