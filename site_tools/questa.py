@@ -180,6 +180,7 @@ def work_lib(target, source, env):
     out += 'set INC_PATH {'   + incpath  + '}'                + os.linesep
     out += 'set VLOG_FLAGS {' + env['VLOG_FLAGS'] + '}'       + os.linesep
     out += 'set VOPT_FLAGS {' + env['VOPT_FLAGS'] + '}'       + os.linesep
+    out += 'set VSIM_FLAGS {' + env['VSIM_FLAGS'] + '}'       + os.linesep
     
     handoff_path = os.path.join( str(trg.dir), 'handoff.do')
     with open(handoff_path, 'w') as ofile:
@@ -334,9 +335,11 @@ def generate(env):
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
     env['VOPT_FLAGS']        = ''
+    env['VSIM_FLAGS']        = ''
     if 'vivado' in env['TOOLS']:
         env['VOPT_FLAGS'] = ' glbl'
     
+            
     env['IP_SIMLIB_NAME']       = 'ipsimlib'
     env['SIM_WORKLIB_NAME']     = 'wlib'
     env['SIM_INC_PATH']         = ''
