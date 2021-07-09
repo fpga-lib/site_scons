@@ -32,7 +32,7 @@ puts "**************************************************************************
 #
 quietly source handoff.do
 
-quietly set PROLOGUE_SCRIPT "prologue.tcl"
+#quietly set PROLOGUE_SCRIPT "prologue.tcl"
 
 quietly set DesignName $TB_NAME
 quietly set WaveFileName    ${DesignName} 
@@ -111,6 +111,7 @@ if {[info exists WorkLib]} {
 if {[info exists TimeResolution]} {
         quietly append vsim_flags " -t $TimeResolution";
 }
+quietly append vsim_flags " " ${VSIM_FLAGS}
 quietly append vsim_flags " -wlf func.wlf";
 quietly append vsim_flags " -quiet";
 quietly append vsim_flags " " $OptimizedDesignName;
