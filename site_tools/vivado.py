@@ -881,8 +881,10 @@ def generate(env):
     #
     #    External Environment
     #
-    XILINX_VIVADO                = os.environ['XILINX_VIVADO']
-    VIVADO                       = os.path.join(XILINX_VIVADO, 'bin', 'vivado')
+    if not 'XILINX_VIVADO' in env:
+        env['XILINX_VIVADO'] = os.environ['XILINX_VIVADO']
+        
+    VIVADO = os.path.join(env['XILINX_VIVADO'], 'bin', 'vivado')
     
     #-----------------------------------------------------------------
     #
@@ -891,8 +893,7 @@ def generate(env):
     root_dir                     = str(env.Dir('#'))
     cfg_name                     = os.path.basename( os.getcwd() )
 
-    env['XILINX_VIVADO']         = XILINX_VIVADO
-    env['VIVADO_VERNUM']         = vivado_vernum(XILINX_VIVADO)
+    env['VIVADO_VERNUM']         = vivado_vernum(env['XILINX_VIVADO'])
     env['VIVADO_PROJECT_NAME']   = 'vivado_project'
     env['TOP_NAME']              = 'top'
     env['DEVICE']                = 'xc7a200tfbg676-2'
