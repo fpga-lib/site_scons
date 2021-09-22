@@ -304,9 +304,11 @@ def generate(env):
     
     #-----------------------------------------------------------------
     #
-    #    Externally Defined Variables
+    #    External Environment
     #
-    XILINX_VIVADO = os.environ['XILINX_VIVADO']
+    if not 'XILINX_VIVADO' in env:
+        env['XILINX_VIVADO'] = os.environ['XILINX_VIVADO']
+    
     if 'QUESTABIN' not in env:
         print_error('E: "QUESTABIN" construction environment variable must be defined and point to "bin" directory')
         Exit(-2)
@@ -329,8 +331,6 @@ def generate(env):
     env['VLIBCOM']        = os.path.join(env['QUESTABIN'], 'vlib')
     env['VMAPCOM']        = os.path.join(env['QUESTABIN'], 'vmap')
     env['VSIMCOM']        = os.path.join(env['QUESTABIN'], 'vsim')
-    env['XILINX_VIVADO']  = XILINX_VIVADO
-    
     
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
     env['VLOG_OPTIMIZATION'] = ' -O5'
@@ -338,8 +338,7 @@ def generate(env):
     env['VSIM_FLAGS']        = ''
     if 'vivado' in env['TOOLS']:
         env['VOPT_FLAGS'] = ' glbl'
-    
-            
+        
     env['IP_SIMLIB_NAME']       = 'ipsimlib'
     env['SIM_WORKLIB_NAME']     = 'wlib'
     env['SIM_INC_PATH']         = ''
