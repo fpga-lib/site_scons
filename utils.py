@@ -52,8 +52,11 @@ def print_info(text):
 #-------------------------------------------------------------------------------
 def print_action(text):
     print(Fore.LIGHTGREEN_EX + text + Style.RESET_ALL)
-    #print(Fore.LIGHTYELLOW_EX + text + Style.RESET_ALL)
                
+#-------------------------------------------------------------------------------
+def print_warning(text):
+    print(Fore.LIGHTYELLOW_EX + text + Style.RESET_ALL)
+    
 #-------------------------------------------------------------------------------
 def print_error(text):
     print(Fore.LIGHTRED_EX + text + Style.RESET_ALL)
