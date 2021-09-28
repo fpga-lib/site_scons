@@ -70,6 +70,24 @@ def ip_simlib_script(target, source, env):
     return None
 
 #-------------------------------------------------------------------------------
+def vmap_vendor_libs(env, trg_dir):
+ 
+    vlpath = env['VENDOR_LIB_PATH']
+    
+    libs  = []
+    for name in os.listdir(vlpath):
+        lpath = os.path.join(vlpath, name)
+        if os.path.isdir(lpath):
+            libs.append((name, lpath))
+    
+    for lib in libs:
+        cmd = env['VMAPCOM'] + ' ' + lib[0] + ' ' + os.path.join(env['VENDOR_LIB_PATH'], lib[1] )
+        rcode = pexec(cmd, trg_dir)
+        if rcode: return rcode
+   
+    return 0
+
+#-------------------------------------------------------------------------------
 def ip_simlib(target, source, env):
 
     trg = target[0]
@@ -317,6 +335,10 @@ def generate(env):
         print_error('E: "QUESTASIM" construction environment variable must be defined and point to "vsim" executable')
         Exit(-2)
         
+    if 'VENDOR_LIB_PATH' not in env:
+        env['VENDOR_LIB_PATH'] = os.path.dirname(env['QUESTASIM'])
+        print_warning('Warning: Vendor Library Path not specified, use default path: ' + os.path.join(env['VENDOR_LIB_PATH'], 'vendor', 'xlib'))
+        print()
         
     #-----------------------------------------------------------------
     #
