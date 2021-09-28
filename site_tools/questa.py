@@ -104,6 +104,9 @@ def ip_simlib(target, source, env):
         rcode = pexec(env['VMAPCOM'] + ' -c', trg_dir)
         if rcode: return rcode
 
+        rcode = vmap_vendor_libs(env, trg_dir)
+        if rcode: return rcode
+        
         cmd = []
         cmd.append(env['VMAPCOM'])
         cmd.append(trg.name)
@@ -111,11 +114,11 @@ def ip_simlib(target, source, env):
         cmd = ' '.join(cmd)
 
         if env['VERBOSE']:
-          print(cmd)
+            print(cmd)
         
         rcode = pexec(cmd, trg_dir)
         if rcode: return rcode
-                            
+              
     for src in source:
         cmd = []
         cmd.append(env['VSIMCOM'])
@@ -151,6 +154,8 @@ def work_lib(target, source, env):
         rcode = pexec(env['VMAPCOM'] + ' -c', trg_dir)            # copy modelsim.ini from queta
         if rcode: return rcode
     
+        rcode = vmap_vendor_libs(env, trg_dir)
+        if rcode: return rcode
         # map IP simulation library
         cmd = []
         cmd.append(env['VMAPCOM'])
