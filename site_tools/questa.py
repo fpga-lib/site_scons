@@ -341,7 +341,7 @@ def generate(env):
         Exit(-2)
         
     if 'VENDOR_LIB_PATH' not in env:
-        env['VENDOR_LIB_PATH'] = os.path.dirname(env['QUESTASIM'])
+        env['VENDOR_LIB_PATH'] = os.path.join( os.path.dirname(env['QUESTASIM']), 'vendor', 'xlib', 'func')
         print_warning('Warning: Vendor Library Path not specified, use default path: ' + os.path.join(env['VENDOR_LIB_PATH'], 'vendor', 'xlib'))
         print()
         
