@@ -70,6 +70,24 @@ def ip_simlib_script(target, source, env):
     return None
 
 #-------------------------------------------------------------------------------
+def vmap_vendor_libs(env, trg_dir):
+ 
+    vlpath = env['VENDOR_LIB_PATH']
+    
+    libs  = []
+    for name in os.listdir(vlpath):
+        lpath = os.path.join(vlpath, name)
+        if os.path.isdir(lpath):
+            libs.append((name, lpath))
+    
+    for lib in libs:
+        cmd = env['VMAPCOM'] + ' ' + lib[0] + ' ' + os.path.join(env['VENDOR_LIB_PATH'], lib[1] )
+        rcode = pexec(cmd, trg_dir)
+        if rcode: return rcode
+   
+    return 0
+
+#-------------------------------------------------------------------------------
 def ip_simlib(target, source, env):
 
     trg = target[0]
@@ -86,6 +104,9 @@ def ip_simlib(target, source, env):
         rcode = pexec(env['VMAPCOM'] + ' -c', trg_dir)
         if rcode: return rcode
 
+        rcode = vmap_vendor_libs(env, trg_dir)
+        if rcode: return rcode
+        
         cmd = []
         cmd.append(env['VMAPCOM'])
         cmd.append(trg.name)
@@ -93,11 +114,11 @@ def ip_simlib(target, source, env):
         cmd = ' '.join(cmd)
 
         if env['VERBOSE']:
-          print(cmd)
+            print(cmd)
         
         rcode = pexec(cmd, trg_dir)
         if rcode: return rcode
-                            
+              
     for src in source:
         cmd = []
         cmd.append(env['VSIMCOM'])
@@ -133,6 +154,8 @@ def work_lib(target, source, env):
         rcode = pexec(env['VMAPCOM'] + ' -c', trg_dir)            # copy modelsim.ini from queta
         if rcode: return rcode
     
+        rcode = vmap_vendor_libs(env, trg_dir)
+        if rcode: return rcode
         # map IP simulation library
         cmd = []
         cmd.append(env['VMAPCOM'])
@@ -317,6 +340,10 @@ def generate(env):
         print_error('E: "QUESTASIM" construction environment variable must be defined and point to "vsim" executable')
         Exit(-2)
         
+    if 'VENDOR_LIB_PATH' not in env:
+        env['VENDOR_LIB_PATH'] = os.path.join( os.path.dirname(env['QUESTASIM']), 'vendor', 'xlib', 'func')
+        print_warning('Warning: Vendor Library Path not specified, use default path: ' + os.path.join(env['VENDOR_LIB_PATH'], 'vendor', 'xlib'))
+        print()
         
     #-----------------------------------------------------------------
     #
