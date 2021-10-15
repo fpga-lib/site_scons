@@ -916,6 +916,7 @@ def generate(env):
     env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', cfg_name, 'src')
     env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', cfg_name, 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
+    env['BD_SIM_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'bd_sim')
     env['INC_PATH']              = ''
 
     env['IP_SCRIPT_DIRNAME']     = '_script'
