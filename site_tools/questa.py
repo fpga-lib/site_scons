@@ -70,24 +70,6 @@ def ip_simlib_script(target, source, env):
     return None
 
 #-------------------------------------------------------------------------------
-def vmap_vendor_libs(env, trg_dir):
- 
-    vlpath = env['VENDOR_LIB_PATH']
-    
-    libs  = []
-    for name in os.listdir(vlpath):
-        lpath = os.path.join(vlpath, name)
-        if os.path.isdir(lpath):
-            libs.append((name, lpath))
-    
-    for lib in libs:
-        cmd = env['VMAPCOM'] + ' ' + lib[0] + ' ' + os.path.join(env['VENDOR_LIB_PATH'], lib[1] )
-        rcode = pexec(cmd, trg_dir)
-        if rcode: return rcode
-   
-    return 0
-
-#-------------------------------------------------------------------------------
 def ip_simlib(target, source, env):
 
     trg = target[0]
@@ -135,6 +117,85 @@ def ip_simlib(target, source, env):
             Execute( Delete(src) )        
             return rcode
         
+    return None
+#-------------------------------------------------------------------------------
+def bd_simlib(target, source, env):
+
+    trg = target[0]
+
+    trg_path = str(trg)
+    trg_dir  = str(trg.dir)
+
+    print_action('compile library:           \'' + trg.name + '\'')
+    
+    if not os.path.exists(trg_path):
+        print_info('create root BD simlib directory')
+        Execute( Mkdir(trg_path) )
+        
+    # process sources and compile target lib
+    lib_pattern = 'vmap\s+(\w+)\s+[\w\/]+'
+    sv_pattern   = '\"(.+\.sv)\"'
+    v_pattern    = '\"(.+\.v)\"'
+    vhd_pattern  = '\"(.+\.vhd)\"'
+    inc_pattern  = '\"\+incdir\+(.+?)\"'
+    
+    vlog = []
+    vcom = []
+
+    vlog.append(env['VLOGCOM'])
+    vlog.append(env['VLOG_FLAGS'])
+    vlog.append('-work ' + trg_path)
+    vcom.append(env['VCOMCOM'])
+    vcom.append(env['VCOM_FLAGS'])
+    vcom.append('-work ' + trg_path)
+    
+    map_vendor_libs = True
+    
+    for f in source:
+        print('================================')
+        with open(str(f)) as file:
+            contents = file.read()
+            
+            lib_list = re.findall(lib_pattern, contents)
+            
+            for lib in lib_list:
+                # create target lib if need
+                lib_path = os.path.join(trg_path, lib)
+                if not os.path.exists(lib_path):
+                    rcode = create_simlib(env, lib_path, map_vendor_libs)
+                    map_vendor_libs = False
+                    if rcode: return rcode
+        
+            sv_list  = re.findall(sv_pattern, contents) 
+            v_list   = re.findall(v_pattern, contents)  
+            vhd_list = re.findall(vhd_pattern, contents)
+            inc_list = re.findall(inc_pattern, contents)
+            
+#           print(os.linesep.join(sv_list), os.linesep)
+#           print(os.linesep.join(v_list), os.linesep)
+#           print(os.linesep.join(vhd_list), os.linesep)
+#           print(os.linesep.join(inc_list), os.linesep)
+
+            # V/SV
+            cmd = ' '.join(vlog) + ' +incdir+'
+            cmd += '+incdir+'.join(inc_list) + ' '
+            cmd += ' '.join(v_list + sv_list)
+            #rcode = pexec(cmd)
+            print('-'*80)
+            if rcode: 
+                Execute( Delete(src) )        
+                return rcode
+            
+            # VHDL
+            cmd = ' '.join(vcom) + ' '
+            cmd += ' '.join(vhd_list)
+            #rcode = pexec(cmd)
+            print('-'*80)
+            if rcode: 
+                Execute( Delete(src) )        
+                return rcode
+            
+
     return None
 #-------------------------------------------------------------------------------
 def work_lib(target, source, env):
@@ -251,6 +312,55 @@ def questa_run(target, source, env):
 #
 
 #-------------------------------------------------------------------------------
+def vmap_vendor_libs(env, trg_dir):
+
+    vlpath = env['VENDOR_LIB_PATH']
+
+    libs  = []
+    for name in os.listdir(vlpath):
+        lpath = os.path.join(vlpath, name)
+        if os.path.isdir(lpath):
+            libs.append((name, lpath))
+
+    for lib in libs:
+        cmd = env['VMAPCOM'] + ' ' + lib[0] + ' ' + os.path.join(env['VENDOR_LIB_PATH'], lib[1] )
+        rcode = pexec(cmd, trg_dir)
+        if rcode: return rcode
+
+    return None
+
+#-------------------------------------------------------------------------------
+def create_simlib(env, libpath, map_vendor_libs, verbose=False):
+    if not os.path.exists(libpath):
+        name    = os.path.basename(libpath)
+        dirpath = os.path.dirname(libpath)
+
+        rcode = pexec(env['VLIBCOM'] + ' ' + name, dirpath)
+        if rcode: return rcode
+
+        rcode = pexec(env['VMAPCOM'] + ' -c', dirpath)
+        if rcode: return rcode
+
+        if map_vendor_libs:
+            print_info('map vendor libraries')
+            rcode = vmap_vendor_libs(env, dirpath)
+            if rcode: return rcode
+
+        cmd = []
+        cmd.append(env['VMAPCOM'])
+        cmd.append(name)
+        cmd.append(os.path.abspath(libpath))
+        cmd = ' '.join(cmd)
+        
+        if verbose:
+            print(cmd)
+
+        print_info('create library: \'' + name + '\'')
+        rcode = pexec(cmd, dirpath)
+        if rcode: return rcode
+
+    return None
+#-------------------------------------------------------------------------------
 
 #-------------------------------------------------------------------------------
 #
@@ -298,6 +408,12 @@ def ip_simlib_scripts(env, src):
 def compile_simlib(env, src):
     trg = os.path.join(env['IP_OOC_PATH'], env['IP_SIMLIB_NAME'])
     return env.IpSimlib(trg, src)
+
+#-------------------------------------------------------------------------------
+def compile_bdsimlib(env, src):
+    source = glob.glob( os.path.join(src, '**/compile.do'), recursive=True)
+    trg    = os.path.join(env['BD_SIM_PATH'], env['BD_SIMLIB_NAME'])
+    return env.BdSimlib(trg, source)
 
 #-------------------------------------------------------------------------------
 def compile_worklib(env, src):
@@ -355,11 +471,13 @@ def generate(env):
     env['TESTBENCH_NAME'] = 'top_tb'
     env['CFG_NAME']       = cfg_name
     env['VLOGCOM']        = os.path.join(env['QUESTABIN'], 'vlog')
+    env['VCOMCOM']        = os.path.join(env['QUESTABIN'], 'vcom')
     env['VLIBCOM']        = os.path.join(env['QUESTABIN'], 'vlib')
     env['VMAPCOM']        = os.path.join(env['QUESTABIN'], 'vmap')
     env['VSIMCOM']        = os.path.join(env['QUESTABIN'], 'vsim')
     
     env['VLOG_FLAGS']        = ' -incr -sv -mfcu'
+    env['VCOM_FLAGS']        = ' -64 -93'
     env['VLOG_OPTIMIZATION'] = ' -O5'
     env['VOPT_FLAGS']        = ''
     env['VSIM_FLAGS']        = ''
@@ -367,6 +485,7 @@ def generate(env):
         env['VOPT_FLAGS'] = ' glbl'
         
     env['IP_SIMLIB_NAME']       = 'ipsimlib'
+    env['BD_SIMLIB_NAME']       = 'bdsimlib'
     env['SIM_WORKLIB_NAME']     = 'wlib'
     env['SIM_INC_PATH']         = ''
                                 
@@ -385,6 +504,7 @@ def generate(env):
     #
     IpSimLibScript = Builder(action = ip_simlib_script)
     IpSimLib       = Builder(action = ip_simlib, target_factory = env.fs.Dir)
+    BdSimLib       = Builder(action = bd_simlib, target_factory = env.fs.Dir)
     WorkLib        = Builder(action = work_lib,  target_factory = env.fs.Dir)
     QuestaGui      = Builder(action = questa_gui)
     QuestaRun      = Builder(action = questa_run)
@@ -392,6 +512,7 @@ def generate(env):
     Builders = {
         'IpSimLibScript' : IpSimLibScript,
         'IpSimlib'       : IpSimLib,
+        'BdSimlib'       : BdSimLib,
         'WorkLib'        : WorkLib,
         'QuestaGui'      : QuestaGui,
         'QuestaRun'      : QuestaRun
@@ -405,6 +526,7 @@ def generate(env):
     #
     env.AddMethod(ip_simlib_scripts, 'IpSimLibScripts')
     env.AddMethod(compile_simlib,    'CompileSimLib')
+    env.AddMethod(compile_bdsimlib,  'CompileBdSimLib')
     env.AddMethod(compile_worklib,   'CompileWorkLib')
     env.AddMethod(launch_questa_gui, 'LaunchQuestaGui')
     env.AddMethod(launch_questa_run, 'LaunchQuestaRun')
