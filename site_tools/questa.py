@@ -80,26 +80,7 @@ def ip_simlib(target, source, env):
     print_action('compile library:           \'' + trg.name + '\'')
     
     if not os.path.exists(trg_path):
-        rcode = pexec(env['VLIBCOM'] + ' ' + trg.name, trg_dir)
-        if rcode: return rcode
-        
-        rcode = pexec(env['VMAPCOM'] + ' -c', trg_dir)
-        if rcode: return rcode
-
-        rcode = vmap_vendor_libs(env, trg_dir)
-        if rcode: return rcode
-        
-        cmd = []
-        cmd.append(env['VMAPCOM'])
-        cmd.append(trg.name)
-        cmd.append(os.path.abspath(trg_path))
-        cmd = ' '.join(cmd)
-
-        if env['VERBOSE']:
-            print(cmd)
-        
-        rcode = pexec(cmd, trg_dir)
-        if rcode: return rcode
+        rcode = create_simlib(env, trg_path, True)
               
     for src in source:
         cmd = []
@@ -151,8 +132,6 @@ def bd_simlib(target, source, env):
             contents = file.read()
             
             lib_list = re.findall(lib_pattern, contents)
-#           for i in lib_list: print(i)
-#           return
             
             for lib in lib_list:
                 # create target lib if need
@@ -204,50 +183,22 @@ def work_lib(target, source, env):
     #   Create work library
     #
     if not os.path.exists(trg_path):
-        rcode = pexec(env['VLIBCOM'] + ' ' + trg.name, trg_dir)   # create lib
-        if rcode: return rcode
-
-        rcode = pexec(env['VMAPCOM'] + ' -c', trg_dir)                                        # copy default modelsim.ini from questa
+        # create project simulation library
+        rcode = create_simlib(env, trg_path, True)              
         if rcode: return rcode
               
-#       bd_modelsimini = os.path.join(env['BD_SIM_PATH'], env['BD_SIMLIB_NAME'], 'modelsim.ini')
-#       if os.path.exists(bd_modelsimini):
-#           rcode = pexec(env['VMAPCOM'] + ' -modelsimini ' + bd_modelsimini, trg_dir)            # copy modelsim.ini from BD simlib dir
-#           if rcode: return rcode
-                  
-        rcode = vmap_vendor_libs(env, trg_dir)
-        if rcode: return rcode
-
-        # map BD simulation library
+        # map BD simulation libraries
         for i in bdlibs:
-            vmap_simlib(env, i, trg_dir)
+            vmap_simlib(env, bdlibs[i], trg_dir)
                  
         # map IP simulation library
-        cmd = []
-        cmd.append(env['VMAPCOM'])
-        cmd.append(env['IP_SIMLIB_NAME'])
-        cmd.append(env['IP_SIMLIB_PATH'])
-        cmd = ' '.join(cmd)
-        
-        if env['VERBOSE']:
-            print(cmd)
-        
-        rcode = pexec(cmd, trg_dir)                               # map logical name to physical lib
+        ipsimlib_path = os.path.join(env['IP_SIMLIB_NAME'], env['IP_SIMLIB_PATH'])
+        rcode = vmap_simlib(env, ipsimlib_path, trg_dir)
         if rcode: return rcode
         
         # map work library      
-        cmd = []
-        cmd.append(env['VMAPCOM'])
-        cmd.append(trg.name)
-        cmd.append(os.path.abspath(trg_path))
-        cmd = ' '.join(cmd)
-        
-        if env['VERBOSE']:
-            print(cmd)
-        
-        rcode = pexec(cmd, trg_dir)                               # map logical name to physical lib
+        rcode = vmap_simlib(env, os.path.abspath(trg_path), trg_dir)
         if rcode: return rcode
-             
     
     #-----------------------------------------------------------------
     #
@@ -256,9 +207,14 @@ def work_lib(target, source, env):
     if 'vivado' in env['TOOLS']:
         glbl_path = File(os.path.join(env['XILINX_VIVADO'], 'data/verilog/src/glbl.v'))
         source.append(glbl_path)
-        
-    lib_opt  = ' -L ' +' -L '.join(bdlibs)
+     
+    # BD stuff
+    lib_opt = ''
+    if bdlibs.keys():
+        lib_opt  = ' -L ' +' -L '.join(bdlibs.keys())
     bd_tops  = glob.glob(os.path.join(env['BUILD_SYN_PATH'], env['VIVADO_PROJECT_NAME'] + '.gen', 'sources_1/bd/*/hdl/*_wrapper*'), recursive=True)
+
+    # source files and other options
     src_list = ' '.join(['{' + os.path.join(f.abspath) + '}' for f in source] + bd_tops)
     incpath  = ' '.join(env['SIM_INC_PATH'])
     
@@ -347,17 +303,17 @@ def vmap_simlib(env, libpath, trg_dir):
     cmd = ' '.join(cmd)
 
     rcode = pexec(cmd, trg_dir)                               # map logical name to physical lib
-    if rcode: return rcode
+    return rcode
           
 #-------------------------------------------------------------------------------
 def scan_bdlibs(p):
-    bdlibs = []
+    bdlibs = {}
     bd_simlibs_path = p
     bd_simlibs_contents = os.listdir(bd_simlibs_path)
     for i in os.listdir(bd_simlibs_path):
          p = os.path.abspath(os.path.join(bd_simlibs_path, i))
          if os.path.isdir(p):
-             bdlibs.append(i)
+             bdlibs[i] = p
              
     return bdlibs
 
@@ -367,6 +323,8 @@ def create_simlib(env, libpath, map_vendor_libs, verbose=False):
         name    = os.path.basename(libpath)
         dirpath = os.path.dirname(libpath)
 
+        print_info('create library: \'' + name + '\'')
+        
         rcode = pexec(env['VLIBCOM'] + ' ' + name, dirpath)
         if rcode: return rcode
 
@@ -387,7 +345,6 @@ def create_simlib(env, libpath, map_vendor_libs, verbose=False):
         if verbose:
             print(cmd)
 
-        print_info('create library: \'' + name + '\'')
         rcode = pexec(cmd, dirpath)
         if rcode: return rcode
 
