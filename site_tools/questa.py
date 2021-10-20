@@ -106,6 +106,8 @@ def bd_simlib(target, source, env):
 
     trg_path = str(trg)
     trg_dir  = str(trg.dir)
+    
+    do_files = glob.glob( os.path.join(env['BD_SIM_PATH'], '**/compile.do'), recursive=True)    
 
     print_action('compile library:           \'' + trg.name + '\'')
     
@@ -126,7 +128,7 @@ def bd_simlib(target, source, env):
     
     map_vendor_libs = True
     
-    for f in source:
+    for f in do_files:
         print('================================')
         with open(str(f)) as file:
             contents = file.read()
@@ -400,9 +402,8 @@ def compile_simlib(env, src):
 
 #-------------------------------------------------------------------------------
 def compile_bdsimlib(env, src):
-    source = glob.glob( os.path.join(src, '**/compile.do'), recursive=True)
     trg    = os.path.join(env['BD_SIM_PATH'], env['BD_SIMLIB_NAME'])
-    return env.BdSimlib(trg, source)
+    return env.BdSimlib(trg, src)
 
 #-------------------------------------------------------------------------------
 def compile_worklib(env, src):
