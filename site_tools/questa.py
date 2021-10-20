@@ -308,14 +308,14 @@ def vmap_simlib(env, libpath, trg_dir):
     return rcode
           
 #-------------------------------------------------------------------------------
-def scan_bdlibs(p):
+def scan_bdlibs(libpath):
     bdlibs = {}
-    bd_simlibs_path = p
-    bd_simlibs_contents = os.listdir(bd_simlibs_path)
-    for i in os.listdir(bd_simlibs_path):
-         p = os.path.abspath(os.path.join(bd_simlibs_path, i))
-         if os.path.isdir(p):
-             bdlibs[i] = p
+    if os.path.exists(libpath):
+        bd_simlibs_contents = os.listdir(libpath)
+        for i in os.listdir(libpath):
+             p = os.path.abspath(os.path.join(libpath, i))
+             if os.path.isdir(p):
+                 bdlibs[i] = p
              
     return bdlibs
 
