@@ -143,34 +143,18 @@ def bd_simlib(target, source, env):
                     map_vendor_libs = False
                     if rcode: return rcode
         
-            vlog_list = re.findall(vlog_pattern, contents) 
-            vcom_list = re.findall(vcom_pattern, contents) 
+            cmd_list  = [env['VLOGCOM'] + item for item in re.findall(vlog_pattern, contents)]
+            cmd_list += [env['VCOMCOM'] + item for item in re.findall(vcom_pattern, contents)]
             
-            # V/SV
-            for vlog_item in vlog_list:
-                cmd = env['VLOGCOM'] + vlog_item
-                cmd = cmd.replace('\\\n', ' ')
+            for item in cmd_list:
+                cmd = item.replace('\\\n', ' ')
                 cmd = cmd.replace('"', '')
-#               with open('111.cmd', 'wb') as ff:
-#                   ff.write(cmd.encode('utf8'))
                 rcode = pexec(cmd, trg_path)
                 if rcode:
                     Execute( Delete(trg_path) )
                     return rcode
                 print('-'*80)
             
-            # VHDL
-            for vcom_item in vcom_list:
-                cmd = env['VCOMCOM'] + vcom_item
-                cmd = cmd.replace('\\\n', ' ')
-                cmd = cmd.replace('"', '')
-                rcode = pexec(cmd, trg_path)
-                if rcode:
-                    Execute( Delete(trg_path) )
-                    return rcode
-            
-                print('-'*80)
-                
     return None
 #-------------------------------------------------------------------------------
 def work_lib(target, source, env):
