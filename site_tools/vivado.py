@@ -74,8 +74,8 @@ def ip_create_script(target, source, env):
     
     text += os.linesep
     text += 'generate_target all [get_ips  ${ip_name}]'              + os.linesep
-    text += 'export_ip_user_files -of_objects [get_ips ${ip_name}] '
-    text += '-sync -force -quiet'                                    + os.linesep
+    text += 'export_simulation -of_objects [get_ips ${ip_name}] -simulator questa '
+    text += '-absolute_path -force -directory ' + os.path.join(env['IP_OOC_PATH'], 'sim_script')  + os.linesep
     text += 'exit'
 
     out = generate_title(title_text, '#')
