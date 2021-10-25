@@ -74,8 +74,8 @@ def ip_create_script(target, source, env):
     
     text += os.linesep
     text += 'generate_target all [get_ips  ${ip_name}]'              + os.linesep
-    text += 'export_ip_user_files -of_objects [get_ips ${ip_name}] '
-    text += '-sync -force -quiet'                                    + os.linesep
+    text += 'export_simulation -of_objects [get_ips ${ip_name}] -simulator questa -absolute_path -force '
+    text += '-directory ' + env['SIM_SCRIPT_PATH'] + os.linesep
     text += 'exit'
 
     out = generate_title(title_text, '#')
@@ -333,8 +333,8 @@ def vivado_project(target, source, env):
     #   Delete old project
     #
     project_items = glob.glob(os.path.join(project_dir, project_name) + '*')
-    if os.path.exists(env['BD_SIM_PATH']):
-        project_items.append(env['BD_SIM_PATH'])
+#   if os.path.exists(env['BD_SIM_PATH']):
+#       project_items.append(env['BD_SIM_PATH'])
         
     for item in project_items:
         Execute( Delete(item) )
@@ -919,10 +919,11 @@ def generate(env):
     env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', cfg_name, 'src')
     env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', cfg_name, 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
-    env['BD_SIM_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'bd_sim')
     env['INC_PATH']              = ''
 
     env['IP_SCRIPT_DIRNAME']     = '_script'
+    env['SIM_SCRIPT_DIRNAME']    = 'sim_script'
+    env['SIM_SCRIPT_PATH']       = os.path.join(env['BUILD_SYN_PATH'], env['SIM_SCRIPT_DIRNAME'])
 
     env['CONFIG_SUFFIX']         = 'yml'
     env['TOOL_SCRIPT_SUFFIX']    = 'tcl'
