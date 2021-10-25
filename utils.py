@@ -27,7 +27,7 @@ def namegen(fullpath, ext):
     name     = os.path.splitext(basename)[0]
     return name + os.path.extsep + ext
 #-------------------------------------------------------------------------------
-def pexec(cmd, wdir = os.curdir):
+def pexec(cmd, wdir = os.curdir, filter=[]):
     p = subprocess.Popen(cmd.split(),
                          cwd = str(wdir),
                          universal_newlines = True,
@@ -36,14 +36,31 @@ def pexec(cmd, wdir = os.curdir):
                          stderr   = subprocess.PIPE,
                          encoding = 'utf8')
 
+    supp_warn = []
     while True:
         out = p.stdout.readline()    
         if len(out) == 0 and p.poll() is not None:
             break
         if out:
-            print(out.strip())
+            match = False
+            if filter:
+                for item in filter:
+                    if re.search(item, out):
+                        supp_warn.append(out)
+                        match = True
+                        break
+
+                res = re.search('(Errors\:\s\d+,\sWarnings\:\s)(\d+)', out)
+                if res:
+                    warn = int(res.groups()[1])
+                    supp_warn_cnt = len(supp_warn)
+                    out = res.groups()[0] + str(warn - supp_warn_cnt) + ' (Suppressed warnings: ' + str(supp_warn_cnt) + ')'
+                    
+            if not match:
+                print(out.strip())
 
     rcode = p.poll()
+    
     return rcode
     
 #-------------------------------------------------------------------------------

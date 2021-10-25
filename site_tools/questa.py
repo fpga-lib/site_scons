@@ -142,7 +142,7 @@ def work_lib(target, source, env):
     msg = colorize('Compile project work library', 'yellow')
     print(colorize('-'*80, 'yellow'))
     print(' '*20, msg, os.linesep)
-    rcode = pexec(cmd, trg_dir)
+    rcode = pexec(cmd, trg_dir, env['VOPT_FILTER_RULES'])
     print(colorize('-'*80, 'yellow'))
     if rcode:
         return rcode
@@ -372,6 +372,8 @@ def generate(env):
                              
     env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', cfg_name, 'sim')
     env['SIM_CMD_SCRIPT']    = os.path.abspath(search_file('questa.tcl', root_dir))
+    
+    env['VOPT_FILTER_RULES'] = []
     
     env['VERBOSE'] = True
 
