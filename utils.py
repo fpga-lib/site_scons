@@ -56,6 +56,10 @@ def pexec(cmd, wdir = os.curdir, filter=[]):
                     supp_warn_cnt = len(supp_warn)
                     out = res.groups()[0] + str(warn - supp_warn_cnt) + ' (Suppressed warnings: ' + str(supp_warn_cnt) + ')'
                     
+                    with open(os.path.join(wdir, 'suppresed-warnings.log'), 'w') as f:
+                        for item in supp_warn:
+                            f.write("%s" % item)                    
+                    
             if not match:
                 print(out.strip())
 
