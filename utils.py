@@ -226,7 +226,9 @@ def read_sources(fn):
 
 #-------------------------------------------------------------------------------
 def get_dirs(flist):
-    return [os.path.dirname(f) for f in flist]
+    dset = set( [os.path.dirname(f) for f in flist] )
+    
+    return list(dset)
 
 #-------------------------------------------------------------------------------
 def prefix_suffix(fn, params):
