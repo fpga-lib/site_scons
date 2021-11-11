@@ -108,10 +108,11 @@ def work_lib(target, source, env):
     if simlibs.keys():
         lib_opt  += ' -L ' +' -L '.join(simlibs.keys())
         
-    bd_tops  = glob.glob(os.path.join(env['BUILD_SYN_PATH'], env['VIVADO_PROJECT_NAME'] + '.gen', 'sources_1/bd/*/hdl/*_wrapper*'), recursive=True)
-
+    hdl_wrappers  = glob.glob(os.path.join(env['BUILD_SYN_PATH'], env['VIVADO_PROJECT_NAME'] + '.gen', 'sources_1/bd/*/hdl/*_wrapper*'), recursive=True)
+    hdl_wrappers += glob.glob(os.path.join(env['BUILD_SYN_PATH'], env['VIVADO_PROJECT_NAME'] + '.srcs', 'sources_1/**/hdl/*_wrapper*'), recursive=True)   # '<name>_sim_wrapper.v' support 
+                                                                                                                                                          # for Versal NoC Simulation
     # source files and other options
-    src_list = ' '.join(['{' + os.path.join(f.abspath) + '}' for f in source] + bd_tops)
+    src_list = ' '.join(['{' + os.path.join(f.abspath) + '}' for f in source] + hdl_wrappers)
     incpath  = ' '.join(env['SIM_INC_PATH'])
     
     out = ''
