@@ -152,7 +152,7 @@ def work_lib(target, source, env):
 
 #-------------------------------------------------------------------------------
 def questa_gui(target, source, env):
-    cmd = env['QUESTASIM'] + ' -gui ' + ' -do ' + env['SIM_CMD_SCRIPT']
+    cmd = env['QUESTASIM'] + ' -do ' + env['SIM_CMD_SCRIPT']
     print(cmd)
     env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
     
