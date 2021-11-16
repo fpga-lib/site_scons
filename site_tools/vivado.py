@@ -389,6 +389,8 @@ def vivado_project(target, source, env):
     text += 'set_property TARGET_SIMULATOR "Questa" [current_project]'         + os.linesep
     text += 'set_property include_dirs [lsort -unique [lappend incpath ' + \
              ' '.join(incpath) + ']] [get_filesets sources_1]'                 + os.linesep
+    text += 'set_property include_dirs [lsort -unique [lappend incpath ' + \
+          ' '.join(incpath) + ']] [get_filesets sim_1]'                        + os.linesep
     text += 'set_property top ${TOP_NAME} [get_filesets sources_1]'            + os.linesep
     text += os.linesep
     #text += 'set_property used_in_simulation false [get_files  -filter {file_type == systemverilog} -of [get_filesets sources_1]]' + os.linesep
