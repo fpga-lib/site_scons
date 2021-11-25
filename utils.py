@@ -193,8 +193,8 @@ def read_config(fn: str, param_sect='parameters', search_root=''):
     return params
 
 #-------------------------------------------------------------------------------
-def import_config(fn: str):
-    return Dict2Class( read_config(fn) )
+def import_config(fn: str, search_root=''):
+    return Dict2Class( read_config(fn, 'parameters', search_root) )
 #-------------------------------------------------------------------------------
 def read_ip_config(fn, param_sect, search_root=''):
 
