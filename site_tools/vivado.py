@@ -294,7 +294,8 @@ def vivado_project(target, source, env):
     #
     #   Classify sources
     #
-    hdl     = []
+    syn     = []
+    sim     = []
     ip      = []
     xdc     = []
     tcl     = []
@@ -312,11 +313,22 @@ def vivado_project(target, source, env):
                 with open( path ) as f:
                     contents = yaml.safe_load(f)
                     if 'sources' in contents:
+                        if 'usedin' in contents:
+                            used_in = contents['usedin']
+                        else:
+                            used_in = 'syn'
+                            
                         for item in contents['sources']:
                             src_suffix = get_suffix(item)
                             if src_suffix in [env['V_SUFFIX'], env['SV_SUFFIX']]:
                                 fullpath = os.path.abspath(item)
-                                hdl.append(fullpath)
+                                if used_in == 'syn':
+                                    syn.append(fullpath)
+                                elif used_in == 'sim':
+                                    sim.append(fullpath)
+                                else:
+                                    print_error('E: unsupported "use_in" value: "' + used_in + '" in ' + path)
+                                    return -2
                                 incpath.append(os.path.dirname(fullpath))
 
                             if src_suffix in env['CONSTRAINTS_SUFFIX']:
@@ -349,6 +361,7 @@ def vivado_project(target, source, env):
 
     text  = 'set PROJECT_NAME ' + env['VIVADO_PROJECT_NAME'] + os.linesep
     text += 'set TOP_NAME '     + env['TOP_NAME']            + os.linesep
+    text += 'set TOP_TB_NAME '  + env['TESTBENCH_NAME']      + os.linesep
     text += 'set DEVICE '       + env['DEVICE']              + os.linesep*2
 
     user_params = env['USER_DEFINED_PARAMS']
@@ -363,13 +376,20 @@ def vivado_project(target, source, env):
     text += 'set_property FLOW "Vivado Synthesis ' + env['VIVADO_VERNUM'] + '" [get_runs synth_1]'     + os.linesep
     text += 'set_property FLOW "Vivado Implementation ' + env['VIVADO_VERNUM'] + '" [get_runs impl_1]' + os.linesep*2
 
-    text += '# Add sources' + os.linesep
-    text += 'puts "add HDL sources"' + os.linesep
-    flist = ['    ' + h for h in hdl]
+    text += '# Add syn sources' + os.linesep
+    text += 'puts "add syn sources"' + os.linesep
+    flist = ['    ' + h for h in syn]
     text += 'add_files -scan_for_includes \\' + os.linesep
     text += (' \\' + os.linesep).join(flist)
     text += os.linesep*2
 
+    text += '# Add sim sources' + os.linesep
+    text += 'puts "add sim sources"' + os.linesep
+    flist = ['    ' + h for h in sim]
+    text += 'add_files -scan_for_includes -fileset sim_1 \\' + os.linesep
+    text += (' \\' + os.linesep).join(flist)
+    text += os.linesep*2
+    
     text += '# Add constraints' + os.linesep
     text += 'puts "add constraints"' + os.linesep
     flist = ['    ' + x for x in xdc]
@@ -392,6 +412,10 @@ def vivado_project(target, source, env):
     text += 'set_property include_dirs [lsort -unique [lappend incpath ' + \
           ' '.join(incpath) + ']] [get_filesets sim_1]'                        + os.linesep
     text += 'set_property top ${TOP_NAME} [get_filesets sources_1]'            + os.linesep
+    text += 'set_property top ${TOP_TB_NAME} [get_filesets sim_1]'             + os.linesep
+    text += 'update_compile_order -fileset sources_1'                          + os.linesep
+    text += 'set_property top_lib xil_defaultlib [get_filesets sim_1]'         + os.linesep
+    text += 'update_compile_order -fileset sim_1'                              + os.linesep
     text += os.linesep
     #text += 'set_property used_in_simulation false [get_files  -filter {file_type == systemverilog} -of [get_filesets sources_1]]' + os.linesep
     #text += 'set_property used_in_simulation false [get_files  -filter {file_type == verilog} -of [get_filesets sources_1]]'       + os.linesep
