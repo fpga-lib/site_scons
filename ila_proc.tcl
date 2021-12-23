@@ -11,8 +11,7 @@
 #-------------------------------------------------------------------------------
 proc create_probe {{ila u_ila_0} {mode DATA_AND_TRIGGER} {len 1}} {
     set probe_obj [create_debug_port $ila probe]
-    puts "\n--------------"
-    puts $probe_obj
+    puts "\n    create probe $probe_obj\n"
     set_property PROBE_TYPE $mode [get_debug_ports $probe_obj]
     set_property PORT_WIDTH $len  [get_debug_ports $probe_obj]
 }
