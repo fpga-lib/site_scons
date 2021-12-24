@@ -89,7 +89,6 @@ quietly set vopt_flags {}
 if {[info exists WorkLib]} {
     quietly append vopt_flags " -work $WorkLib";
 }
-quietly append vopt_flags " +acc";          # (!) deprecated - see replacements 
 quietly append vopt_flags " " ${VOPT_FLAGS}
 quietly append vopt_flags " " $DesignName 
 quietly append vopt_flags " -o " $OptimizedDesignName;
