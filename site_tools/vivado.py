@@ -320,7 +320,7 @@ def vivado_project(target, source, env):
                             
                         for item in contents['sources']:
                             src_suffix = get_suffix(item)
-                            if src_suffix in [env['V_SUFFIX'], env['SV_SUFFIX']]:
+                            if src_suffix in [env['V_SUFFIX'], env['SV_SUFFIX'], env['SV_HEADER_SUFFIX'], env['SV_PACKAGE_SUFFIX']]:
                                 fullpath = os.path.abspath(item)
                                 if used_in == 'syn':
                                     syn.append(fullpath)
@@ -963,6 +963,7 @@ def generate(env):
     env['SV_SUFFIX']             = 'sv'
     env['V_HEADER_SUFFIX']       = 'vh'
     env['SV_HEADER_SUFFIX']      = 'svh'
+    env['SV_PACKAGE_SUFFIX']     = 'pkg'
 
     env['USER_DEFINED_PARAMS']   = {}
 
