@@ -2,9 +2,9 @@
 #*
 #*    Build support utilities
 #*
-#*    Version 1.0
+#*    Version 2.0
 #*
-#*    Copyright (c) 2016-2021, Harry E. Zhurov
+#*    Copyright (c) 2016-2022, Harry E. Zhurov
 #*
 #*******************************************************************************
 
@@ -130,7 +130,7 @@ def search_file(fn, search_root=''):
         
     return full_path[0]
 #-------------------------------------------------------------------------------
-class Dict2Class(object):
+class ConfigDict(object):
 
     def __init__(self, in_dict, name=''):
         
@@ -144,7 +144,7 @@ class Dict2Class(object):
         return [a for a in dir(self) if not a.startswith('__') and not callable(getattr(self, a))]
             
 #-------------------------------------------------------------------------------
-def eval_cfg_dict(cfg_dict: dict, imps=None) -> dict:
+def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
     
 #   print('\n>>>>>>>>>>>>>>')
 #   print('cfg_dict:', cfg_dict)
@@ -154,7 +154,7 @@ def eval_cfg_dict(cfg_dict: dict, imps=None) -> dict:
     if imps:               # deflating imported parameters
         for i in imps:
             var = i
-            exec( var + ' = ' + 'Dict2Class(imps[i], var)' )
+            exec( var + ' = ' + 'ConfigDict(imps[i], var)' )
         
     for key in cfg_dict:
         var = key
@@ -163,7 +163,14 @@ def eval_cfg_dict(cfg_dict: dict, imps=None) -> dict:
     for key in cfg_dict:
         if isinstance(cfg_dict[key], str):
             if cfg_dict[key][0] == '=':
-                cfg_dict[key] = eval(cfg_dict[key][1:])            # evaluate new dict value
+                expr = cfg_dict[key][1:];
+                try:
+                    cfg_dict[key] = eval(expr)            # evaluate new dict value
+                except Exception as e:
+                    print_error('E: ' + str(e))
+                    print_error('    File: ' + cfg_file_path + ', line: ' + expr)
+                    sys.exit(-1)
+                    
                 if isinstance(cfg_dict[key], str):
                     exec(key + ' = "' + cfg_dict[key] + '"')       # update local variable
                     cfg_dict[key] = re.sub('`', '"', cfg_dict[key])
@@ -188,13 +195,13 @@ def read_config(fn: str, param_sect='parameters', search_root=''):
             imps[i] = read_config(imp_fn, search_root=search_root)
                 
     params = cfg[param_sect]
-    params = eval_cfg_dict(params, imps)
+    params = eval_cfg_dict(path, params, imps)
 
     return params
 
 #-------------------------------------------------------------------------------
 def import_config(fn: str, search_root=''):
-    return Dict2Class( read_config(fn, 'parameters', search_root) )
+    return ConfigDict( read_config(fn, 'parameters', search_root) )
 #-------------------------------------------------------------------------------
 def read_ip_config(fn, param_sect, search_root=''):
 
