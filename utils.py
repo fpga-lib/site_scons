@@ -244,9 +244,9 @@ def read_sources(*args):
     
     fn = args[0]
     
-    src, usedin = read_src_list(fn)
     variant_path = args[1] if len(args) > 1 else os.getcwd()
     prefix_path = [variant_path, os.path.abspath(str(Dir('#')))]
+    src, usedin = read_src_list(fn, variant_path)
     
     path_list = []
     for s in src:
@@ -259,9 +259,6 @@ def read_sources(*args):
                 break
             
         if not path_exists:
-            print_info(s)
-            print(prefix_path)
-            
             print_error('E: file at relative path "' + s + '" does not exists')
             print_error('    detected while processing "' + fn +'"')
             sys.exit(-1)
