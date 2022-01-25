@@ -223,13 +223,53 @@ def read_src_list(fn: str, search_root=''):
     with open( path ) as f:
         cfg = yaml.safe_load(f)
         
-    return cfg['sources']
+        usedin = 'syn'
+        if 'usedin' in cfg:
+            usedin = cfg['usedin']
+            
+        return cfg['sources'], usedin
     
 #-------------------------------------------------------------------------------
-def read_sources(fn):
-    src = read_src_list(fn)
-    root_dir = str(Dir('#'))
-    return [os.path.join(root_dir, i) for i in src]
+#
+#    args[0] is always config file name (yaml)
+#    
+#    args[1], if specified, defines current build variant path
+#
+#      Such context is used when function 'read_sources' called from project
+#      root - this takes place on build phase of SCons, for example when 
+#      'Create Vivado Project' builder running. '
+#      usedin' parameter also returned in this case.
+#
+def read_sources(*args):
+    
+    fn = args[0]
+    
+    src, usedin = read_src_list(fn)
+    variant_path = args[1] if len(args) > 1 else os.getcwd()
+    prefix_path = [variant_path, os.path.abspath(str(Dir('#')))]
+    
+    path_list = []
+    for s in src:
+        path_exists = False
+        for pp in prefix_path:
+            path = os.path.join(pp, s)
+            if os.path.exists(path):
+                path_list.append(path)
+                path_exists = True
+                break
+            
+        if not path_exists:
+            print_info(s)
+            print(prefix_path)
+            
+            print_error('E: file at relative path "' + s + '" does not exists')
+            print_error('    detected while processing "' + fn +'"')
+            sys.exit(-1)
+            
+    if len(args) > 1:
+        return path_list, usedin
+    else:
+        return path_list
 
 #-------------------------------------------------------------------------------
 def get_dirs(flist):

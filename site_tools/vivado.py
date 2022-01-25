@@ -310,29 +310,21 @@ def vivado_project(target, source, env):
                 tcl.append( os.path.abspath(path) )
 
             elif suffix == env['CONFIG_SUFFIX']:
-                with open( path ) as f:
-                    contents = yaml.safe_load(f)
-                    if 'sources' in contents:
-                        if 'usedin' in contents:
-                            used_in = contents['usedin']
+                path_list, used_in = read_sources(path, env['CFG_PATH'])
+                for item in path_list:
+                    src_suffix = get_suffix(item)
+                    if src_suffix in [env['V_SUFFIX'], env['SV_SUFFIX'], env['SV_HEADER_SUFFIX'], env['SV_PACKAGE_SUFFIX']]:
+                        if used_in == 'syn':
+                            syn.append(item)
+                        elif used_in == 'sim':
+                            sim.append(item)
                         else:
-                            used_in = 'syn'
-                            
-                        for item in contents['sources']:
-                            src_suffix = get_suffix(item)
-                            if src_suffix in [env['V_SUFFIX'], env['SV_SUFFIX'], env['SV_HEADER_SUFFIX'], env['SV_PACKAGE_SUFFIX']]:
-                                fullpath = os.path.abspath(item)
-                                if used_in == 'syn':
-                                    syn.append(fullpath)
-                                elif used_in == 'sim':
-                                    sim.append(fullpath)
-                                else:
-                                    print_error('E: unsupported "use_in" value: "' + used_in + '" in ' + path)
-                                    return -2
-                                incpath.append(os.path.dirname(fullpath))
+                            print_error('E: unsupported "use_in" value: "' + used_in + '" in ' + path)
+                            return -2
+                        incpath.append(os.path.dirname(item))
 
-                            if src_suffix in env['CONSTRAINTS_SUFFIX']:
-                                xdc.append( os.path.abspath(item))
+                    if src_suffix in env['CONSTRAINTS_SUFFIX']:
+                        xdc.append(item)
             else:
                 print_error('E: unsupported file type. Only \'yml\', \'tcl\' file types supported')
                 return -1
