@@ -298,6 +298,16 @@ def prefix_suffix(fn, params):
         return params
     
 #-------------------------------------------------------------------------------
+def version_number(path):
+    pattern = '(\d+)\.\d$'
+
+    return re.search(pattern, path).groups()[0]
+
+#-------------------------------------------------------------------------------
+def get_suffix(path):
+    return os.path.splitext(path)[1][1:]
+
+#-------------------------------------------------------------------------------
 def generate_title(text: str, comment: str) -> str:
     
     hsep_len = 81 - len(comment)
