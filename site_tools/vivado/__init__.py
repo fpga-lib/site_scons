@@ -7,6 +7,7 @@
 #-------------------------------------------------------------------------------
 
 import os
+import sys
 import re
 
 import SCons.Builder
@@ -99,7 +100,20 @@ def generate(env):
     if not 'XILINX_VIVADO' in env:
         env['XILINX_VIVADO'] = os.environ['XILINX_VIVADO']
 
+    if not 'XILINX_HLS' in env:
+        env['XILINX_HLS'] = os.environ['XILINX_HLS']
+        
+        
     VIVADO = os.path.join(env['XILINX_VIVADO'], 'bin', 'vivado')
+    HLS    = os.path.join(env['XILINX_HLS'], 'bin', 'vitis_hls')
+    
+    if not os.path.exists(VIVADO):
+        print_error('E: Vivado not found at the path: ' + VIVADO)
+        sys.exit(-1)
+    
+    if not os.path.exists(HLS):
+        print_error('E: Vitis HLS not found at the path: ' + HLS)
+        sys.exit(-1)
 
     #-----------------------------------------------------------------
     #
@@ -119,9 +133,13 @@ def generate(env):
     env['SYNSHELL']              = VIVADO + ' -mode tcl '
     env['SYNGUI']                = VIVADO + ' -mode gui '
 
+    env['HLSCOM']                =  HLS
+    
+    
     env['SYN_TRACE']             = ' -notrace'
     env['SYN_JOURNAL']           = ' -nojournal'
     env['PROJECT_CREATE_FLAGS']  = ''
+    env['HLSFLAGS']              = ''
 
     env['VERBOSE']               = True
 
