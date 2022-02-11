@@ -157,6 +157,8 @@ def generate(env):
     env['SIM_SCRIPT_PATH']       = os.path.join(env['BUILD_SYN_PATH'], env['SIM_SCRIPT_DIRNAME'])
     env['HLS_SCRIPT_DIRNAME']    = '_script'
 
+    env['HLS_IP_NAME_SUFFIX']    = '_hlsip'
+    
     env['CONFIG_SUFFIX']         = 'yml'
     env['TOOL_SCRIPT_SUFFIX']    = 'tcl'
     env['IP_CORE_SUFFIX']        = 'xci'
