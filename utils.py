@@ -162,7 +162,7 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
 
     for key in cfg_dict:
         if isinstance(cfg_dict[key], str):
-            if cfg_dict[key][0] == '=':
+            if cfg_dict[key] and cfg_dict[key][0] == '=':
                 expr = cfg_dict[key][1:];
                 try:
                     cfg_dict[key] = eval(expr)            # evaluate new dict value
@@ -223,11 +223,14 @@ def read_src_list(fn: str, search_root=''):
     with open( path ) as f:
         cfg = yaml.safe_load(f)
         
-        usedin = 'syn'
-        if 'usedin' in cfg:
-            usedin = cfg['usedin']
-            
-        return cfg['sources'], usedin
+        if cfg:
+            usedin = 'syn'
+            if 'usedin' in cfg:
+                usedin = cfg['usedin']
+                
+            return cfg['sources'], usedin
+        else:
+            return [], ''
     
 #-------------------------------------------------------------------------------
 #
@@ -249,19 +252,20 @@ def read_sources(*args):
     src, usedin = read_src_list(fn, variant_path)
     
     path_list = []
-    for s in src:
-        path_exists = False
-        for pp in prefix_path:
-            path = os.path.join(pp, s)
-            if os.path.exists(path):
-                path_list.append(path)
-                path_exists = True
-                break
-            
-        if not path_exists:
-            print_error('E: file at relative path "' + s + '" does not exists')
-            print_error('    detected while processing "' + fn +'"')
-            sys.exit(-1)
+    if src:
+        for s in src:
+            path_exists = False
+            for pp in prefix_path:
+                path = os.path.join(pp, s)
+                if os.path.exists(path):
+                    path_list.append(path)
+                    path_exists = True
+                    break
+                
+            if not path_exists:
+                print_error('E: file at relative path "' + s + '" does not exists')
+                print_error('    detected while processing "' + fn +'"')
+                sys.exit(-1)
             
     if len(args) > 1:
         return path_list, usedin

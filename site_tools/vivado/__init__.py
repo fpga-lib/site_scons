@@ -7,6 +7,7 @@
 #-------------------------------------------------------------------------------
 
 import os
+import sys
 import re
 
 import SCons.Builder
@@ -17,6 +18,7 @@ from utils import *
 from site_scons.site_tools.vivado.ipcores import *
 from site_scons.site_tools.vivado.params  import *
 from site_scons.site_tools.vivado.project import *
+from site_scons.site_tools.vivado.hls     import *
 
 #-------------------------------------------------------------------------------
 #
@@ -98,7 +100,20 @@ def generate(env):
     if not 'XILINX_VIVADO' in env:
         env['XILINX_VIVADO'] = os.environ['XILINX_VIVADO']
 
+    if not 'XILINX_HLS' in env:
+        env['XILINX_HLS'] = os.environ['XILINX_HLS']
+        
+        
     VIVADO = os.path.join(env['XILINX_VIVADO'], 'bin', 'vivado')
+    HLS    = os.path.join(env['XILINX_HLS'], 'bin', 'vitis_hls')
+    
+    if not os.path.exists(VIVADO):
+        print_error('E: Vivado not found at the path: ' + VIVADO)
+        sys.exit(-1)
+    
+    if not os.path.exists(HLS):
+        print_error('E: Vitis HLS not found at the path: ' + HLS)
+        sys.exit(-1)
 
     #-----------------------------------------------------------------
     #
@@ -118,9 +133,13 @@ def generate(env):
     env['SYNSHELL']              = VIVADO + ' -mode tcl '
     env['SYNGUI']                = VIVADO + ' -mode gui '
 
+    env['HLSCOM']                =  HLS
+    
+    
     env['SYN_TRACE']             = ' -notrace'
     env['SYN_JOURNAL']           = ' -nojournal'
     env['PROJECT_CREATE_FLAGS']  = ''
+    env['HLSFLAGS']              = ''
 
     env['VERBOSE']               = True
 
@@ -130,12 +149,16 @@ def generate(env):
     env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', cfg_name, 'src')
     env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', cfg_name, 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
+    env['BUILD_HLS_PATH']        = os.path.join(env['BUILD_SYN_PATH'], 'hls')
     env['INC_PATH']              = ''
 
     env['IP_SCRIPT_DIRNAME']     = '_script'
     env['SIM_SCRIPT_DIRNAME']    = 'sim_script'
     env['SIM_SCRIPT_PATH']       = os.path.join(env['BUILD_SYN_PATH'], env['SIM_SCRIPT_DIRNAME'])
+    env['HLS_SCRIPT_DIRNAME']    = '_script'
 
+    env['HLS_IP_NAME_SUFFIX']    = '_hlsip'
+    
     env['CONFIG_SUFFIX']         = 'yml'
     env['TOOL_SCRIPT_SUFFIX']    = 'tcl'
     env['IP_CORE_SUFFIX']        = 'xci'
@@ -148,6 +171,7 @@ def generate(env):
     env['V_HEADER_SUFFIX']       = 'vh'
     env['SV_HEADER_SUFFIX']      = 'svh'
     env['SV_PACKAGE_SUFFIX']     = 'pkg'
+    env['HLS_TARGET_SUFFIX']     = 'zip'
 
     env['USER_DEFINED_PARAMS']   = {}
 
@@ -194,6 +218,8 @@ def generate(env):
                                  suffix     = env['DCP_SUFFIX'],
                                  src_suffix = env['IP_CORE_SUFFIX'])
 
+    HlsCSynth          = Builder(action = hls_csynth, chdir=False) #, source_scanner = CScanner)
+    
     CfgParamsHeader    = Builder(action = cfg_params_header, source_scanner = CfgImportScanner)
     CfgParamsTcl       = Builder(action = cfg_params_tcl,    source_scanner = CfgImportScanner)
 
@@ -210,8 +236,12 @@ def generate(env):
         'IpSynScript'         : IpSynScript,
         'IpCreate'            : IpCreate,
         'IpSyn'               : IpSyn,
+
+        'HlsCSynth'           : HlsCSynth,
+
         'CfgParamsHeader'     : CfgParamsHeader,
         'CfgParamsTcl'        : CfgParamsTcl,
+
         'VivadoProject'       : VivadoProject,
 
         'SynthVivadoProject'  : SynthVivadoProject,
@@ -221,7 +251,7 @@ def generate(env):
     }
 
     env.Append(BUILDERS = Builders)
-
+    
     #-----------------------------------------------------------------
     #
     #   IP core processing pseudo-builders
@@ -230,6 +260,8 @@ def generate(env):
     env.AddMethod(ip_syn_scripts,    'IpSynScripts')
     env.AddMethod(create_ips,        'CreateIps')
     env.AddMethod(syn_ips,           'SynIps')
+
+    env.AddMethod(launch_hls_csynth, 'LaunchHlsCSynth')
 
     env.AddMethod(create_cfg_params_header,    'CreateCfgParamsHeader')
     env.AddMethod(create_cfg_params_tcl,       'CreateCfgParamsTcl')
