@@ -92,20 +92,20 @@ class Params:
         #-----------------------------------------------------------------
         # flags
         if not 'cflags' in self.params:
-            self.cflags = ''
+            self.cflags = []
         else:
-            if self.params['cflags']:
-                self.cflags = ' -cflags ' + self.params['cflags']
+            if not SCons.Util.is_List(self.params['cflags']):
+                self.cflags = self.params['cflags'].split()
             else:
-                self.cflags = ''
+                self.cflags = self.params['cflags']
 
         if not 'csimflags' in self.params:
-            self.csimflags = ''
+            self.csimflags = []
         else:
-            if self.params['csimflags']:
-                self.csimflags = ' -csimflags ' + self.params['csimflags']
+            if not SCons.Util.is_List(self.params['csimflags']):
+                self.csimflags = self.params['csimflags'].split()
             else:
-                self.csimflags = ''
+                self.csimflags = self.params['csimflags']
                         
 #-------------------------------------------------------------------------------
 def generate_csynth_script(script_path, trg_path, params, env):
@@ -123,18 +123,24 @@ def generate_csynth_script(script_path, trg_path, params, env):
     text += 'open_project -reset ${PROJECT_NAME}' + os.linesep*2
 
     text += '# Add syn sources'                   + os.linesep
-    for s in params.src_syn_list:    
-        text += 'add_files ' + params.cflags + ' ' + s   + os.linesep
+    for s in params.src_syn_list: 
+        cflags = ' ' 
+        if params.cflags:
+            cflags = ' -cflags "' + ' '.join(params.cflags) + '" '
+        text += 'add_files' + cflags + s   + os.linesep
     text += os.linesep*2
 
     text += '# Add sim sources' + os.linesep
     for s in params.src_sim_list:
-        text += 'add_files -tb ' + params.csimflags + ' ' + s + os.linesep
+        csimflags = ' ' 
+        if params.csimflags:
+            csimflags = ' -csimflags "' + ' '.join(params.csimflags) + '" '
+        text += 'add_files -tb' + csimflags + s + os.linesep
     text += os.linesep*2
 
-    text += '# Add hooks'          + os.linesep
+    text += '# Add hooks' + os.linesep
     for s in params.hook_list:                        
-        text += 'source ' + s   + os.linesep
+        text += 'source ' + s + os.linesep
     text += os.linesep*2
 
     text += 'set_top ${TOP_NAME}' + os.linesep
