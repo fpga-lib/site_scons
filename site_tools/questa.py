@@ -139,7 +139,7 @@ def work_lib(target, source, env):
     cmd += ' -do c'             
     cmd += ' -do exit'          
 
-    #print(cmd)
+    print(cmd)
     msg = colorize('Compile project work library', 'yellow')
     print(colorize('-'*80, 'yellow'))
     print(' '*20, msg, os.linesep)

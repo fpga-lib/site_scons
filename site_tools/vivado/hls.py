@@ -358,7 +358,7 @@ def launch_hls_csynth(env, src):
         else:
             hook_list = read_sources( params['hook_list'] )
             
-        source = src + src_csyn_list + src_csim_list + hook_list
+        source = src + src_csyn_list + hook_list
     
         trg_name = get_name(s) + env['HLS_IP_NAME_SUFFIX']
         #target   = os.path.join(env['BUILD_HLS_PATH'], 'ip', trg_name + '.' + env['HLS_TARGET_SUFFIX'])
