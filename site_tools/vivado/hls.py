@@ -263,6 +263,20 @@ def create_hls_ip(script_path, trg_path, exec_dir, env):
     return rcode
 
 #-------------------------------------------------------------------------------
+def add_sim_stuff(name, env):
+
+     dat_files = glob.glob( os.path.join(env['SIM_SCRIPT_PATH'], name, '**/*.dat'), recursive=True)
+     
+     for f in dat_files:
+         dst = os.path.join(env['BUILD_SIM_PATH'], os.path.basename(f) )
+         if os.path.lexists(dst):
+             os.remove(dst)
+             
+         os.symlink(f, dst)
+         msg = colorize('create symbolic link for ', 'magenta')
+         print(msg, f + ' in ' + env['BUILD_SIM_PATH'])
+     
+#-------------------------------------------------------------------------------
 #
 #   Builder
 #
@@ -317,6 +331,7 @@ def hls_csynth(target, source, env):
     
     # create hls ip
     create_hls_ip(ip_create_script, trg_path, env['IP_OOC_PATH'], env)
+    add_sim_stuff(trg_name, env)
     
     return None
     
