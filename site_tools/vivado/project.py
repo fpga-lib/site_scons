@@ -113,15 +113,17 @@ def vivado_project(target, source, env):
     text += '# Add sim sources' + os.linesep
     text += 'puts "add sim sources"' + os.linesep
     flist = ['    ' + h for h in sim]
-    text += 'add_files -scan_for_includes -fileset sim_1 \\' + os.linesep
-    text += (' \\' + os.linesep).join(flist)
+    if flist:
+        text += 'add_files -scan_for_includes -fileset sim_1 \\' + os.linesep
+        text += (' \\' + os.linesep).join(flist)
     text += os.linesep*2
     
     text += '# Add constraints' + os.linesep
     text += 'puts "add constraints"' + os.linesep
     flist = ['    ' + x for x in xdc]
-    text += 'add_files -fileset constrs_1 -norecurse \\'  + os.linesep
-    text += (' \\' + os.linesep).join(flist)
+    if flist:
+        text += 'add_files -fileset constrs_1 -norecurse \\'  + os.linesep
+        text += (' \\' + os.linesep).join(flist)
     text += os.linesep*2
 
     text += os.linesep
