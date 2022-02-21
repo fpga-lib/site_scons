@@ -92,20 +92,20 @@ class Params:
         #-----------------------------------------------------------------
         # flags
         if not 'cflags' in self.params:
-            self.cflags = ''
+            self.cflags = []
         else:
-            if self.params['cflags']:
-                self.cflags = ' -cflags ' + self.params['cflags']
+            if not SCons.Util.is_List(self.params['cflags']):
+                self.cflags = self.params['cflags'].split()
             else:
-                self.cflags = ''
+                self.cflags = self.params['cflags']
 
         if not 'csimflags' in self.params:
-            self.csimflags = ''
+            self.csimflags = []
         else:
-            if self.params['csimflags']:
-                self.csimflags = ' -csimflags ' + self.params['csimflags']
+            if not SCons.Util.is_List(self.params['csimflags']):
+                self.csimflags = self.params['csimflags'].split()
             else:
-                self.csimflags = ''
+                self.csimflags = self.params['csimflags']
                         
 #-------------------------------------------------------------------------------
 def generate_csynth_script(script_path, trg_path, params, env):
@@ -123,18 +123,24 @@ def generate_csynth_script(script_path, trg_path, params, env):
     text += 'open_project -reset ${PROJECT_NAME}' + os.linesep*2
 
     text += '# Add syn sources'                   + os.linesep
-    for s in params.src_syn_list:    
-        text += 'add_files ' + params.cflags + ' ' + s   + os.linesep
+    for s in params.src_syn_list: 
+        cflags = ' ' 
+        if params.cflags:
+            cflags = ' -cflags "' + ' '.join(params.cflags) + '" '
+        text += 'add_files' + cflags + s   + os.linesep
     text += os.linesep*2
 
     text += '# Add sim sources' + os.linesep
     for s in params.src_sim_list:
-        text += 'add_files -tb ' + params.csimflags + ' ' + s + os.linesep
+        csimflags = ' ' 
+        if params.csimflags:
+            csimflags = ' -csimflags "' + ' '.join(params.csimflags) + '" '
+        text += 'add_files -tb' + csimflags + s + os.linesep
     text += os.linesep*2
 
-    text += '# Add hooks'          + os.linesep
+    text += '# Add hooks' + os.linesep
     for s in params.hook_list:                        
-        text += 'source ' + s   + os.linesep
+        text += 'source ' + s + os.linesep
     text += os.linesep*2
 
     text += 'set_top ${TOP_NAME}' + os.linesep
@@ -257,6 +263,20 @@ def create_hls_ip(script_path, trg_path, exec_dir, env):
     return rcode
 
 #-------------------------------------------------------------------------------
+def add_sim_stuff(name, env):
+
+     dat_files = glob.glob( os.path.join(env['SIM_SCRIPT_PATH'], name, '**/*.dat'), recursive=True)
+     
+     for f in dat_files:
+         dst = os.path.join(env['BUILD_SIM_PATH'], os.path.basename(f) )
+         if os.path.lexists(dst):
+             os.remove(dst)
+             
+         os.symlink(f, dst)
+         msg = colorize('create symbolic link for ', 'magenta')
+         print(msg, f + ' in ' + env['BUILD_SIM_PATH'])
+     
+#-------------------------------------------------------------------------------
 #
 #   Builder
 #
@@ -311,12 +331,13 @@ def hls_csynth(target, source, env):
     
     # create hls ip
     create_hls_ip(ip_create_script, trg_path, env['IP_OOC_PATH'], env)
+    add_sim_stuff(trg_name, env)
     
     return None
     
 #-------------------------------------------------------------------------------
 #
-#   Pseudo-builder
+#   Pseudo-builders
 #
 def launch_hls_csynth(env, src):
     
@@ -352,7 +373,7 @@ def launch_hls_csynth(env, src):
         else:
             hook_list = read_sources( params['hook_list'] )
             
-        source = src + src_csyn_list + src_csim_list + hook_list
+        source = src + src_csyn_list + hook_list
     
         trg_name = get_name(s) + env['HLS_IP_NAME_SUFFIX']
         #target   = os.path.join(env['BUILD_HLS_PATH'], 'ip', trg_name + '.' + env['HLS_TARGET_SUFFIX'])
@@ -361,5 +382,20 @@ def launch_hls_csynth(env, src):
             
     return targets
         
+#-------------------------------------------------------------------------------
+def hlsip_syn_scripts(env, src):
+    
+    from site_scons.site_tools.vivado.ipcores import make_trg_nodes
+    
+    res     = []
+    src_sfx = '.'+env['IP_CORE_SUFFIX']
+    trg_sfx = '-syn.'+env['TOOL_SCRIPT_SUFFIX']
+    trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
+    builder = env.IpSynScript
+    for i in src:
+        res.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))
+
+    return res
+
 #-------------------------------------------------------------------------------
 

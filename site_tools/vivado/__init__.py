@@ -262,6 +262,7 @@ def generate(env):
     env.AddMethod(syn_ips,           'SynIps')
 
     env.AddMethod(launch_hls_csynth, 'LaunchHlsCSynth')
+    env.AddMethod(hlsip_syn_scripts, 'HlsIpSynScripts')
 
     env.AddMethod(create_cfg_params_header,    'CreateCfgParamsHeader')
     env.AddMethod(create_cfg_params_tcl,       'CreateCfgParamsTcl')
