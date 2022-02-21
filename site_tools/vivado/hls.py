@@ -337,7 +337,7 @@ def hls_csynth(target, source, env):
     
 #-------------------------------------------------------------------------------
 #
-#   Pseudo-builder
+#   Pseudo-builders
 #
 def launch_hls_csynth(env, src):
     
@@ -382,5 +382,20 @@ def launch_hls_csynth(env, src):
             
     return targets
         
+#-------------------------------------------------------------------------------
+def hlsip_syn_scripts(env, src):
+    
+    from site_scons.site_tools.vivado.ipcores import make_trg_nodes
+    
+    res     = []
+    src_sfx = '.'+env['IP_CORE_SUFFIX']
+    trg_sfx = '-syn.'+env['TOOL_SCRIPT_SUFFIX']
+    trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
+    builder = env.IpSynScript
+    for i in src:
+        res.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))
+
+    return res
+
 #-------------------------------------------------------------------------------
 
