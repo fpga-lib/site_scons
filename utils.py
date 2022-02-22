@@ -14,6 +14,7 @@ import subprocess
 import re
 import glob
 import yaml
+import math
 
 from SCons.Script import *
 from colorama import Fore, Style
@@ -157,8 +158,27 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
             exec( var + ' = ' + 'ConfigDict(imps[i], var)' )
         
     for key in cfg_dict:
-        var = key
-        exec(var + '= cfg_dict[key]')
+        try:
+            if '.' in key:
+                class dummy():
+                    pass
+                
+                nlist = key.split('.')
+                kname = nlist[0]
+                exec(kname + ' = dummy()')
+                for i in nlist[1:]:
+                    kname += '.' + i
+                    exec(kname + ' = dummy()')
+                    
+                exec(kname + ' = cfg_dict[key]')
+                
+            else:
+                var = key
+                exec(var + '= cfg_dict[key]')
+        except Exception as e:
+            print_error('E: ' + str(e))
+            print_error('    File: ' + cfg_file_path + ', line: ' + var + ' : "' + cfg_dict[key] + '"')
+            sys.exit(-1)
 
     for key in cfg_dict:
         if isinstance(cfg_dict[key], str):
@@ -171,11 +191,18 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
                     print_error('    File: ' + cfg_file_path + ', line: ' + expr)
                     sys.exit(-1)
                     
-                if isinstance(cfg_dict[key], str):
-                    exec(key + ' = "' + cfg_dict[key] + '"')       # update local variable
-                    cfg_dict[key] = re.sub('`', '"', cfg_dict[key])
-                else:
-                    exec(key + ' = ' + str(cfg_dict[key]))         # update local variable
+                try:
+                    if isinstance(cfg_dict[key], str):
+                        exec(key + ' = "' + cfg_dict[key] + '"')       # update local variable
+                        cfg_dict[key] = re.sub('`', '"', cfg_dict[key])
+                    else:
+                        exec(key + ' = ' + str(cfg_dict[key]))         # update local variable
+                except Exception as e:
+                    print_error('E: ' + str(e))
+                    print_error('    File: ' + cfg_file_path + ', line: ' + expr)
+                    print_error('    key: ' + key + ', value: ' + str(cfg_dict[key]))
+                    sys.exit(-1)
+                    
                 
     return cfg_dict
 
@@ -185,9 +212,9 @@ def read_config(fn: str, param_sect='parameters', search_root=''):
     path = search_file(fn, search_root)
     with open( path ) as f:
         cfg = yaml.safe_load(f)
-
+        
     imps = {}
-    if 'import' in cfg:
+    if 'import' in cfg and cfg['import']:
         imports = cfg['import'].split()
 
         for i in imports:

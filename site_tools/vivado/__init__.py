@@ -33,10 +33,11 @@ def scan_cfg_files(node, env, path):
     fname = str(node)
     with open(fname) as f:
         cfg = yaml.safe_load(f)
-
-    if 'import' in cfg:
+        
+    if 'import' in cfg and cfg['import']:
         imports = []
-        for i in cfg['import'].split():
+        imps = cfg['import'].split()
+        for i in imps:
             fn = i + '.' + env['CONFIG_SUFFIX']
             found = False
             for p in path:
