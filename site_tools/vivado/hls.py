@@ -138,10 +138,10 @@ def generate_csynth_script(script_path, trg_path, params, env):
         text += 'add_files -tb' + csimflags + s + os.linesep
     text += os.linesep*2
 
-    text += '# Add hooks' + os.linesep
-    for s in params.hook_list:                        
-        text += 'source ' + s + os.linesep
-    text += os.linesep*2
+#   text += '# Add hooks' + os.linesep
+#   for s in params.hook_list:
+#       text += 'source ' + s + os.linesep
+#   text += os.linesep*2
 
     text += 'set_top ${TOP_NAME}' + os.linesep
 
@@ -150,7 +150,7 @@ def generate_csynth_script(script_path, trg_path, params, env):
     text += 'set_part ${DEVICE}'                                            + os.linesep
     text += 'create_clock -period ' + params.clock_period + ' -name ' + params.clock_name + os.linesep
     if hasattr(params, 'clock_uncertainty'):
-        text += 'set_clock_uncertainty ' + params.clock_uncertainty      + os.linesep*2
+        text += 'set_clock_uncertainty ' + str(params.clock_uncertainty)      + os.linesep*2
 
     text += '# Add hooks' + os.linesep
     for h in params.hook_list:
