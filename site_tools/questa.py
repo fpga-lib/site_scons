@@ -55,8 +55,8 @@ def simlib(target, source, env):
                     map_vendor_libs = False
                     if rcode: return rcode
 
-            cmd_list  = [env['VLOGCOM'] + item for item in re.findall(vlog_pattern, contents)]
-            cmd_list += [env['VCOMCOM'] + item for item in re.findall(vcom_pattern, contents)]
+            cmd_list  = [env['VLOGCOM'] + env['VLOG_FLAGS'] + item for item in re.findall(vlog_pattern, contents)]
+            cmd_list += [env['VCOMCOM'] + env['VCOM_FLAGS'] + item for item in re.findall(vcom_pattern, contents)]
 
             for item in cmd_list:
                 cmd = item.replace('\\\n', ' ')
