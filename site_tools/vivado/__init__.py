@@ -31,6 +31,9 @@ from site_scons.site_tools.vivado.hls     import *
 def scan_cfg_files(node, env, path):
 
     fname = str(node)
+    if get_suffix(fname) != env['CONFIG_SUFFIX']:
+        return env.File([])
+        
     with open(fname) as f:
         cfg = yaml.safe_load(f)
         
