@@ -259,6 +259,10 @@ def create_hls_ip(script_path, trg_path, exec_dir, env):
         print(cmd)
 
     rcode = pexec(cmd, exec_dir)
+    
+    from stat import S_IREAD, S_IRGRP, S_IROTH
+    
+    os.chmod(trg_path, S_IREAD | S_IRGRP | S_IROTH)  # make target (xci) read only to disable changing during IP synthesis
 
     return rcode
 
