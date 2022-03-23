@@ -16,6 +16,8 @@ import glob
 import yaml
 import math
 
+import select
+
 from SCons.Script import *
 from colorama import Fore, Style
 
@@ -39,7 +41,14 @@ def pexec(cmd, wdir = os.curdir, filter=[]):
 
     supp_warn = []
     while True:
-        out = p.stdout.readline()    
+        rlist, wlist, xlist = select.select([p.stdout, p.stderr], [], [])
+        out = ''
+        for r in rlist:
+            if r == p.stdout:
+                out += p.stdout.readline()
+            elif r == p.stderr:
+                out += p.stderr.readline()
+        
         if len(out) == 0 and p.poll() is not None:
             break
         if out:
