@@ -134,10 +134,10 @@ def work_lib(target, source, env):
     #
     #   Compile work library
     #
-    cmd  = env['VSIMCOM'] + ' -c'
+    cmd  = env['QUESTASIM'] + ' -c'
     cmd += ' -do ' + env['SIM_CMD_SCRIPT']
-    cmd += ' -do c'             
-    cmd += ' -do exit'          
+    cmd += ' -do c'      
+    cmd += ' -do exit'
 
     print(cmd)
     msg = colorize('Compile project work library', 'yellow')
@@ -303,12 +303,12 @@ def compile_worklib(env, src):
     return env.WorkLib(trg, src)
 
 #-------------------------------------------------------------------------------
-def launch_questa_gui(env):
-    return env.QuestaGui('launch_questa_gui', [])
+def launch_questa_gui(env, src = []):
+    return env.QuestaGui('launch_questa_gui', src)
     
 #-------------------------------------------------------------------------------
-def launch_questa_run(env):
-    return env.QuestaRun('launch_questa_run', [])
+def launch_questa_run(env, src = []):
+    return env.QuestaRun('launch_questa_run', src)
 
 #-------------------------------------------------------------------------------
 

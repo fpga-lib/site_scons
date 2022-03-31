@@ -33,7 +33,7 @@ puts "**************************************************************************
 quietly source handoff.do
 
 quietly set DesignName $TB_NAME
-quietly set WaveFileName    ${DesignName} 
+quietly set WaveFileName    ${DesignName}
 quietly append WaveFileName "_wave.do"
 
 quietly set WorkLib $WLIB_NAME
@@ -53,7 +53,7 @@ quietly set INC_DIRS [lsort -unique $INC_DIRS];
 quietly set IncDirs [join ${INC_DIRS} "+"];
 #---------------------------------------------------------------------
 #
-#     Toolchain 
+#     Toolchain
 #
 set vlog_cmd {}
 set vcom_cmd {}
@@ -90,7 +90,7 @@ if {[info exists WorkLib]} {
     quietly append vopt_flags " -work $WorkLib";
 }
 quietly append vopt_flags " " ${VOPT_FLAGS}
-quietly append vopt_flags " " $DesignName 
+quietly append vopt_flags " " $DesignName
 quietly append vopt_flags " -o " $OptimizedDesignName;
 
 
@@ -129,15 +129,15 @@ proc compile {} {
     global vlog_cmd vlog_flags;
     global vcom_cmd vcom_flags;
     global vopt_cmd vopt_flags;
-    
+
     global SRC
 
     if {[launch_cmd ${vlog_cmd} [concat ${vlog_flags} ${SRC}]] == 0} {
-        return;
+        exit -code -1;
     }
-    
+
     if {[launch_cmd ${vopt_cmd} ${vopt_flags}] == 0} {
-        return;
+        exit -code -1;
     }
 }
 #-------------------------------------------------------------------------------
@@ -164,17 +164,17 @@ proc c { } {
 }
 #-------------------------------------------------------------------------------
 proc s { { res empty} { wave_ena 1 } } {
-    
+
     global CFG_DIR
-    
+
     set res_name ${CFG_DIR}/sim/${res}
-    
+
     sim_begin;
 
-    if {[file exists ${res_name}]} {    
+    if {[file exists ${res_name}]} {
         do ${res_name}
     }
-        
+
     run -all
 
     if { $wave_ena != 0 } {
@@ -201,7 +201,7 @@ proc r { { wave_ena 1 } } {
 }
 #-------------------------------------------------------------------------------
 proc rr {} {
-    transcript file ""; 
+    transcript file "";
     transcript file transcript;
     r
 }
@@ -211,7 +211,7 @@ proc show_res { res } {
 
     set res_name ${CFG_DIR}/sim/${res}
 
-    if {[file exists ${res_name}]} {    
+    if {[file exists ${res_name}]} {
         do ${res_name}
     } else {
         puts "E: result script file does not exist"
