@@ -133,11 +133,11 @@ proc compile {} {
     global SRC
 
     if {[launch_cmd ${vlog_cmd} [concat ${vlog_flags} ${SRC}]] == 0} {
-        return;
+        exit -code -1;
     }
     
     if {[launch_cmd ${vopt_cmd} ${vopt_flags}] == 0} {
-        return;
+        exit -code -1;
     }
 }
 #-------------------------------------------------------------------------------
