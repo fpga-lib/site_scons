@@ -134,10 +134,10 @@ def work_lib(target, source, env):
     #
     #   Compile work library
     #
-    cmd  = env['VSIMCOM'] + ' -c'
+    cmd  = env['QUESTASIM'] + ' -c'
     cmd += ' -do ' + env['SIM_CMD_SCRIPT']
-    cmd += ' -do c'             
-    cmd += ' -do exit'          
+    cmd += ' -do c'      
+    cmd += ' -do exit'
 
     print(cmd)
     msg = colorize('Compile project work library', 'yellow')
