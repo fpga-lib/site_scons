@@ -124,8 +124,8 @@ def generate(env):
     #    Construction Variables
     #
     root_dir                     = str(env.Dir('#'))
-    cfg_name                     = os.path.basename( os.getcwd() )
-
+    build_variant                = get_build_variant_relpath()
+    
     env['VIVADO_VERNUM']         = version_number(env['XILINX_VIVADO'])
     env['VIVADO_PROJECT_NAME']   = 'vivado_project'
     env['TOP_NAME']              = 'top'
@@ -150,8 +150,8 @@ def generate(env):
     env['ROOT_PATH']             = os.path.abspath(str(Dir('#')))
     env['CFG_PATH']              = os.path.abspath(os.curdir)  # current configuration path
     env['SETTINGS_SEARCH_PATH']  = env['CFG_PATH']
-    env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', cfg_name, 'src')
-    env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', cfg_name, 'syn')
+    env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', build_variant, 'src')
+    env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', build_variant, 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
     env['BUILD_HLS_PATH']        = os.path.join(env['BUILD_SYN_PATH'], 'hls')
     env['INC_PATH']              = ''

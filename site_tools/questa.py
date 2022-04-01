@@ -346,10 +346,9 @@ def generate(env):
     #    Construction Variables
     #
     root_dir              = str(env.Dir('#'))
-    cfg_name              = os.path.basename( os.getcwd() )
+    build_variant         = get_build_variant_relpath()
                           
     env['TESTBENCH_NAME'] = 'top_tb'
-    env['CFG_NAME']       = cfg_name
     env['VLOGCOM']        = os.path.join(env['QUESTABIN'], 'vlog')
     env['VCOMCOM']        = os.path.join(env['QUESTABIN'], 'vcom')
     env['VLIBCOM']        = os.path.join(env['QUESTABIN'], 'vlib')
@@ -371,7 +370,7 @@ def generate(env):
                              
     env['SIM_SCRIPT_SUFFIX'] = 'do'
                              
-    env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', cfg_name, 'sim')
+    env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', build_variant, 'sim')
     env['SIM_CMD_SCRIPT']    = os.path.abspath(search_file('questa.tcl', root_dir))
     
     env['VOPT_FILTER_RULES'] = []

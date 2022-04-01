@@ -399,4 +399,12 @@ def create_dirs(dirs):
             Execute( Mkdir(i) )
     
 #-------------------------------------------------------------------------------
+def get_build_variant_relpath():
+    variant = ARGUMENTS.get('variant')
+    if not variant:
+        return os.path.basename( os.getcwd() )
+    else:
+        return variant
+    
+#-------------------------------------------------------------------------------
 
