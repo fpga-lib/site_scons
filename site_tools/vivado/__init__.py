@@ -222,7 +222,8 @@ def generate(env):
                                  suffix     = env['DCP_SUFFIX'],
                                  src_suffix = env['IP_CORE_SUFFIX'])
 
-    HlsCSynth          = Builder(action = hls_csynth, chdir=False) #, source_scanner = CScanner)
+    HlsCSynth          = Builder(action         = hls_csynth, chdir=False, 
+                                 source_scanner = CfgImportScanner)
     
     CfgParamsHeader    = Builder(action = cfg_params_header, source_scanner = CfgImportScanner)
     CfgParamsTcl       = Builder(action = cfg_params_tcl,    source_scanner = CfgImportScanner)
