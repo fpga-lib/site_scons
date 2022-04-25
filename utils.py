@@ -78,8 +78,23 @@ def pexec(cmd, wdir = os.curdir, filter=[]):
     return rcode
     
 #-------------------------------------------------------------------------------
+def cexec(cmd, wdir = os.curdir):
+    p = subprocess.Popen(cmd.split(), 
+                         cwd = str(wdir),
+                         universal_newlines = True,
+                         stdin  = subprocess.PIPE,
+                         stdout = subprocess.PIPE,
+                         stderr = subprocess.PIPE )
+
+
+    out, err = p.communicate()
+
+    return p.returncode, out, err
+
+#-------------------------------------------------------------------------------
 def print_info(text):
     print(Fore.LIGHTCYAN_EX + text + Style.RESET_ALL)
+    
 #-------------------------------------------------------------------------------
 def print_action(text):
     print(Fore.LIGHTGREEN_EX + text + Style.RESET_ALL)
