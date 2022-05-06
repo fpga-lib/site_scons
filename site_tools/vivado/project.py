@@ -32,13 +32,15 @@ def vivado_project(target, source, env):
     syn     = []
     sim     = []
     ip      = []
+    bd      = []
     xdc     = []
     tcl     = []
     incpath = env['INC_PATH']
 
     for s in source:
         s = str(s)
-        if get_suffix(s) != env['IP_CORE_SUFFIX']:
+        sfx = get_suffix(s)
+        if sfx not in [env['IP_CORE_SUFFIX'], env['BD_SUFFIX']] :
             path   = search_file(s, env['CFG_PATH'])
             suffix = get_suffix(path)
             if suffix == env['TOOL_SCRIPT_SUFFIX']:
@@ -64,8 +66,11 @@ def vivado_project(target, source, env):
                 print_error('E: unsupported file type. Only \'yml\', \'tcl\' file types supported')
                 return -1
 
-        else:
+        elif sfx == env['IP_CORE_SUFFIX']:
             ip.append(os.path.abspath(s))
+        else:
+            bd.append(os.path.abspath(s))
+            
 
     #-------------------------------------------------------
     #
@@ -104,12 +109,14 @@ def vivado_project(target, source, env):
     text += 'set_property FLOW "Vivado Implementation ' + env['VIVADO_VERNUM'] + '" [get_runs impl_1]' + os.linesep*2
 
     text += '# Add syn sources' + os.linesep
+    text += 'puts "------------------------------------------------------------"' + os.linesep
     text += 'puts "add syn sources"' + os.linesep
     flist = ['    ' + h for h in syn]
     text += 'add_files -scan_for_includes \\' + os.linesep
     text += (' \\' + os.linesep).join(flist)
     text += os.linesep*2
 
+    text += 'puts "------------------------------------------------------------"' + os.linesep
     text += '# Add sim sources' + os.linesep
     text += 'puts "add sim sources"' + os.linesep
     flist = ['    ' + h for h in sim]
@@ -118,22 +125,38 @@ def vivado_project(target, source, env):
         text += (' \\' + os.linesep).join(flist)
     text += os.linesep*2
     
+    text += 'puts "------------------------------------------------------------"' + os.linesep
     text += '# Add constraints' + os.linesep
     text += 'puts "add constraints"' + os.linesep
     flist = ['    ' + x for x in xdc]
     if flist:
         text += 'add_files -fileset constrs_1 -norecurse \\'  + os.linesep
         text += (' \\' + os.linesep).join(flist)
-    text += os.linesep*2
-
     text += os.linesep
+
+    text += 'puts "------------------------------------------------------------"' + os.linesep
     text += '# Add IP' + os.linesep
     text += 'puts "add IPs"' + os.linesep
     for i in ip:
         text += 'read_ip ' + i + os.linesep
-
     text += os.linesep
+
+    text += 'puts "------------------------------------------------------------"' + os.linesep
+    text += '# Add BD' + os.linesep
+    text += 'puts "add BDs"' + os.linesep
+    for i in bd:
+        text += 'read_bd ' + i + os.linesep
+        bd_name = get_name(i)
+        bd_wrapper_path = os.path.join( env['BD_OOC_PATH'], bd_name, bd_name + '.gen', 'sources_1', 'bd', bd_name, 'hdl', bd_name + '_wrapper.v' )
+        text += 'add_files -norecurse {' + bd_wrapper_path +'}' + os.linesep*2
+        #text += 'make_wrapper -inst_template -files [get_files {' + i + '}]' + os.linesep
+        #text += 'add_files -norecurse ${PROJECT_NAME}.gen/sources_1/bd/${bd_name}/hdl/${bd_name}_wrapper.v'
+    text += os.linesep
+        
+        
     text += '# Properties'                                                     + os.linesep
+    text += 'puts "------------------------------------------------------------"' + os.linesep
+    text += 'puts "set project properties"' + os.linesep
     text += 'set_property part ${DEVICE} [current_project]'                    + os.linesep
     text += 'set_property TARGET_SIMULATOR "Questa" [current_project]'         + os.linesep
     text += 'set_property include_dirs [lsort -unique [lappend incpath ' + \
@@ -150,7 +173,10 @@ def vivado_project(target, source, env):
     #text += 'set_property used_in_simulation false [get_files  -filter {file_type == systemverilog} -of [get_filesets sources_1]]' + os.linesep
     #text += 'set_property used_in_simulation false [get_files  -filter {file_type == verilog} -of [get_filesets sources_1]]'       + os.linesep
     text += os.linesep
+
     text += '# User-defined scripts' + os.linesep
+    text += 'puts "------------------------------------------------------------"' + os.linesep
+    text += 'puts "add user hooks"' + os.linesep
     for t in tcl:
         text += 'source ' + t + os.linesep
 
@@ -392,7 +418,7 @@ def open_vivado_project(target, source, env):
     return None
 
 #-------------------------------------------------------------------------------
-def create_vivado_project(env, src, ip_cores):
+def create_vivado_project(env, src, ip_cores = [], bd = []):
 
     trg_name = env['VIVADO_PROJECT_NAME'] + '.prj'
     target   = os.path.join(env['BUILD_SYN_PATH'], trg_name)
@@ -409,7 +435,7 @@ def create_vivado_project(env, src, ip_cores):
         path = os.path.abspath(path)
         source.append(path)
 
-    env.VivadoProject(target, source + ip_cores)
+    env.VivadoProject(target, source + ip_cores + bd)
 
     return target
 
