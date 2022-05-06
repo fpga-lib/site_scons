@@ -109,12 +109,16 @@ def bd_ooc_create(target, source, env):
 def create_ooc_bd(env, src):
     
     res = []
+    bd_wrappers = []
     
     for s in src:
         source  = os.path.abspath(s)
         bd_name = get_name(s)
         target  = os.path.join(env['BD_OOC_PATH'], bd_name, bd_name + '.srcs', 'sources_1', 'bd', bd_name, bd_name + '.' + env['BD_SUFFIX'])
         res.append( env.BdCreate(target, source) )
+        bd_wrappers.append(os.path.join( env['BD_OOC_PATH'], bd_name, bd_name + '.gen', 'sources_1', 'bd', bd_name, 'hdl', bd_name + '_wrapper.v' ))
+        
+    env['BD_WRAPPERS'] = bd_wrappers
         
     return res
     
