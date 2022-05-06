@@ -133,6 +133,7 @@ def generate(env):
     env['DEVICE']                = 'xc7a200tfbg676-2'
 
     env['VIVADO_PROJECT_MODE']   = True
+    env['CLEAR_PROJECT_DIR']     = False                              # clear project directory when create new project
 
     env['SYNCOM']                = VIVADO + ' -mode batch '
     env['SYNSHELL']              = VIVADO + ' -mode tcl '

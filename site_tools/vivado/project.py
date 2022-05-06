@@ -76,12 +76,13 @@ def vivado_project(target, source, env):
     #
     #   Delete old project
     #
-    project_items = glob.glob(os.path.join(project_dir, project_name) + '*')
-#   if os.path.exists(env['BD_SIM_PATH']):
-#       project_items.append(env['BD_SIM_PATH'])
-        
-    for item in project_items:
-        Execute( Delete(item) )
+    if env['CLEAR_PROJECT_DIR']:
+        project_items = glob.glob(os.path.join(project_dir, project_name) + '*')
+    #   if os.path.exists(env['BD_SIM_PATH']):
+    #       project_items.append(env['BD_SIM_PATH'])
+            
+        for item in project_items:
+            Execute( Delete(item) )
 
     #-------------------------------------------------------
     #
