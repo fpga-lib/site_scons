@@ -16,6 +16,7 @@ import SCons.Scanner
 from utils import *
 
 from site_scons.site_tools.vivado.ipcores import *
+from site_scons.site_tools.vivado.bd      import *
 from site_scons.site_tools.vivado.params  import *
 from site_scons.site_tools.vivado.project import *
 from site_scons.site_tools.vivado.hls     import *
@@ -153,10 +154,12 @@ def generate(env):
     env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', build_variant, 'src')
     env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', build_variant, 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
+    env['BD_OOC_PATH']           = os.path.join(root_dir, 'build', build_variant, 'bd')
     env['BUILD_HLS_PATH']        = os.path.join(env['BUILD_SYN_PATH'], 'hls')
     env['INC_PATH']              = ''
 
     env['IP_SCRIPT_DIRNAME']     = '_script'
+    env['BD_SCRIPT_DIRNAME']     = '_script'
     env['SIM_SCRIPT_DIRNAME']    = 'sim_script'
     env['SIM_SCRIPT_PATH']       = os.path.join(env['BUILD_SYN_PATH'], env['SIM_SCRIPT_DIRNAME'])
     env['HLS_SCRIPT_DIRNAME']    = '_script'
@@ -166,6 +169,7 @@ def generate(env):
     env['CONFIG_SUFFIX']         = 'yml'
     env['TOOL_SCRIPT_SUFFIX']    = 'tcl'
     env['IP_CORE_SUFFIX']        = 'xci'
+    env['BD_SUFFIX']             = 'bd'
     env['DCP_SUFFIX']            = 'dcp'
     env['BITSTREAM_SUFFIX']      = 'bit'
     env['CONSTRAINTS_SUFFIX']    = 'xdc'
@@ -222,6 +226,8 @@ def generate(env):
                                  suffix     = env['DCP_SUFFIX'],
                                  src_suffix = env['IP_CORE_SUFFIX'])
 
+    BdCreate           = Builder(action     = bd_ooc_create)
+    
     HlsCSynth          = Builder(action         = hls_csynth, chdir=False, 
                                  source_scanner = CfgImportScanner)
     
@@ -242,6 +248,8 @@ def generate(env):
         'IpCreate'            : IpCreate,
         'IpSyn'               : IpSyn,
 
+        'BdCreate'            : BdCreate,
+        
         'HlsCSynth'           : HlsCSynth,
 
         'CfgParamsHeader'     : CfgParamsHeader,
@@ -265,6 +273,8 @@ def generate(env):
     env.AddMethod(ip_syn_scripts,    'IpSynScripts')
     env.AddMethod(create_ips,        'CreateIps')
     env.AddMethod(syn_ips,           'SynIps')
+    
+    env.AddMethod(create_ooc_bd,     'CreateOocBd')
 
     env.AddMethod(launch_hls_csynth, 'LaunchHlsCSynth')
     env.AddMethod(hlsip_syn_scripts, 'HlsIpSynScripts')
