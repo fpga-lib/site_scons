@@ -273,15 +273,33 @@ def read_src_list(fn: str, search_root=''):
     path = search_file(fn, search_root)
     with open( path ) as f:
         cfg = yaml.safe_load(f)
-        
-        if cfg:
-            usedin = 'syn'
-            if 'usedin' in cfg:
-                usedin = cfg['usedin']
+    
+    if 'parameters' in cfg:
+        params = read_config(fn, 'parameters', search_root)
+    
+    if cfg:
+        usedin = 'syn'
+        if 'usedin' in cfg:
+            usedin = cfg['usedin']
+           
+        flist = [] 
+        for i in cfg['sources']:
+            p = re.search('\$(\w+)', i)
+            if p:
+                fpath = p.group(1)
+                if fpath in params:
+                    if params[fpath]:
+                        flist.append(i.replace('$' + fpath, params[fpath]))
+                else:
+                    print_error('E: undefined substitution parameter "' + fpath + '"')
+                    print_error('    File: ' + path )
+                    Exit(-2)
+            else:
+                flist.append(i)
                 
-            return cfg['sources'], usedin
-        else:
-            return [], ''
+        return flist, usedin
+    else:
+        return [], ''
     
 #-------------------------------------------------------------------------------
 #
