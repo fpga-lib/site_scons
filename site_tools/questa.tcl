@@ -186,8 +186,26 @@ proc s { { res empty} { wave_ena 1 } } {
 proc run_sim {} {
 
     sim_begin;
+    
+    set errcode sim_error_status_code
+    
+    if { [file exists $errcode] } {
+        file delete $errcode
+    } 
+        
+    onfinish final
     run -all
-    exit
+
+    if { [file exists $errcode] } {
+        set fd [open $errcode r]
+        set exit_code [read $fd]
+        close $fd
+    } else {
+        set exit_code 0
+    }
+    puts "\n******************************************************************************"
+
+    exit -code $exit_code
 }
 #-------------------------------------------------------------------------------
 proc r { { wave_ena 1 } } {

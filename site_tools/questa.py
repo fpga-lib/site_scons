@@ -162,7 +162,10 @@ def questa_gui(target, source, env):
 def questa_run(target, source, env):
     cmd = env['QUESTASIM'] + ' -batch ' + ' -do ' + env['SIM_CMD_SCRIPT'] + ' -do run_sim'
     print(cmd)
-    env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
+    rcode = env.Execute('cd ' + env['BUILD_SIM_PATH'] + ' && ' + cmd)
+    print('-'*80)
+    if rcode:
+        env.Exit(rcode)
 
     return None
 
