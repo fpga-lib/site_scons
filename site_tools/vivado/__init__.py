@@ -66,11 +66,11 @@ def scan_cfg_files(node, env, path):
 #
 def scan_hdl_files(node, env, path):
 
-    pattern = '`include\s+\"([\w\-]+\.\w+)\"'
+    pattern = r'^\s*`include\s+\"([\w\-]+\.s?vh)\"'
 
     inclist = [] 
     contents = node.get_text_contents()
-    includes = re.findall(pattern, contents)
+    includes = re.findall(pattern, contents, re.MULTILINE)
 
     for i in includes:
         found = False
