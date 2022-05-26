@@ -261,7 +261,8 @@ def generate(env):
                                  suffix     = env['DCP_SUFFIX'],
                                  src_suffix = env['IP_CORE_SUFFIX'])
 
-    BdCreate           = Builder(action     = bd_ooc_create)
+    BdCreate           = Builder(action         = bd_ooc_create, 
+                                 source_scanner = TclSourceScanner)
     
     HlsCSynth          = Builder(action         = hls_csynth, chdir=False, 
                                  source_scanner = CfgImportScanner)
