@@ -87,7 +87,30 @@ def scan_hdl_files(node, env, path):
     
     return env.File(inclist)
     
+#---------------------------------------------------------------------
+#
+#    Tcl scanner
+#
+def scan_tcl_files(node, env, path):
 
+    pattern = '^\s*source\s+\$\w+\/([\w\-]+\.\w+)'
+
+    inclist = [] 
+    contents = node.get_text_contents()
+    includes = re.findall(pattern, contents, re.MULTILINE)
+
+    for i in includes:
+        found = False
+        for p in path:
+            full_path = os.path.join( os.path.abspath(str(p)), i)
+            if os.path.exists(full_path):
+                inclist.append(full_path)
+                found = True
+                break
+
+        if not found:
+            full_path = os.path.join(env['BUILD_SRC_PATH'], i)
+            inclist.append(full_path)
 
     return env.File(inclist)
 
@@ -209,6 +232,13 @@ def generate(env):
                        recursive     = True,
                        path_function = SCons.Scanner.FindPathDirs('INC_PATH')
                       )
+    TclSourceScanner = Scanner(name  = 'TclSourceScanner',
+                       function      = scan_tcl_files,
+                       skeys         = ['.' + env['TOOL_SCRIPT_SUFFIX']],
+                       recursive     = True,
+                       path_function = SCons.Scanner.FindPathDirs('BUILD_SRC_PATH')
+                      )
+    
     #-----------------------------------------------------------------
     #
     #   Builders
