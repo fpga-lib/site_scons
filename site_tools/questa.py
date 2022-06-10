@@ -374,7 +374,7 @@ def generate(env):
     env['SIM_SCRIPT_SUFFIX'] = 'do'
                              
     env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', build_variant, 'sim')
-    env['SIM_CMD_SCRIPT']    = os.path.abspath(search_file('questa.tcl', root_dir))
+    env['SIM_CMD_SCRIPT']    = os.path.abspath(os.path.join(root_dir, 'site_scons', 'site_tools', 'questa.tcl' ))
     
     env['VOPT_FILTER_RULES'] = []
     
