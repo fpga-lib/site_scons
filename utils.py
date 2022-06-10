@@ -21,6 +21,8 @@ import select
 from SCons.Script import *
 from colorama import Fore, Style
 
+check_exclude_path = []
+
 #-------------------------------------------------------------------------------
 # 
 # 
@@ -148,6 +150,14 @@ def search_file(fn, search_root=''):
     if not len(full_path):
         print_error('E: file not found: ' + fn)
         sys.exit(1)
+#-------------------------------------------------------------------------------
+def add_check_exclude_path(path):
+    global check_exclude_path
+
+    if SCons.Util.is_List(path):
+        check_exclude_path += path
+    else:
+        check_exclude_path.append(path)
 
     if len(full_path) > 1:
         print_error('E: duplicate files found: ' + ' AND '.join(full_path))
@@ -332,9 +342,18 @@ def read_sources(*args):
                     break
                 
             if not path_exists:
-                print_error('E: file at relative path "' + s + '" does not exists')
-                print_error('    detected while processing "' + fn +'"')
-                sys.exit(-1)
+                ignore = False
+                for exdir in check_exclude_path:
+                    print(exdir, s)
+                    if exdir in s:
+                        ignore = True
+                        break
+                    
+                if not ignore:
+                    print_error('E: file at relative path "' + s + '" does not exists')
+                    print_error('    detected while processing "' + fn_path +'"')
+                    print(prefix_path)
+                    Exit(-1)
             
     if len(args) > 1:
         return path_list, usedin
