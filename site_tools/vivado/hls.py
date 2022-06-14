@@ -53,7 +53,7 @@ class Params:
         #-----------------------------------------------------------------
         # clock
         if not 'clock_period' in self.params:
-            print_warning('W: HLS module clock period not specified in configuration file: \'' + src_path + '\'')
+            print_warning('W: HLS module clock period is not specified in configuration file: \'' + src_path + '\'')
             self.clock_period = '10ns'
         else:
             self.clock_period = self.params['clock_period']
@@ -72,22 +72,23 @@ class Params:
             print_error('E: HLS module has no synthesis source list in configuration file: \'' + i + '\'')
             self.error = True
             return
-
-        self.src_syn_list, usedin = read_sources( self.params['src_csyn_list'], env['CFG_PATH'] )
+        
+        self.src_syn_list, usedin = read_sources( self.params['src_csyn_list'], os.path.dirname(src_path), True )
 
         #-----------------------------------------------------------------
         # simulation source list
         if not 'src_csim_list' in self.params:
             self.src_sim_list = []
         else:
-            self.src_sim_list, usedin = read_sources( self.params['src_csim_list'], env['CFG_PATH'] )
+            self.src_sim_list, usedin = read_sources( self.params['src_csim_list'], os.path.dirname(src_path), True )
 
         #-----------------------------------------------------------------
         # hook list
         if not 'hook_list' in self.params:
             self.hook_list = []
         else:
-            self.hook_list, usedin = read_sources( self.params['hook_list'], env['CFG_PATH'] )
+            self.hook_list, usedin = read_sources( self.params['hook_list'], os.path.dirname(src_path), True )
+            print( self.hook_list )
 
         #-----------------------------------------------------------------
         # flags
@@ -270,16 +271,16 @@ def create_hls_ip(script_path, trg_path, exec_dir, env):
 def add_sim_stuff(name, env):
 
      dat_files = glob.glob( os.path.join(env['SIM_SCRIPT_PATH'], name, '**/*.dat'), recursive=True)
-     
+
      for f in dat_files:
          dst = os.path.join(env['BUILD_SIM_PATH'], os.path.basename(f) )
          if os.path.lexists(dst):
              os.remove(dst)
-             
+
          os.symlink(f, dst)
          msg = colorize('create symbolic link for ', 'magenta')
          print(msg, f + ' in ' + env['BUILD_SIM_PATH'])
-     
+
 #-------------------------------------------------------------------------------
 #
 #   Builder
@@ -307,10 +308,14 @@ def hls_csynth(target, source, env):
     print_action('create HLS module from:    \'' + src_path + '\'')
 
     # parameters processing
-    params = Params( read_config(str(src), search_root = env['CFG_PATH']), src_path, env)
-    if params.error:
-        return -2
-    
+    try:
+        params = Params( read_config(src_path), src_path, env)
+        
+    except SearchFileException as e:
+        print_error('E: HLS config read: ' + e.msg)
+        print_error('    while building target: "' + trg_path + '"')
+        Exit(-1)
+        
     module_name = params.name
     
     # paths and names
@@ -338,6 +343,19 @@ def hls_csynth(target, source, env):
     add_sim_stuff(trg_name, env)
     
     return None
+
+#-------------------------------------------------------------------------------
+def read_source_list(cfg_path, src_list_name):
+    try:
+        cfg_dirname = os.path.dirname(cfg_path)
+        name        = os.path.basename(src_list_name)
+        print(name, cfg_dirname)
+        return read_sources( name, cfg_dirname )
+
+    except SearchFileException as e:
+        print_error('E: ' + e.msg)
+        print_error('    while processing file: "' + cfg_path + '"')
+        Exit(-1)
     
 #-------------------------------------------------------------------------------
 #
@@ -353,31 +371,40 @@ def launch_hls_csynth(env, src):
     
     # generate dependencies from sources
     for s in src:
-        params = read_config(s)
+        try:
+            params = read_config(s)
+
+        except SearchFileException as e:
+            print_error('E: HLS config read: ' + e.msg)
+            print_error('    while running "LaunchHlsCSynth" builder')
+            Exit(-1)
+        
         
         #-----------------------------------------------------------------
         # synthesis source list
         if not 'src_csyn_list' in params:
             print_error('E: HLS module has no synthesis source list in configuration file: \'' + s + '\'')
-            sys.exit(-2)
+            Exit(-2)
     
-        src_csyn_list = read_sources( params['src_csyn_list'] )
+        src_csyn_list = read_source_list(s, params['src_csyn_list'])
     
         #-----------------------------------------------------------------
         # simulation source list
         if not 'src_csim_list' in params:
             src_csim_list = []
         else:
-            src_csim_list = read_sources( params['src_csim_list'] )
+            src_csim_list = read_source_list(s, params['src_csim_list'])
     
         #-----------------------------------------------------------------
         # hook list
         if not 'hook_list' in params:
             hook_list = []
         else:
-            hook_list = read_sources( params['hook_list'] )
+            hook_list = read_source_list(s, params['hook_list'])
             
-        source = src + src_csyn_list + hook_list
+        print(s, hook_list)
+            
+        source = str.split(s) + src_csyn_list + hook_list
     
         trg_name = get_name(s) + env['HLS_IP_NAME_SUFFIX']
         #target   = os.path.join(env['BUILD_HLS_PATH'], 'ip', trg_name + '.' + env['HLS_TARGET_SUFFIX'])

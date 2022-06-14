@@ -178,7 +178,7 @@ def generate(env):
 
     env['ROOT_PATH']             = os.path.abspath(str(Dir('#')))
     env['CFG_PATH']              = os.path.abspath(os.curdir)  # current configuration path
-    env['SETTINGS_SEARCH_PATH']  = env['CFG_PATH']
+    env['CONFIG_SEARCH_PATH']    = []
     env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', build_variant, 'src')
     env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', build_variant, 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
@@ -223,7 +223,7 @@ def generate(env):
                        function      = scan_cfg_files,
                        skeys         = ['.' + env['CONFIG_SUFFIX']],
                        recursive     = True,
-                       path_function = SCons.Scanner.FindPathDirs('SETTINGS_SEARCH_PATH')
+                       path_function = SCons.Scanner.FindPathDirs('CONFIG_SEARCH_PATH')
                       )
 
     HdlSourceScanner = Scanner(name  = 'HldSourceScanner',

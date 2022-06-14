@@ -47,7 +47,14 @@ def vivado_project(target, source, env):
                 tcl.append( os.path.abspath(path) )
 
             elif suffix == env['CONFIG_SUFFIX']:
-                path_list, used_in = read_sources(path, env['CFG_PATH'])
+                try:
+                    path_list, used_in = read_sources(path, env['CFG_PATH'], True)
+                    
+                except SearchFileException as e:
+                    print_error('E: ' + e.msg)
+                    print_error('    while running "CreateVivadoProject" builder')
+                    Exit(-1)
+
                 for item in path_list:
                     src_suffix = get_suffix(item)
                     if src_suffix in [env['V_SUFFIX'], env['SV_SUFFIX'], env['SV_HEADER_SUFFIX'], env['SV_PACKAGE_SUFFIX']]:

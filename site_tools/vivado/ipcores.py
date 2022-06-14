@@ -31,7 +31,13 @@ def ip_create_script(target, source, env):
     param_sect = 'config'
 
     ip_name = drop_suffix(src.name)
-    ip_cfg  = read_ip_config(src_path, param_sect, env['CFG_PATH'])
+    try:
+        ip_cfg = read_ip_config(src_path, param_sect)
+        
+    except SearchFileException as e:
+        print_error('E: ' + e.msg)
+        print_error('    while running "IpCreateScripts" builder')
+        Exit(-1)
 
     title_text =\
     'IP core "' + ip_name + '" create script' + os.linesep*2 + \
