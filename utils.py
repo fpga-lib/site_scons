@@ -212,7 +212,7 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
         except Exception as e:
             print_error('E: ' + str(e))
             print_error('    File: ' + cfg_file_path + ', line: ' + var + ' : "' + cfg_dict[key] + '"')
-            sys.exit(-1)
+            Exit(-1)
 
     for key in cfg_dict:
         if isinstance(cfg_dict[key], str):
@@ -223,7 +223,7 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
                 except Exception as e:
                     print_error('E: ' + str(e))
                     print_error('    File: ' + cfg_file_path + ', line: ' + expr)
-                    sys.exit(-1)
+                    Exit(-1)
                     
                 try:
                     if isinstance(cfg_dict[key], str):

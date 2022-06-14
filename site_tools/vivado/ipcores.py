@@ -259,12 +259,12 @@ def syn_ips(env, src, deps=None):
     if deps:
         if len(src) != len(deps):
             print_error('E: ip_syn: src count:', len(src), 'must be equal deps count:', len(deps))
-            sys.exit(2)
+            Exit(2)
 
         src = list(zip(src, deps))
     else:
         print_error('E: ip_syn: "deps" argument (typically xci IP Core node list) not specified')
-        sys.exit(2)
+        Exit(2)
 
     res         = []
     script_sfx  = '-syn.'+env['TOOL_SCRIPT_SUFFIX']

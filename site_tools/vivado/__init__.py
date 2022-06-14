@@ -53,7 +53,7 @@ def scan_cfg_files(node, env, path):
 
             if not found:
                 print_error('E: import config file ' + fn + ' not found')
-                sys.exit(-2)
+                Exit(-2)
 
         return env.File(imports)
 
@@ -141,11 +141,11 @@ def generate(env):
     
     if not os.path.exists(VIVADO):
         print_error('E: Vivado not found at the path: ' + VIVADO)
-        sys.exit(-1)
+        Exit(-1)
     
     if not os.path.exists(HLS):
         print_error('E: Vitis HLS not found at the path: ' + HLS)
-        sys.exit(-1)
+        Exit(-1)
 
     #-----------------------------------------------------------------
     #
