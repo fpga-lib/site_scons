@@ -88,7 +88,6 @@ class Params:
             self.hook_list = []
         else:
             self.hook_list, usedin = read_sources( self.params['hook_list'], os.path.dirname(src_path), True )
-            print( self.hook_list )
 
         #-----------------------------------------------------------------
         # flags
@@ -309,7 +308,7 @@ def hls_csynth(target, source, env):
 
     # parameters processing
     try:
-        params = Params( read_config(src_path), src_path, env)
+        params = Params( read_config(src_path), src_path, env )
         
     except SearchFileException as e:
         print_error('E: HLS config read: ' + e.msg)
@@ -349,7 +348,7 @@ def read_source_list(cfg_path, src_list_name):
     try:
         cfg_dirname = os.path.dirname(cfg_path)
         name        = os.path.basename(src_list_name)
-        print(name, cfg_dirname)
+        #print(name, cfg_dirname)
         return read_sources( name, cfg_dirname )
 
     except SearchFileException as e:
@@ -402,12 +401,9 @@ def launch_hls_csynth(env, src):
         else:
             hook_list = read_source_list(s, params['hook_list'])
             
-        print(s, hook_list)
-            
         source = str.split(s) + src_csyn_list + hook_list
     
         trg_name = get_name(s) + env['HLS_IP_NAME_SUFFIX']
-        #target   = os.path.join(env['BUILD_HLS_PATH'], 'ip', trg_name + '.' + env['HLS_TARGET_SUFFIX'])
         target   = os.path.join(env['IP_OOC_PATH'], trg_name, trg_name, trg_name + '.' + env['IP_CORE_SUFFIX'])
         targets.append( env.HlsCSynth(target, source, env) )
             
