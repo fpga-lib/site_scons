@@ -269,8 +269,9 @@ def syn_ips(env, src, deps=None):
 
         src = list(zip(src, deps))
     else:
-        print_error('E: ip_syn: "deps" argument (typically xci IP Core node list) not specified')
-        Exit(2)
+        if not SCons.Util.is_List(deps):
+            print_error('E: ip_syn: "deps" argument (typically xci IP Core node list) not specified')
+            Exit(2)
 
     res         = []
     script_sfx  = '-syn.'+env['TOOL_SCRIPT_SUFFIX']

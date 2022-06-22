@@ -102,7 +102,13 @@ def create_cfg_params_header(env, trg, src):
         src = src.split()
     source = []
     for s in src:
-        ss = os.path.abspath(search_file(s))
+        try:
+            ss = os.path.abspath(search_file(s))
+        except SearchFileException as e:
+            print_error('E: ' + e.msg)
+            print_error('    while running "CreateCfgParamsHeader" builder')
+            Exit(-1)
+            
         source.append(ss)
 
     env.CfgParamsHeader(trg, source)
@@ -116,7 +122,13 @@ def create_cfg_params_tcl(env, trg, src):
         src = src.split()
     source = []
     for s in src:
-        ss = os.path.abspath(search_file(s))
+        try:
+            ss = os.path.abspath(search_file(s))
+        except SearchFileException as e:
+            print_error('E: ' + e.msg)
+            print_error('    while running "CreateCfgParamsTcl" builder')
+            Exit(-1)
+            
         source.append(ss)
 
     env.CfgParamsTcl(trg, source)

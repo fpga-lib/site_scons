@@ -53,6 +53,7 @@ def scan_cfg_files(node, env, path):
 
             if not found:
                 print_error('E: import config file ' + fn + ' not found')
+                print_error('    raised during processing "' + fname + '"' )
                 Exit(-2)
 
         return env.File(imports)
