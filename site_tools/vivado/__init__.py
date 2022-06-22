@@ -53,7 +53,8 @@ def scan_cfg_files(node, env, path):
 
             if not found:
                 print_error('E: import config file ' + fn + ' not found')
-                sys.exit(-2)
+                print_error('    raised during processing "' + fname + '"' )
+                Exit(-2)
 
         return env.File(imports)
 
@@ -141,11 +142,11 @@ def generate(env):
     
     if not os.path.exists(VIVADO):
         print_error('E: Vivado not found at the path: ' + VIVADO)
-        sys.exit(-1)
+        Exit(-1)
     
     if not os.path.exists(HLS):
         print_error('E: Vitis HLS not found at the path: ' + HLS)
-        sys.exit(-1)
+        Exit(-1)
 
     #-----------------------------------------------------------------
     #
@@ -178,7 +179,7 @@ def generate(env):
 
     env['ROOT_PATH']             = os.path.abspath(str(Dir('#')))
     env['CFG_PATH']              = os.path.abspath(os.curdir)  # current configuration path
-    env['SETTINGS_SEARCH_PATH']  = env['CFG_PATH']
+    env['CONFIG_SEARCH_PATH']    = []
     env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', build_variant, 'src')
     env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', build_variant, 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
@@ -223,7 +224,7 @@ def generate(env):
                        function      = scan_cfg_files,
                        skeys         = ['.' + env['CONFIG_SUFFIX']],
                        recursive     = True,
-                       path_function = SCons.Scanner.FindPathDirs('SETTINGS_SEARCH_PATH')
+                       path_function = SCons.Scanner.FindPathDirs('CONFIG_SEARCH_PATH')
                       )
 
     HdlSourceScanner = Scanner(name  = 'HldSourceScanner',

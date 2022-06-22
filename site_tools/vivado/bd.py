@@ -30,8 +30,9 @@ def bd_create_script(env, trg, bd_config_path):
     text += 'set_property part  ${DEVICE} [current_project]'                                            + os.linesep
     text += 'set_property top ${TOP_NAME} [get_filesets sources_1]'                                     + os.linesep*2
                                                                                                         
-    text += 'set bd_name {' + bd_name + '}'                                                             + os.linesep
-    text += 'set bd_path {' + os.path.abspath(trg) + '}'                                                + os.linesep*2
+    text += 'set bd_name    {' + bd_name + '}'                                                          + os.linesep
+    text += 'set bd_path    {' + os.path.abspath(trg) + '}'                                             + os.linesep
+    text += 'set bd_wrapper ${PROJECT_NAME}.gen/sources_1/bd/${bd_name}/hdl/${bd_name}_wrapper.v'       + os.linesep*2
                                                                                                         
     text += 'puts ""'                                                                                   + os.linesep
     text += 'puts "======== Create block design \\\"$bd_name\\\" ========"  '                           + os.linesep
@@ -43,15 +44,15 @@ def bd_create_script(env, trg, bd_config_path):
     
     text += 'validate_bd_design'                                                                        + os.linesep
     text += 'make_wrapper -files [get_files ${bd_path}] -top'                                           + os.linesep
-    text += 'add_files -norecurse ${PROJECT_NAME}.gen/sources_1/bd/${bd_name}/hdl/${bd_name}_wrapper.v' + os.linesep
+    text += 'add_files -norecurse ${bd_wrapper}'                                                        + os.linesep
     text += 'update_compile_order -fileset sources_1'                                                   + os.linesep*2
 
     text += 'puts ""'                                                                                   + os.linesep
     text += 'puts "-------- Export simulation for \\\"$bd_name\\\" --------"'                           + os.linesep
     text += 'set_property top ${bd_name}_wrapper [get_filesets sim_1]'                                  + os.linesep
     text += 'generate_target simulation [get_files ${bd_path}] -force'                                  + os.linesep
-    text += 'export_simulation -of_objects [get_files ${bd_path}]' + \
-            ' -simulator questa -absolute_path -force -directory ${SIM_SCRIPT_DIR}'                     + os.linesep
+    text += 'export_simulation -of_objects [get_files ${bd_wrapper}]' + \
+            ' -simulator questa -absolute_path -force -directory ${SIM_SCRIPT_DIR}/${bd_name}'          + os.linesep
     
     out = generate_title(title_text, '#')
     out += text

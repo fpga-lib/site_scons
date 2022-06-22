@@ -31,7 +31,13 @@ def ip_create_script(target, source, env):
     param_sect = 'config'
 
     ip_name = drop_suffix(src.name)
-    ip_cfg  = read_ip_config(src_path, param_sect, env['CFG_PATH'])
+    try:
+        ip_cfg = read_ip_config(src_path, param_sect)
+        
+    except SearchFileException as e:
+        print_error('E: ' + e.msg)
+        print_error('    while running "IpCreateScripts" builder')
+        Exit(-1)
 
     title_text =\
     'IP core "' + ip_name + '" create script' + os.linesep*2 + \
@@ -259,12 +265,13 @@ def syn_ips(env, src, deps=None):
     if deps:
         if len(src) != len(deps):
             print_error('E: ip_syn: src count:', len(src), 'must be equal deps count:', len(deps))
-            sys.exit(2)
+            Exit(2)
 
         src = list(zip(src, deps))
     else:
-        print_error('E: ip_syn: "deps" argument (typically xci IP Core node list) not specified')
-        sys.exit(2)
+        if not SCons.Util.is_List(deps):
+            print_error('E: ip_syn: "deps" argument (typically xci IP Core node list) not specified')
+            Exit(2)
 
     res         = []
     script_sfx  = '-syn.'+env['TOOL_SCRIPT_SUFFIX']

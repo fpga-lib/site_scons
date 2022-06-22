@@ -22,7 +22,14 @@ def cfg_params_header(target, source, env):
     print_action('create cfg params header:  \'' + trg.name + '\'')
     params = {}
     for src in source:
-        cfg_params = read_config(str(src), search_root = env['CFG_PATH'])
+        try:
+            cfg_params = read_config(str(src))
+            
+        except SearchFileException as e:
+            print_error('E: ' + e.msg)
+            print_error('    while running "CreateCfgParamsHeader" builder')
+            Exit(-1)
+        
         cfg_params = prefix_suffix(str(src), cfg_params)
         params.update(cfg_params)
 
@@ -61,7 +68,14 @@ def cfg_params_tcl(target, source, env):
     print_action('create cfg params tcl:     \'' + trg.name + '\'')
     params = {}
     for src in source:
-        cfg_params = read_config(str(src), search_root = env['CFG_PATH'])
+        try:
+            cfg_params = read_config(str(src))
+
+        except SearchFileException as e:
+            print_error('E: ' + e.msg)
+            print_error('    while running "CreateCfgParamsTcl" builder')
+            Exit(-1)
+                
         cfg_params = prefix_suffix(str(src), cfg_params)
         params.update(cfg_params)
 
@@ -88,7 +102,13 @@ def create_cfg_params_header(env, trg, src):
         src = src.split()
     source = []
     for s in src:
-        ss = os.path.abspath(search_file(s))
+        try:
+            ss = os.path.abspath(search_file(s))
+        except SearchFileException as e:
+            print_error('E: ' + e.msg)
+            print_error('    while running "CreateCfgParamsHeader" builder')
+            Exit(-1)
+            
         source.append(ss)
 
     env.CfgParamsHeader(trg, source)
@@ -102,7 +122,13 @@ def create_cfg_params_tcl(env, trg, src):
         src = src.split()
     source = []
     for s in src:
-        ss = os.path.abspath(search_file(s))
+        try:
+            ss = os.path.abspath(search_file(s))
+        except SearchFileException as e:
+            print_error('E: ' + e.msg)
+            print_error('    while running "CreateCfgParamsTcl" builder')
+            Exit(-1)
+            
         source.append(ss)
 
     env.CfgParamsTcl(trg, source)

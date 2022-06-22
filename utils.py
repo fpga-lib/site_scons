@@ -21,6 +21,9 @@ import select
 from SCons.Script import *
 from colorama import Fore, Style
 
+config_search_path = []
+check_exclude_path = []
+
 #-------------------------------------------------------------------------------
 # 
 # 
@@ -136,24 +139,55 @@ def clog2(n: int) -> int:
 def max_str_len(x):
     return len(max(x, key=len))
 #-------------------------------------------------------------------------------
-def search_file(fn, search_root=''):
-    fname = os.path.basename(fn)
-    fpath = os.path.join(search_root, fname)
+class SearchFileException(Exception):
 
-    if os.path.exists(fpath):
-        full_path = str.split(fpath)
+    def __init__(self, msg):
+        self.msg = msg
+        
+#-------------------------------------------------------------------------------
+def add_search_path(path):
+    global config_search_path
+    
+    if SCons.Util.is_List(path):
+        config_search_path += path
     else:
-        full_path = glob.glob( os.path.join(search_root, '**', fname), recursive=True )
-        
-    if not len(full_path):
-        print_error('E: file not found: ' + fn)
-        sys.exit(1)
+        config_search_path.append(path)
+                
+#-------------------------------------------------------------------------------
+def get_search_path():
+    return config_search_path
+    
+#-------------------------------------------------------------------------------
+def add_check_exclude_path(path):
+    global check_exclude_path
 
-    if len(full_path) > 1:
-        print_error('E: duplicate files found: ' + ' AND '.join(full_path))
-        sys.exit(1)
+    if SCons.Util.is_List(path):
+        check_exclude_path += path
+    else:
+        check_exclude_path.append(path)
+
+#-------------------------------------------------------------------------------
+def search_file(fn, search_path=[]):
+    
+    if os.path.exists(fn):
+        return os.path.abspath(fn)
         
-    return full_path[0]
+    if not SCons.Util.is_List(search_path):
+        search_path = str.split(search_path)
+        
+    spath = search_path + config_search_path
+    
+    for p in spath:
+        path = os.path.join(p, fn)
+        if os.path.exists(path):
+            return os.path.abspath(path)
+    
+    msg = 'file "' + fn + '" not found at search path list:' + os.linesep
+    for p in spath:
+        msg += ' '*4 + '"' + p + '"' + os.linesep
+    
+    raise SearchFileException(msg)
+
 #-------------------------------------------------------------------------------
 class ConfigDict(object):
 
@@ -202,7 +236,7 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
         except Exception as e:
             print_error('E: ' + str(e))
             print_error('    File: ' + cfg_file_path + ', line: ' + var + ' : "' + cfg_dict[key] + '"')
-            sys.exit(-1)
+            Exit(-1)
 
     for key in cfg_dict:
         if isinstance(cfg_dict[key], str):
@@ -213,7 +247,7 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
                 except Exception as e:
                     print_error('E: ' + str(e))
                     print_error('    File: ' + cfg_file_path + ', line: ' + expr)
-                    sys.exit(-1)
+                    Exit(-1)
                     
                 try:
                     if isinstance(cfg_dict[key], str):
@@ -225,15 +259,15 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
                     print_error('E: ' + str(e))
                     print_error('    File: ' + cfg_file_path + ', line: ' + expr)
                     print_error('    key: ' + key + ', value: ' + str(cfg_dict[key]))
-                    sys.exit(-1)
-                    
+                    Exit(-1)
                 
     return cfg_dict
 
 #-------------------------------------------------------------------------------
-def read_config(fn: str, param_sect='parameters', search_root=''):
+def read_config(fn: str, param_sect='parameters', search_path=[]):
 
-    path = search_file(fn, search_root)
+    path = search_file(fn, search_path)
+    #path = search_file(fn)
     with open( path ) as f:
         cfg = yaml.safe_load(f)
         
@@ -243,7 +277,7 @@ def read_config(fn: str, param_sect='parameters', search_root=''):
 
         for i in imports:
             imp_fn = i + '.yml'                         # file name of imported data
-            imps[i] = read_config(imp_fn, search_root=search_root)
+            imps[i] = read_config(imp_fn, search_path=search_path)
                 
     params = cfg[param_sect]
     params = eval_cfg_dict(path, params, imps)
@@ -251,14 +285,14 @@ def read_config(fn: str, param_sect='parameters', search_root=''):
     return params
 
 #-------------------------------------------------------------------------------
-def import_config(fn: str, search_root=''):
-    return ConfigDict( read_config(fn, 'parameters', search_root) )
+def import_config(fn: str, search_path=[]):
+    return ConfigDict( read_config(fn, 'parameters', search_path) )
 #-------------------------------------------------------------------------------
-def read_ip_config(fn, param_sect, search_root=''):
+def read_ip_config(fn, param_sect, search_path=[]):
 
-    cfg_params = read_config(fn, param_sect, search_root)
+    cfg_params = read_config(fn, param_sect, search_path)
     
-    with open( fn ) as f:
+    with open( search_file(fn) ) as f:
         cfg = yaml.safe_load(f)
         
     ip_cfg = {}
@@ -268,14 +302,15 @@ def read_ip_config(fn, param_sect, search_root=''):
     return ip_cfg
 
 #-------------------------------------------------------------------------------
-def read_src_list(fn: str, search_root=''):
+def read_src_list(fn: str, search_path=[]):
 
-    path = search_file(fn, search_root)
+    path = search_file(fn, search_path)
+    
     with open( path ) as f:
         cfg = yaml.safe_load(f)
     
     if 'parameters' in cfg:
-        params = read_config(fn, 'parameters', search_root)
+        params = read_config(fn, 'parameters', search_path)
     
     if cfg:
         usedin = 'syn'
@@ -297,46 +332,46 @@ def read_src_list(fn: str, search_root=''):
             else:
                 flist.append(i)
                 
-        return flist, usedin
+        return flist, usedin, path
     else:
-        return [], ''
+        return [], '', path
     
 #-------------------------------------------------------------------------------
 #
 #    args[0] is always config file name (yaml)
-#    
-#    args[1], if specified, defines current build variant path
+#    args[1], if specified, forces return 'usedin' attribute
 #
-#      Such context is used when function 'read_sources' called from project
-#      root - this takes place on build phase of SCons, for example when 
-#      'Create Vivado Project' builder running. '
-#      usedin' parameter also returned in this case.
-#
-def read_sources(*args):
+def read_sources(fn, search_path='', get_usedin = False):
     
-    fn = args[0]
-    
-    variant_path = args[1] if len(args) > 1 else os.getcwd()
-    prefix_path = [variant_path, os.path.abspath(str(Dir('#')))]
-    src, usedin = read_src_list(fn, variant_path)
+    prefix_path = [search_path, os.getcwd(), os.path.abspath(str(Dir('#')))]
+    src, usedin, fn_path = read_src_list(fn, search_path)
     
     path_list = []
     if src:
         for s in src:
             path_exists = False
             for pp in prefix_path:
-                path = os.path.join(pp, s)
+                path = os.path.abspath( os.path.join(pp, s) )
                 if os.path.exists(path):
                     path_list.append(path)
                     path_exists = True
                     break
-                
+              
             if not path_exists:
-                print_error('E: file at relative path "' + s + '" does not exists')
-                print_error('    detected while processing "' + fn +'"')
-                sys.exit(-1)
+                ignore = False
+                for exdir in check_exclude_path:
+                    print(exdir, s)
+                    if exdir in s:
+                        ignore = True
+                        break
+                    
+                if not ignore:
+                    print_error('E: file at relative path "' + s + '" does not exists')
+                    print_error('    detected while processing "' + fn_path +'"')
+                    print(prefix_path)
+                    Exit(-1)
             
-    if len(args) > 1:
+    if get_usedin:
         return path_list, usedin
     else:
         return path_list
