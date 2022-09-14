@@ -343,7 +343,7 @@ def read_src_list(fn: str, search_path=[]):
 #
 def read_sources(fn, search_path='', get_usedin = False):
     
-    prefix_path = [search_path, os.getcwd(), os.path.abspath(str(Dir('#')))]
+    prefix_path = [search_path, os.getcwd()] + get_search_path() + [os.path.abspath(str(Dir('#')))]
     src, usedin, fn_path = read_src_list(fn, search_path)
     
     path_list = []
