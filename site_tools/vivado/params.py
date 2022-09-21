@@ -46,7 +46,9 @@ def cfg_params_header(target, source, env):
     text += '// synopsys translate_on'  + os.linesep*2
 
     for p in params:
-        text += '`define ' + p + ' '*(max_len - len(p)) + str(params[p]) + os.linesep
+        value = str(params[p])
+        if value != '__NOT_DEFINE__':
+            text += '`define ' + p + ' '*(max_len - len(p)) + value + os.linesep
 
     text += os.linesep + '`endif // ' + guard + os.linesep
     text += generate_footer('//')
