@@ -360,7 +360,6 @@ def read_sources(fn, search_path='', get_usedin = False):
             if not path_exists:
                 ignore = False
                 for exdir in check_exclude_path:
-                    print(exdir, s)
                     if exdir in s:
                         ignore = True
                         break
