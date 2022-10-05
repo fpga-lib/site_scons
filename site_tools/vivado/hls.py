@@ -205,9 +205,10 @@ def generate_hls_ip_create_script(script_path, ip_repo_module, params, env):
     with open(script_path, 'w') as ofile:
         ofile.write(text)
 #-------------------------------------------------------------------------------
-def compile_hls_ip_repo_module(csynth_script_path, trg_path, exec_dir, env):
+def compile_hls_ip_repo_module(csynth_script_path, trg_path, env):
     
     name         = get_name(trg_path)
+    exec_dir     = env['BUILD_HLS_PATH']
     hls_prj_path = os.path.join(exec_dir, name)
     print_info('compile HDL IP from HLS:   \'' + name + '\'')
 
@@ -332,7 +333,7 @@ def hls_csynth(target, source, env):
     generate_csynth_script(csynth_script_path, hls_ip_repo_module, params, env)
 
     # create hls ip
-    compile_hls_ip_repo_module(csynth_script_path, hls_ip_repo_module, env['BUILD_HLS_PATH'], env)
+    compile_hls_ip_repo_module(csynth_script_path, hls_ip_repo_module, env)
     
     # generate hls ip create script
     generate_hls_ip_create_script(ip_create_script, hls_ip_repo_module, params, env)
