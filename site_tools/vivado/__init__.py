@@ -265,8 +265,12 @@ def generate(env):
     BdCreate           = Builder(action         = bd_ooc_create, 
                                  source_scanner = TclSourceScanner)
     
-    HlsCSynth          = Builder(action         = hls_csynth, chdir=False, 
+    HlsCSynthScript    = Builder(action         = hls_csynth_script, chdir=False, 
                                  source_scanner = CfgImportScanner)
+
+    HlsCSynth          = Builder(action         = hls_csynth, chdir=False,
+                                 suffix         = env['IP_CORE_SUFFIX'],
+                                 src_suffix     = env['TOOL_SCRIPT_SUFFIX'])
     
     CfgParamsHeader    = Builder(action = cfg_params_header, source_scanner = CfgImportScanner)
     CfgParamsTcl       = Builder(action = cfg_params_tcl,    source_scanner = CfgImportScanner)
@@ -287,6 +291,7 @@ def generate(env):
 
         'BdCreate'            : BdCreate,
         
+        'HlsCSynthScript'     : HlsCSynthScript,
         'HlsCSynth'           : HlsCSynth,
 
         'CfgParamsHeader'     : CfgParamsHeader,
@@ -306,15 +311,16 @@ def generate(env):
     #
     #   IP core processing pseudo-builders
     #
-    env.AddMethod(ip_create_scripts, 'IpCreateScripts')
-    env.AddMethod(ip_syn_scripts,    'IpSynScripts')
-    env.AddMethod(create_ips,        'CreateIps')
-    env.AddMethod(syn_ips,           'SynIps')
-    
-    env.AddMethod(create_ooc_bd,     'CreateOocBd')
+    env.AddMethod(ip_create_scripts,        'IpCreateScripts')
+    env.AddMethod(ip_syn_scripts,           'IpSynScripts')
+    env.AddMethod(create_ips,               'CreateIps')
+    env.AddMethod(syn_ips,                  'SynIps')
+                                            
+    env.AddMethod(create_ooc_bd,            'CreateOocBd')
 
-    env.AddMethod(launch_hls_csynth, 'LaunchHlsCSynth')
-    env.AddMethod(hlsip_syn_scripts, 'HlsIpSynScripts')
+    env.AddMethod(create_hls_csynth_script, 'CreateHlsCSynthScript')
+    env.AddMethod(launch_hls_csynth,        'LaunchHlsCSynth')
+    env.AddMethod(hlsip_syn_scripts,        'HlsIpSynScripts')
 
     env.AddMethod(create_cfg_params_header,    'CreateCfgParamsHeader')
     env.AddMethod(create_cfg_params_tcl,       'CreateCfgParamsTcl')
