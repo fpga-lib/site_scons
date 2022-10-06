@@ -435,31 +435,31 @@ def launch_hls_csynth(env, src):
 
     from site_scons.site_tools.vivado.ipcores import make_trg_nodes
 
-    res     = []
+    trglist = []
     src_sfx = '-csynth.'+env['TOOL_SCRIPT_SUFFIX']
     trg_sfx = env['HLS_IP_NAME_SUFFIX'] + '.'+env['IP_CORE_SUFFIX']
     builder = env.HlsCSynth
     for i in src:
         ip_name = get_ip_name(i, src_sfx) + env['HLS_IP_NAME_SUFFIX']
         trg_dir = os.path.join( env['IP_OOC_PATH'], ip_name, ip_name )
-        res.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))
+        trglist.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))
 
-    return res
+    return trglist
     
 #-------------------------------------------------------------------------------
 def hlsip_syn_scripts(env, src):
     
     from site_scons.site_tools.vivado.ipcores import make_trg_nodes
     
-    res     = []
+    trglist = []
     src_sfx = '.'+env['IP_CORE_SUFFIX']
     trg_sfx = '-syn.'+env['TOOL_SCRIPT_SUFFIX']
     trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
     builder = env.IpSynScript
     for i in src:
-        res.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))
+        trglist.append(make_trg_nodes(i, src_sfx, trg_sfx, trg_dir, builder))
 
-    return res
+    return trglist
 
 #-------------------------------------------------------------------------------
 
