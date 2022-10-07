@@ -24,6 +24,11 @@ from colorama import Fore, Style
 config_search_path = []
 check_exclude_path = []
 
+if 'SCONS_COLORING_DISABLE' in os.environ and os.environ['SCONS_COLORING_DISABLE'].upper() == 'YES':
+    COLORING_DISABLE = True
+else:
+    COLORING_DISABLE = False
+
 #-------------------------------------------------------------------------------
 # 
 # 
@@ -95,24 +100,29 @@ def cexec(cmd, wdir = os.curdir):
     return p.returncode, out, err
 
 #-------------------------------------------------------------------------------
+def cprint(text, color):
+    ccode, rcode = [color, Style.RESET_ALL] if not COLORING_DISABLE else ['', '']
+    print(ccode + text + rcode)
+    
+#-------------------------------------------------------------------------------
 def print_info(text):
-    print(Fore.LIGHTCYAN_EX + text + Style.RESET_ALL)
+    cprint(text, Fore.LIGHTCYAN_EX)
     
 #-------------------------------------------------------------------------------
 def print_action(text):
-    print(Fore.LIGHTGREEN_EX + text + Style.RESET_ALL)
+    cprint(text, Fore.LIGHTGREEN_EX)
                
 #-------------------------------------------------------------------------------
 def print_warning(text):
-    print(Fore.LIGHTYELLOW_EX + text + Style.RESET_ALL)
+    cprint(text, Fore.LIGHTYELLOW_EX)
     
 #-------------------------------------------------------------------------------
 def print_error(text):
-    print(Fore.LIGHTRED_EX + text + Style.RESET_ALL)
+    cprint(text, Fore.LIGHTRED_EX)
                    
 #-------------------------------------------------------------------------------
 def print_success(text):
-    print(Fore.GREEN + text + Style.RESET_ALL)
+    cprint(text, Fore.GREEN)
 
 #-------------------------------------------------------------------------------
 def colorize(text, color, light=False):
@@ -123,7 +133,9 @@ def colorize(text, color, light=False):
     
     c = eval('Fore.' + color)
         
-    return c + text + Style.RESET_ALL
+    ccode, rcode = [c, Style.RESET_ALL] if not COLORING_DISABLE else ['', '']
+
+    return ccode + text + rcode
     
 #-------------------------------------------------------------------------------
 def clog2(n: int) -> int:
