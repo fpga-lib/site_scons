@@ -440,15 +440,17 @@ def launch_hls_csynth(env, src):
     trg_sfx = env['HLS_IP_NAME_SUFFIX'] + '.'+env['IP_CORE_SUFFIX']
     builder = env.HlsCSynth
     for i in src:
-        pattern = r'add_files\s+-cflags.+\s+((?:\/.+)*.cp*)'
+        pattern_s = r'add_files\s+-cflags.+\s+((?:\/.+)*.cp*)'
+        pattern_d = r'source\s+((?:\/.+)*.tcl)'
         with open(str(i[0]), 'r') as script:
             contents = script.read()
 
-        hls_src = re.findall(pattern, contents, re.M)
-            
+        hls_src  = re.findall(pattern_s, contents, re.M)
+        hls_dirs = re.findall(pattern_d, contents, re.M)
+        
         ip_name = get_ip_name(i, src_sfx) + env['HLS_IP_NAME_SUFFIX']
         trg_dir = os.path.join( env['IP_OOC_PATH'], ip_name, ip_name )
-        trglist.append(make_trg_nodes(i + hls_src, src_sfx, trg_sfx, trg_dir, builder))
+        trglist.append(make_trg_nodes(i + hls_src + hls_dirs, src_sfx, trg_sfx, trg_dir, builder))
 
     return trglist
     
