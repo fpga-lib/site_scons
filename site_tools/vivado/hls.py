@@ -397,7 +397,7 @@ def create_hls_csynth_script(env, src):
 
         except SearchFileException as e:
             print_error('E: HLS config read: ' + e.msg)
-            print_error('    while running "LaunchHlsCSynth" builder')
+            print_error('    while running "LaunchHlsCSynthScript" builder')
             Exit(-1)
         
         #-----------------------------------------------------------------
@@ -431,26 +431,57 @@ def create_hls_csynth_script(env, src):
     return targets
         
 #-------------------------------------------------------------------------------
-def launch_hls_csynth(env, src):
+def launch_hls_csynth(env, src, cfg=None):
 
     from site_scons.site_tools.vivado.ipcores import make_trg_nodes
 
+    if cfg:
+        if len(src) != len(cfg):
+            print_error('E: hls_csynth: src count:', len(src), 'must be equal to cfg count:', len(cfg))
+            Exit(2)
+
+        src = list(zip(src, cfg))
+    else:
+        if not SCons.Util.is_List(cfg):
+            print_error('E: hls_csynth: "cfg" argument (hls module config YAML file) not specified')
+            Exit(2)
+    
+    
     trglist = []
     src_sfx = '-csynth.'+env['TOOL_SCRIPT_SUFFIX']
     trg_sfx = env['HLS_IP_NAME_SUFFIX'] + '.'+env['IP_CORE_SUFFIX']
     builder = env.HlsCSynth
     for i in src:
-        pattern_s = r'add_files\s+-cflags.+\s+((?:\/.+)*.cp*)'
-        pattern_d = r'source\s+((?:\/.+)*.tcl)'
-        with open(str(i[0]), 'r') as script:
-            contents = script.read()
+        script = i[0]
+        cfg    = i[1]
 
-        hls_src  = re.findall(pattern_s, contents, re.M)
-        hls_dirs = re.findall(pattern_d, contents, re.M)
-        
-        ip_name = get_ip_name(i, src_sfx) + env['HLS_IP_NAME_SUFFIX']
+        # generate dependencies from sources
+        try:
+            params = read_config(cfg)
+
+        except SearchFileException as e:
+            print_error('E: HLS config read: ' + e.msg)
+            print_error('    while running "LaunchHlsCSynth" builder')
+            Exit(-1)
+
+        #-----------------------------------------------------------------
+        # synthesis source list
+        if not 'src_csyn_list' in params:
+            print_error('E: HLS module has no synthesis source list in configuration file: \'' + cfg + '\'')
+            Exit(-2)
+
+        csyn_list= read_source_list(cfg, params['src_csyn_list'])
+
+        #-----------------------------------------------------------------
+        # hook list
+        if not 'hook_list' in params:
+            hook_list = []
+        else:
+            hook_list = read_source_list(cfg, params['hook_list'])
+            
+        ip_name = get_ip_name(script, src_sfx) + env['HLS_IP_NAME_SUFFIX']
         trg_dir = os.path.join( env['IP_OOC_PATH'], ip_name, ip_name )
-        trglist.append(make_trg_nodes(i + hls_src + hls_dirs, src_sfx, trg_sfx, trg_dir, builder))
+        trglist.append(make_trg_nodes(script + csyn_list + hook_list, src_sfx, trg_sfx, trg_dir, builder))
 
     return trglist
     

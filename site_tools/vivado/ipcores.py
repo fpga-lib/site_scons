@@ -264,7 +264,7 @@ def create_ips(env, src):
 def syn_ips(env, src, deps=None):
     if deps:
         if len(src) != len(deps):
-            print_error('E: ip_syn: src count:', len(src), 'must be equal deps count:', len(deps))
+            print_error('E: ip_syn: src count:', len(src), 'must be equal to deps count:', len(deps))
             Exit(2)
 
         src = list(zip(src, deps))
