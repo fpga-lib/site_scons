@@ -245,34 +245,34 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
             else:
                 var = key
                 exec(var + '= cfg_dict[key]')
+                
+            if isinstance(cfg_dict[key], str):
+                if cfg_dict[key] and cfg_dict[key][0] == '=':
+                    expr = cfg_dict[key][1:];
+                    try:
+                        cfg_dict[key] = eval(expr)            # evaluate new dict value
+                    except Exception as e:
+                        print_error('E: ' + str(e))
+                        print_error('    File: ' + cfg_file_path + ', line: ' + expr)
+                        Exit(-1)
+
+                    try:
+                        if isinstance(cfg_dict[key], str):
+                            exec(key + ' = "' + cfg_dict[key] + '"')       # update local variable
+                            cfg_dict[key] = re.sub('`', '"', cfg_dict[key])
+                        else:
+                            exec(key + ' = ' + str(cfg_dict[key]))         # update local variable
+                    except Exception as e:
+                        print_error('E: ' + str(e))
+                        print_error('    File: ' + cfg_file_path + ', line: ' + expr)
+                        print_error('    key: ' + key + ', value: ' + str(cfg_dict[key]))
+                        Exit(-1)
+                
         except Exception as e:
             print_error('E: ' + str(e))
             print_error('    File: ' + cfg_file_path + ', line: ' + var + ' : "' + cfg_dict[key] + '"')
             Exit(-1)
 
-    for key in cfg_dict:
-        if isinstance(cfg_dict[key], str):
-            if cfg_dict[key] and cfg_dict[key][0] == '=':
-                expr = cfg_dict[key][1:];
-                try:
-                    cfg_dict[key] = eval(expr)            # evaluate new dict value
-                except Exception as e:
-                    print_error('E: ' + str(e))
-                    print_error('    File: ' + cfg_file_path + ', line: ' + expr)
-                    Exit(-1)
-                    
-                try:
-                    if isinstance(cfg_dict[key], str):
-                        exec(key + ' = "' + cfg_dict[key] + '"')       # update local variable
-                        cfg_dict[key] = re.sub('`', '"', cfg_dict[key])
-                    else:
-                        exec(key + ' = ' + str(cfg_dict[key]))         # update local variable
-                except Exception as e:
-                    print_error('E: ' + str(e))
-                    print_error('    File: ' + cfg_file_path + ', line: ' + expr)
-                    print_error('    key: ' + key + ', value: ' + str(cfg_dict[key]))
-                    Exit(-1)
-                
     return cfg_dict
 
 #-------------------------------------------------------------------------------
