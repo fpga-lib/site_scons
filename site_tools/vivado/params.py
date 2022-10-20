@@ -47,7 +47,7 @@ def cfg_params_header(target, source, env):
 
     for p in params:
         value = str(params[p])
-        if value != '__NOT_DEFINE__':
+        if value != '__NO_DEFINE__':
             text += '`define ' + p + ' '*(max_len - len(p)) + value + os.linesep
 
     text += os.linesep + '`endif // ' + guard + os.linesep
