@@ -128,7 +128,12 @@ def generate_csynth_script(script_path, trg_path, params, env):
         cflags = ' ' 
         if params.cflags:
             cflags = ' -cflags "' + ' '.join(params.cflags) + '" '
-        text += 'add_files' + cflags + s   + os.linesep
+        if s.endswith('.json'):
+            # HLS blackboxes
+            text += 'add_files -blackbox ' + s + os.linesep
+        else:
+            # normal HLS sources
+            text += 'add_files ' + cflags + s + os.linesep
     text += os.linesep*2
 
     text += '# Add sim sources' + os.linesep
