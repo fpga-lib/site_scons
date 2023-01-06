@@ -170,7 +170,7 @@ def ip_create(target, source, env):
     if env['VERBOSE']:
         print(cmd)
 
-    rcode = pexec(cmd, trg_dir)
+    rcode = pexec(cmd, trg_dir, exec_env=env['ENV'])
 
     return rcode
 
@@ -200,7 +200,7 @@ def ip_synthesize(target, source, env):
 
     if env['VERBOSE']:
         print(cmd)
-    rcode = pexec(cmd, trg_dir)
+    rcode = pexec(cmd, trg_dir, exec_env=env['ENV'])
 
     return rcode
 

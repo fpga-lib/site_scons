@@ -102,7 +102,7 @@ def bd_ooc_create(target, source, env):
     if env['VERBOSE']:
         print(cmd)
 
-    rcode = pexec(cmd, trg_base_path)
+    rcode = pexec(cmd, trg_base_path, exec_env=env['ENV'])
 
     return rcode
     

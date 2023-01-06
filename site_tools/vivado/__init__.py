@@ -131,10 +131,12 @@ def generate(env):
     #    External Environment
     #
     if not 'XILINX_VIVADO' in env:
-        env['XILINX_VIVADO'] = os.environ['XILINX_VIVADO']
-
+        print_error('E: XILINX_VIVADO must be defined in construction environmet in form \'<path-to-xililx-home/Vivado/<version-number>\'')
+        Exit(-1)
+        
     if not 'XILINX_HLS' in env:
-        env['XILINX_HLS'] = os.environ['XILINX_HLS']
+        print_error('E: XILINX_HLS must be defined in construction environmet in form \'<path-to-xililx-home/Vitis_HLS/<version-number>\'')
+        Exit(-1)
         
         
     VIVADO = os.path.join(env['XILINX_VIVADO'], 'bin', 'vivado')

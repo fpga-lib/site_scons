@@ -234,7 +234,7 @@ def compile_hls_ip_repo_module(csynth_script_path, trg_path, env):
     if env['VERBOSE']:
         print(cmd)
 
-    rcode = pexec(cmd, exec_dir)
+    rcode = pexec(cmd, exec_dir, exec_env=env['ENV'])
 
     import zipfile
     zipfn = trg_path + '.zip'
@@ -266,7 +266,7 @@ def create_hls_ip(script_path, trg_path, exec_dir, env):
     if env['VERBOSE']:
         print(cmd)
 
-    rcode = pexec(cmd, exec_dir)
+    rcode = pexec(cmd, exec_dir, exec_env=env['ENV'])
     
     from stat import S_IREAD, S_IRGRP, S_IROTH
     

@@ -38,9 +38,10 @@ def namegen(fullpath, ext):
     name     = os.path.splitext(basename)[0]
     return name + os.path.extsep + ext
 #-------------------------------------------------------------------------------
-def pexec(cmd, wdir = os.curdir, filter=[]):
+def pexec(cmd, wdir = os.curdir, exec_env=os.environ.copy(), filter=[]):
     p = subprocess.Popen(cmd.split(),
                          cwd = str(wdir),
+                         env=exec_env,
                          universal_newlines = True,
                          stdin    = subprocess.PIPE,
                          stdout   = subprocess.PIPE,
@@ -86,9 +87,10 @@ def pexec(cmd, wdir = os.curdir, filter=[]):
     return rcode
     
 #-------------------------------------------------------------------------------
-def cexec(cmd, wdir = os.curdir):
+def cexec(cmd, wdir = os.curdir, exec_env=os.environ.copy()):
     p = subprocess.Popen(cmd.split(), 
                          cwd = str(wdir),
+                         env=exec_env,
                          universal_newlines = True,
                          stdin  = subprocess.PIPE,
                          stdout = subprocess.PIPE,

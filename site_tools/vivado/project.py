@@ -214,7 +214,7 @@ def vivado_project(target, source, env):
     if env['VERBOSE']:
         print(cmd)
 
-    rcode = pexec(cmd, project_dir)
+    rcode = pexec(cmd, project_dir, exec_env=env['ENV'])
     if rcode:
         print_error('\n' + '*'*60)
         print_error('E: project create ends with error code, see log for details')
@@ -296,7 +296,7 @@ def synth_vivado_project(target, source, env):
     if env['VERBOSE']:
         print(cmd)
 
-    rcode = pexec(cmd, project_dir)
+    rcode = pexec(cmd, project_dir, exec_env=env['ENV'])
     if rcode:
         msg = 'E: project synthesis ends with error code, see log for details'
         print_error('\n' + '*'*len(msg))
@@ -376,7 +376,7 @@ def impl_vivado_project(target, source, env):
     if env['VERBOSE']:
         print(cmd)
         
-    rcode = pexec(cmd, env['BUILD_SYN_PATH'])
+    rcode = pexec(cmd, env['BUILD_SYN_PATH'], exec_env=env['ENV'])
     if rcode:
         msg = 'E: project build ends with error code, see log for details'
         print_error('\n' + '*'*len(msg))

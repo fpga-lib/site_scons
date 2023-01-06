@@ -61,7 +61,7 @@ def simlib(target, source, env):
             for item in cmd_list:
                 cmd = item.replace('\\\n', ' ')
                 cmd = cmd.replace('"', '')
-                rcode = pexec(cmd, trg_path)
+                rcode = pexec(cmd, trg_path, exec_env=env['ENV'])
                 if rcode:
                     Execute( Delete(trg_path) )
                     return rcode
@@ -143,7 +143,7 @@ def work_lib(target, source, env):
     msg = colorize('Compile project work library', 'yellow')
     print(colorize('-'*80, 'yellow'))
     print(' '*20, msg, os.linesep)
-    rcode = pexec(cmd, trg_dir, env['VOPT_FILTER_RULES'])
+    rcode = pexec(cmd, trg_dir, exec_env=env['ENV'], filter=env['VOPT_FILTER_RULES'])
     print(colorize('-'*80, 'yellow'))
     if rcode:
         return rcode
@@ -187,7 +187,7 @@ def vmap_vendor_libs(env, trg_dir):
 
     for lib in libs:
         cmd = env['VMAPCOM'] + ' ' + lib[0] + ' ' + os.path.join(env['VENDOR_LIB_PATH'], lib[1] )
-        rcode = pexec(cmd, trg_dir)
+        rcode = pexec(cmd, trg_dir, exec_env=env['ENV'])
         if rcode: return rcode
 
     return None
@@ -202,7 +202,7 @@ def vmap_simlib(env, libpath, trg_dir):
     cmd.append(libpath)
     cmd = ' '.join(cmd)
 
-    rcode = pexec(cmd, trg_dir)                               # map logical name to physical lib
+    rcode = pexec(cmd, trg_dir, exec_env=env['ENV'])                               # map logical name to physical lib
     return rcode
           
 #-------------------------------------------------------------------------------
@@ -224,10 +224,10 @@ def create_simlib(env, libpath, map_vendor_libs, verbose=False):
 
         print_info('create library: \'' + name + '\'')
         
-        rcode = pexec(env['VLIBCOM'] + ' ' + name, dirpath)
+        rcode = pexec(env['VLIBCOM'] + ' ' + name, dirpath, exec_env=env['ENV'])
         if rcode: return rcode
 
-        rcode = pexec(env['VMAPCOM'] + ' -c', dirpath)
+        rcode = pexec(env['VMAPCOM'] + ' -c', dirpath, exec_env=env['ENV'])
         if rcode: return rcode
 
         if map_vendor_libs:
@@ -244,7 +244,7 @@ def create_simlib(env, libpath, map_vendor_libs, verbose=False):
         if verbose:
             print(cmd)
 
-        rcode = pexec(cmd, dirpath)
+        rcode = pexec(cmd, dirpath, exec_env=env['ENV'])
         if rcode: return rcode
 
     return None
