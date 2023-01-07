@@ -329,8 +329,9 @@ def generate(env):
     #    External Environment
     #
     if not 'XILINX_VIVADO' in env:
-        env['XILINX_VIVADO'] = os.environ['XILINX_VIVADO']
-    
+        print_error('E: XILINX_VIVADO must be defined in construction environmet in form \'<path-to-xililx-home/Vivado/<version-number>\'')
+        Exit(-1)
+        
     if 'QUESTABIN' not in env:
         print_error('E: "QUESTABIN" construction environment variable must be defined and point to "bin" directory')
         Exit(-2)
