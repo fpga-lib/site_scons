@@ -480,12 +480,4 @@ def create_dirs(dirs):
             Execute( Mkdir(i) )
     
 #-------------------------------------------------------------------------------
-def get_path_tail(path: str, base: str):
-    res = re.match('[/|\w]+'+base+'/(.+)', path)
-    if res:
-        return res.groups()[0]
- 
-    return ''
-    
-#-------------------------------------------------------------------------------
 
