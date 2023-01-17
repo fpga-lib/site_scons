@@ -480,12 +480,12 @@ def create_dirs(dirs):
             Execute( Mkdir(i) )
     
 #-------------------------------------------------------------------------------
-def get_build_variant_relpath():
-    variant = ARGUMENTS.get('variant')
-    if not variant:
-        return os.path.basename( os.getcwd() )
-    else:
-        return variant
+def get_path_tail(path: str, base: str):
+    res = re.match('[/|\w]+'+base+'/(.+)', path)
+    if res:
+        return res.groups()[0]
+ 
+    return ''
     
 #-------------------------------------------------------------------------------
 

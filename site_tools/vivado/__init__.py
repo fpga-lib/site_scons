@@ -154,8 +154,13 @@ def generate(env):
     #
     #    Construction Variables
     #
+    if not 'BUILD_VARIANT' in env:
+        print_error('E: "BUILD_VARIANT" construction environment variable must be defined and specifed build variant relative to "cfg" path')
+        Exit(-2)
+        
+    build_variant                = env['BUILD_VARIANT']
     root_dir                     = str(env.Dir('#'))
-    build_variant                = get_build_variant_relpath()
+    
     
     env['VIVADO_VERNUM']         = version_number(env['XILINX_VIVADO'])
     env['VIVADO_PROJECT_NAME']   = 'vivado_project'

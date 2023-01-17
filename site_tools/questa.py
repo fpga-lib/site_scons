@@ -349,8 +349,12 @@ def generate(env):
     #
     #    Construction Variables
     #
+    if not 'BUILD_VARIANT' in env:
+        print_error('E: "BUILD_VARIANT" construction environment variable must be defined and specifed build variant relative to "cfg" path')
+        Exit(-2)
+
+    build_variant         = env['BUILD_VARIANT']
     root_dir              = str(env.Dir('#'))
-    build_variant         = get_build_variant_relpath()
                           
     env['TESTBENCH_NAME'] = 'top_tb'
     env['VLOGCOM']        = os.path.join(env['QUESTABIN'], 'vlog')
