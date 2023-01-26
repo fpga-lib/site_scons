@@ -231,6 +231,19 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
         
     for key in cfg_dict:
         try:
+            try:
+                if 'import_python' in key:
+                    mods = cfg_dict[key].split()
+                    for mod in mods:
+                        exec('import ' + mod)
+    
+                    continue
+            except Exception as e:
+                print_error('E: ' + str(e))
+                print_error('    File: ' + cfg_file_path + ', line: \'' + key + ' : ' + cfg_dict[key] + '\'')
+                Exit(-1)
+                
+            
             if '.' in key:
                 class dummy():
                     pass
