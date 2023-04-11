@@ -113,7 +113,8 @@ def work_lib(target, source, env):
                                                                                                                                                           # for Versal NoC Simulation
     # source files and other options
     src_list = ' '.join(['{' + os.path.join(f.abspath) + '}' for f in source] + hdl_wrappers)
-    incpath  = ' '.join(env['SIM_INC_PATH'])
+    #incpath  = ' '.join(env['SIM_INC_PATH'])
+    incpath  = ' '.join([str(s) for s in  env['SIM_INC_PATH']])
     
     out = ''
 

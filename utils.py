@@ -16,6 +16,8 @@ import glob
 import yaml
 import math
 
+from pathlib import Path
+
 import select
 
 from SCons.Script import *
@@ -34,9 +36,13 @@ else:
 # 
 # 
 def namegen(fullpath, ext):
-    basename = os.path.basename(fullpath)
-    name     = os.path.splitext(basename)[0]
-    return name + os.path.extsep + ext
+    return Path(fullpath).with_suffix(os.path.extsep + ext)
+
+#   basename = os.path.basename(fullpath)
+#   name     = os.path.splitext(basename)[0]
+#   return name + os.path.extsep + ext
+
+
 #-------------------------------------------------------------------------------
 def pexec(cmd, wdir = os.curdir, exec_env=os.environ.copy(), filter=[]):
     p = subprocess.Popen(cmd.split(),
@@ -75,7 +81,8 @@ def pexec(cmd, wdir = os.curdir, exec_env=os.environ.copy(), filter=[]):
                     supp_warn_cnt = len(supp_warn)
                     out = res.groups()[0] + str(warn - supp_warn_cnt) + ' (Suppressed warnings: ' + str(supp_warn_cnt) + ')'
                     
-                    with open(os.path.join(wdir, 'suppresed-warnings.log'), 'w') as f:
+                    #with open(os.path.join(wdir, 'suppresed-warnings.log'), 'w') as f:
+                    with open( Path.joinpath(wdir, 'suppresed-warnings.log'), 'w') as f:
                         for item in supp_warn:
                             f.write("%s" % item)                    
                     
@@ -159,13 +166,25 @@ class SearchFileException(Exception):
         self.msg = msg
         
 #-------------------------------------------------------------------------------
+def pathlist(path):
+    if SCons.Util.is_List(path):
+        return [Path(p) for p in path]
+    elif SCons.Util.is_String(path):
+        return [Path(p) for p in path.split()]
+    else:
+        raise SearchFileException('invalid type for ' + path + '. Only List and String types supported')
+        
+        
+#-------------------------------------------------------------------------------
 def add_search_path(path):
     global config_search_path
     
-    if SCons.Util.is_List(path):
-        config_search_path += path
-    else:
-        config_search_path.append(path)
+    config_search_path += pathlist(path)
+    
+#   if SCons.Util.is_List(path):
+#       config_search_path += [Path(p) for p in path]
+#   else:
+#       config_search_path.append(Path(path))
                 
 #-------------------------------------------------------------------------------
 def get_search_path():
@@ -183,18 +202,23 @@ def add_check_exclude_path(path):
 #-------------------------------------------------------------------------------
 def search_file(fn, search_path=[]):
     
-    if os.path.exists(fn):
-        return os.path.abspath(fn)
+    fp = Path(fn)
+    #if os.path.exists(fn):
+    if fp.exists():
+        #return os.path.abspath(fn)
+        return fp.absolute()
         
     if not SCons.Util.is_List(search_path):
         search_path = str.split(search_path)
         
-    spath = search_path + config_search_path
+    spath = [Path(p) for p in search_path + config_search_path]
     
     for p in spath:
-        path = os.path.join(p, fn)
-        if os.path.exists(path):
-            return os.path.abspath(path)
+        #path = os.path.join(p, fn)
+        path = p.joinpath(fn)
+        #if os.path.exists(path):
+        if path.exists():
+            return path.absolute()
     
     msg = 'file "' + fn + '" not found at search path list:' + os.linesep
     for p in spath:
@@ -357,20 +381,29 @@ def read_src_list(fn: str, search_path=[]):
 #
 def read_sources(fn, search_path='', get_usedin = False):
     
-    prefix_path = [search_path, os.getcwd()] + get_search_path() + [os.path.abspath(str(Dir('#')))]
+    #prefix_path = [search_path, os.getcwd()] + get_search_path() + [os.path.abspath(str(Dir('#')))]
+    spath = pathlist(search_path)
+    prefix_path = spath + [Path.cwd()] + get_search_path() + [Path(str(Dir('#'))).absolute()]
     src, usedin, fn_path = read_src_list(fn, search_path)
+    
+    prefix_path =  list(dict.fromkeys(prefix_path))
+    
+#   for ppp in prefix_path:
+#       print(ppp)
     
     path_list = []
     if src:
         for s in src:
             path_exists = False
             for pp in prefix_path:
-                path = os.path.abspath( os.path.join(pp, s) )
-                if os.path.exists(path):
-                    path_list.append(path)
+                #path = os.path.abspath( os.path.join(pp, s) )
+                path = pp.joinpath(s).absolute()
+                #if os.path.exists(path):
+                if path.exists():
+                    path_list.append(str(path)) # convert to string list due to SCons.Node cannot correctly work with 'pathlib' objects
                     path_exists = True
                     break
-              
+            
             if not path_exists:
                 ignore = False
                 for exdir in check_exclude_path:
@@ -385,13 +418,14 @@ def read_sources(fn, search_path='', get_usedin = False):
                     Exit(-1)
             
     if get_usedin:
-        return path_list, usedin
+        return path_list, usedin  
     else:
         return path_list
 
 #-------------------------------------------------------------------------------
 def get_dirs(flist):
-    dset = set( [os.path.dirname(f) for f in flist] )
+    #dset = set( [os.path.dirname(f) for f in flist] )
+    dset = set( [str(Path(f).parent) for f in flist] )
     
     return list(dset)
 
@@ -426,7 +460,8 @@ def version_number(path):
 
 #-------------------------------------------------------------------------------
 def get_suffix(path):
-    return os.path.splitext(path)[1][1:]
+    #return os.path.splitext(path)[1][1:]
+    return Path(path).suffix[1:]
 
 #-------------------------------------------------------------------------------
 def generate_title(text: str, comment: str) -> str:
@@ -463,20 +498,25 @@ def get_ip_name(node, suffix):
     
     if SCons.Util.is_List(node):
         path = str(node[0])
-    name = os.path.split(path)[1]
-    ip_name = name.replace(suffix, '')
+    #name = os.path.split(path)[1]
+    #ip_name = name.replace(suffix, '')
+    ip_name = Path(path).name.replace(suffix, '')
     
     return ip_name
+
 #-------------------------------------------------------------------------------
 def get_name(path):
-    return os.path.splitext( os.path.basename(path) )[0]
+    #return os.path.splitext( os.path.basename(path) )[0]
+    return Path(path).stem
 #-------------------------------------------------------------------------------
 def drop_suffix(name):
-    return os.path.splitext(name)[0]
+    #return os.path.splitext(name)[0]
+    return Path(name).stem
 #-------------------------------------------------------------------------------
 def create_dirs(dirs):
     for i in dirs:
-        if not os.path.exists(i):
+        #if not os.path.exists(i):
+        if not Path(i).exists():
             Execute( Mkdir(i) )
     
 #-------------------------------------------------------------------------------

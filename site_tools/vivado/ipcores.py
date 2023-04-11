@@ -231,6 +231,7 @@ def ip_create_scripts(env, src):
     src_sfx = '.'+env['CONFIG_SUFFIX']
     trg_sfx = '-create.'+env['TOOL_SCRIPT_SUFFIX']
     trg_dir = os.path.join(env['IP_OOC_PATH'], env['IP_SCRIPT_DIRNAME'])
+
     create_dirs([trg_dir])
     builder = env.IpCreateScript
     for i in src:
