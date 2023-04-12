@@ -271,15 +271,21 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
             else:
                 var = key
                 exec(var + '= cfg_dict[key]')
+                print('>>>> 1', key, repr(eval(var)))
+                
                 
             if isinstance(cfg_dict[key], str):
                 if cfg_dict[key] and cfg_dict[key][0] == '=':
                     expr = cfg_dict[key][1:];
                     try:
-                        cfg_dict[key] = eval(expr)            # evaluate new dict value
+                        print('>>>> 2', key, repr(eval(expr)))
+                        val = eval(expr)
+                        if val and '\\' in val:
+                            val = val.replace('\\', '\\\\')
+                        cfg_dict[key] = val # eval(expr)            # evaluate new dict value
                     except Exception as e:
                         print_error('E: ' + str(e))
-                        print_error('    File: ' + cfg_file_path + ', line: ' + expr)
+                        print_error('    File: ' + str(cfg_file_path) + ', line: ' + expr)
                         Exit(-1)
 
                     try:
@@ -290,13 +296,13 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
                             exec(key + ' = ' + str(cfg_dict[key]))         # update local variable
                     except Exception as e:
                         print_error('E: ' + str(e))
-                        print_error('    File: ' + cfg_file_path + ', line: ' + expr)
+                        print_error('    File: ' + str(cfg_file_path) + ', line: ' + expr)
                         print_error('    key: ' + key + ', value: ' + str(cfg_dict[key]))
                         Exit(-1)
                 
         except Exception as e:
             print_error('E: ' + str(e))
-            print_error('    File: ' + cfg_file_path + ', line: ' + var + ' : "' + cfg_dict[key] + '"')
+            print_error('    File: ' + str(cfg_file_path) + ', line: ' + var + ' : "' + cfg_dict[key] + '"')
             Exit(-1)
 
     return cfg_dict
@@ -388,8 +394,23 @@ def read_sources(fn, search_path='', get_usedin = False):
     
     prefix_path =  list(dict.fromkeys(prefix_path))
     
-#   for ppp in prefix_path:
-#       print(ppp)
+    print('--------> spath <-----------')
+    for ii in spath:
+        print('++++', ii)  
+
+    print('--------> get_search_path() <-----------')    
+    for ii in get_search_path():
+        print('====', ii)  
+
+    print('--------> Dir(\'#\') <-----------')
+    print('#####', Path(str(Dir('#'))).absolute())
+  
+    print('--------> prefix_path <-----------')
+
+    for ppp in prefix_path:
+        print(ppp)
+
+    print(os.linesep*2)
     
     path_list = []
     if src:
