@@ -139,8 +139,10 @@ def generate(env):
         Exit(-1)
         
         
-    VIVADO = os.path.join(env['XILINX_VIVADO'], 'bin', 'vivado')
-    HLS    = os.path.join(env['XILINX_HLS'], 'bin', 'vitis_hls')
+    VIVADO = os.path.join(env['XILINX_VIVADO'], 'bin', 'vivado') + ('.bat' if env['PLATFORM'] == 'win32' else '')
+    HLS    = os.path.join(env['XILINX_HLS'], 'bin', 'vitis_hls') + ('.bat' if env['PLATFORM'] == 'win32' else '')
+    
+    print(VIVADO)
     
     if not os.path.exists(VIVADO):
         print_error('E: Vivado not found at the path: ' + VIVADO)
