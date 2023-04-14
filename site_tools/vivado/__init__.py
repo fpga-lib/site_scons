@@ -139,8 +139,10 @@ def generate(env):
         Exit(-1)
         
         
-    VIVADO = os.path.join(env['XILINX_VIVADO'], 'bin', 'vivado') + ('.bat' if env['PLATFORM'] == 'win32' else '')
-    HLS    = os.path.join(env['XILINX_HLS'], 'bin', 'vitis_hls') + ('.bat' if env['PLATFORM'] == 'win32' else '')
+    VIVADO = str(Path(env['XILINX_VIVADO']).joinpath('bin/vivado')) + ('.bat' if env['PLATFORM'] == 'win32' else '')
+    HLS    = str(Path(env['XILINX_HLS']).joinpath('bin/vitis_hls')) + ('.bat' if env['PLATFORM'] == 'win32' else '')
+#   VIVADO = os.path.join(env['XILINX_VIVADO'], 'bin', 'vivado') + ('.bat' if env['PLATFORM'] == 'win32' else '')
+#   HLS    = os.path.join(env['XILINX_HLS'], 'bin', 'vitis_hls') + ('.bat' if env['PLATFORM'] == 'win32' else '')
     
     print(VIVADO)
     
