@@ -51,19 +51,22 @@ def pexec(cmd, wdir = os.curdir, exec_env=os.environ.copy(), filter=[]):
                          universal_newlines = True,
                          stdin    = subprocess.PIPE,
                          stdout   = subprocess.PIPE,
-                         stderr   = subprocess.PIPE,
+                         #stderr   = subprocess.PIPE,
+                         stderr   = subprocess.STDOUT,
                          encoding = 'utf8')
 
     supp_warn = []
     while True:
-        rlist, wlist, xlist = select.select([p.stdout, p.stderr], [], [])
-        out = ''
-        for r in rlist:
-            if r == p.stdout:
-                out += p.stdout.readline()
-            elif r == p.stderr:
-                out += p.stderr.readline()
+#       rlist, wlist, xlist = select.select([p.stdout, p.stderr], [], [])
+#       out = ''
+#       for r in rlist:
+#           if r == p.stdout:
+#               out += p.stdout.readline()
+#           elif r == p.stderr:
+#               out += p.stderr.readline()
         
+        out = p.stdout.readline()
+
         if len(out) == 0 and p.poll() is not None:
             break
         if out:
@@ -271,14 +274,12 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
             else:
                 var = key
                 exec(var + '= cfg_dict[key]')
-                print('>>>> 1', key, repr(eval(var)))
                 
                 
             if isinstance(cfg_dict[key], str):
                 if cfg_dict[key] and cfg_dict[key][0] == '=':
                     expr = cfg_dict[key][1:];
                     try:
-                        print('>>>> 2', key, repr(eval(expr)))
                         val = eval(expr)
                         if val and isinstance(val, str) and '\\' in val:
                             val = val.replace('\\', '\\\\')
@@ -409,10 +410,10 @@ def read_sources(fn, search_path='', get_usedin = False):
 #
 #   print('--------> prefix_path <-----------')
 
-    for ppp in prefix_path:
-        print(ppp)
+#   for ppp in prefix_path:
+#       print(ppp)
 
-    print(os.linesep*2)
+#   print(os.linesep*2)
     
     path_list = []
     if src:
@@ -437,7 +438,7 @@ def read_sources(fn, search_path='', get_usedin = False):
                 if not ignore:
                     print_error('E: file at relative path "' + s + '" does not exists')
                     print_error('    detected while processing "' + fn_path +'"')
-                    print(prefix_path)
+                    #print(prefix_path)
                     Exit(-1)
             
     if get_usedin:
