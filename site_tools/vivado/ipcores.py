@@ -46,7 +46,7 @@ def ip_create_script(target, source, env):
 
     text  = 'set ip_name    ' + ip_name                                   + os.linesep
     text += 'set DEVICE     ' + env['DEVICE']                             + os.linesep
-    text += 'set IP_OOC_DIR ' + os.path.join(env['IP_OOC_PATH'], ip_name) + os.linesep*2
+    text += 'set IP_OOC_DIR ' + os.path.join(env['IP_OOC_PATH'], ip_name).replace('\\', '/') + os.linesep*2
     text += 'set_part  ${DEVICE}'                                         + os.linesep
     text += 'create_ip -name ' + ip_cfg['type']
     text += ' -vendor xilinx.com'
@@ -76,7 +76,7 @@ def ip_create_script(target, source, env):
     text += os.linesep
     text += 'generate_target all [get_ips  ${ip_name}]'              + os.linesep
     text += 'export_simulation -of_objects [get_ips ${ip_name}] -simulator questa -absolute_path -force '
-    text += '-directory ' + env['SIM_SCRIPT_PATH'] + os.linesep
+    text += '-directory ' + env['SIM_SCRIPT_PATH'].replace('\\', '/') + os.linesep
     text += 'exit'
 
     out = generate_title(title_text, '#')
