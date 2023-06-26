@@ -365,7 +365,7 @@ def hls_csynth(target, source, env):
     generate_hls_ip_create_script(ip_create_script, hls_ip_repo_module, module_name, env)
     
     # create hls ip
-    create_hls_ip(ip_create_script, trg_path, env['IP_OOC_PATH'], env)
+    create_hls_ip(ip_create_script, trg_path, os.path.join(env['IP_OOC_PATH'], trg_name), env)
     add_sim_stuff(trg_name, env)
     
     return None
