@@ -93,7 +93,7 @@ def cfg_params_header(target, source, env):
             text += '    localparam ' + type_spec + p + ' '*(max_len - len(p)) + ' = ' + \
             qmark + str(value) + qmark + ';' + os.linesep
                 
-    text += os.linesep + 'endpackage : ' + pkg_name + '_pkg' + os.linesep
+    text += os.linesep + 'endpackage : ' + pkg_name + os.linesep
     #-----------------------------------------------------------------
     
     footer_def  = os.linesep + '`endif // ' + guard_name_def + os.linesep
