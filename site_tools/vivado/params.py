@@ -30,12 +30,10 @@ def generate_hdl_header(guard_name : str) -> str:
 #---------------------------------------------------------------------
 def cfg_params_header(target, source, env):
 
-    trg      = target[0]
-    trg_path = str(trg)
-    trg_name = get_name(trg.name)
-    pkg_name = trg_name + '_pkg'
+    def_name = get_name(target[0].name) # header with macro definitins
+    pkg_name = get_name(target[1].name) # header with SV package
     
-    print_action('create cfg params headers: \'' + trg.name + ', ' + pkg_name + '.svh\'' )
+    print_action('create cfg params headers: \'' + def_name + '.svh, ' + pkg_name + '.svh\'' )
     params = {}
     params_pkg = {}
     for src in source:
@@ -49,7 +47,7 @@ def cfg_params_header(target, source, env):
         
         params.update( prefix_suffix(str(src), cfg_params) )
 
-    guard_name_def, text = generate_hdl_header(trg_name)
+    guard_name_def, text = generate_hdl_header(def_name)
     
     #-----------------------------------------------------------------
     #
@@ -103,14 +101,13 @@ def cfg_params_header(target, source, env):
     
     text_def += footer_def
     text     += footer_pkg
-
-    trg_pkg_path = trg_path.replace(trg_name, pkg_name)
     
-    with open(trg_path, 'w') as ofile:
+    def_hdr_path = str(target[0])
+    with open(def_hdr_path, 'w') as ofile:
         ofile.write(text_def)
         
-    print(trg_pkg_path)        
-    with open(trg_pkg_path, 'w') as ofile:
+    pkg_hdr_path = str(target[1])
+    with open(pkg_hdr_path, 'w') as ofile:
         ofile.write(text)
 
     return None
@@ -170,9 +167,14 @@ def create_cfg_params_header(env, trg, src):
             
         source.append(ss)
 
-    env.CfgParamsHeader(trg, source)
+    trg0_name = get_name(trg)
+    trg1_name = trg0_name + '_pkg'
+    trg1      = trg.replace(trg0_name, trg1_name)
+    target = [trg, trg1]
 
-    return trg
+    env.CfgParamsHeader(target, source)
+
+    return target
 
 #-------------------------------------------------------------------------------
 def create_cfg_params_tcl(env, trg, src):
