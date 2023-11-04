@@ -463,12 +463,12 @@ def generate_title(text: str, comment: str) -> str:
     return out
 
 #-------------------------------------------------------------------------------
-def generate_footer(comment: str) -> str:
+def generate_footer(comment_mark: str) -> str:
 
-    hsep_len = 81 - len(comment)
+    hsep_len = 81 - len(comment_mark)
 
     empty_line = ' ' + os.linesep
-    separator  = comment + '-'*hsep_len + os.linesep
+    separator  = comment_mark + '-'*hsep_len + os.linesep*2
 
     return  empty_line + separator
 #-------------------------------------------------------------------------------
