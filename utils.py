@@ -392,7 +392,7 @@ def read_sources(fn, search_path='', get_usedin = False):
                         break
                     
                 if not ignore:
-                    print_error('E: file at relative path "' + s + '" does not exists')
+                    print_error('E: file at relative path "' + s + '" not exists')
                     print_error('    detected while processing "' + fn_path +'"')
                     print(prefix_path)
                     Exit(-1)
