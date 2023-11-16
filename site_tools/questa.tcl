@@ -9,22 +9,25 @@ onerror {quit}
 #
 #     Info
 #
-puts "**************************************************************************"
-puts "*"
-puts "*    Info"
-puts "*"
-puts "Available commands:\n"
-puts "    * 'c'       : compile work library."
-puts "    * 's'       : launch simulation run."
-puts "    * 'r'       : restart simulation run."
-puts "    * 'rr'      : restart simulation run with reset transcript file."
-puts "    * 'show_res': show results of existing simulation run (see below)."
-puts "\n"
-puts "Memo:\n"
-puts "    'vsim -view <log-name>.wlf' can be used to view resutls of completed run."
-puts "         Use 'show_res <cfg-name> to view waveform, memory view, etc of "
-puts "         specified simulation run log."
-puts "**************************************************************************"
+echo "**************************************************************************"
+echo "*"
+echo "*    Info"
+echo "*"
+echo "Available commands:\n"
+echo "    * 'c'       : compile work library."
+echo "    * 's'       : launch simulation run."
+echo "    * 'r'       : restart simulation run."
+echo "    * 'rr'      : restart simulation run with reset transcript file."
+echo "    * 'sres'    : show results of existing simulation run (see below)."
+echo "    * 'swc'     : save waveform configuration to file (see below)."
+echo "\n"
+echo "Memo:\n"
+echo "    'vsim -view <log-name>.wlf' can be used to view resutls of completed run."
+echo "         Use 'show_res <cfg-name> to view waveform, memory view, etc of "
+echo "         specified simulation run log."
+echo "         Use 'swc <wave-cfg-name>' to save waveform config in the file "
+echo "         <wave-cfg-name>.do"
+echo "**************************************************************************"
 
 #-------------------------------------------------------------------------------
 #
@@ -33,7 +36,7 @@ puts "**************************************************************************
 quietly source handoff.do
 
 quietly set DesignName $TB_NAME
-quietly set WaveFileName    ${DesignName} 
+quietly set WaveFileName    ${DesignName}
 quietly append WaveFileName "_wave.do"
 
 quietly set WorkLib $WLIB_NAME
@@ -53,7 +56,7 @@ quietly set INC_DIRS [lsort -unique $INC_DIRS];
 quietly set IncDirs [join ${INC_DIRS} "+"];
 #---------------------------------------------------------------------
 #
-#     Toolchain 
+#     Toolchain
 #
 set vlog_cmd {}
 set vcom_cmd {}
@@ -89,9 +92,8 @@ quietly set vopt_flags {}
 if {[info exists WorkLib]} {
     quietly append vopt_flags " -work $WorkLib";
 }
-quietly append vopt_flags " +acc";          # (!) deprecated - see replacements 
 quietly append vopt_flags " " ${VOPT_FLAGS}
-quietly append vopt_flags " " $DesignName 
+quietly append vopt_flags " " $DesignName
 quietly append vopt_flags " -o " $OptimizedDesignName;
 
 
@@ -130,15 +132,15 @@ proc compile {} {
     global vlog_cmd vlog_flags;
     global vcom_cmd vcom_flags;
     global vopt_cmd vopt_flags;
-    
+
     global SRC
 
     if {[launch_cmd ${vlog_cmd} [concat ${vlog_flags} ${SRC}]] == 0} {
-        return;
+        exit -code -1;
     }
-    
+
     if {[launch_cmd ${vopt_cmd} ${vopt_flags}] == 0} {
-        return;
+        exit -code -1;
     }
 }
 #-------------------------------------------------------------------------------
@@ -165,17 +167,17 @@ proc c { } {
 }
 #-------------------------------------------------------------------------------
 proc s { { res empty} { wave_ena 1 } } {
-    
+
     global CFG_DIR
-    
+
     set res_name ${CFG_DIR}/sim/${res}
-    
+
     sim_begin;
 
-    if {[file exists ${res_name}]} {    
+    if {[file exists ${res_name}]} {
         do ${res_name}
     }
-        
+
     run -all
 
     if { $wave_ena != 0 } {
@@ -187,8 +189,26 @@ proc s { { res empty} { wave_ena 1 } } {
 proc run_sim {} {
 
     sim_begin;
+    
+    set errcode sim_error_status_code
+    
+    if { [file exists $errcode] } {
+        file delete $errcode
+    } 
+        
+    onfinish final
     run -all
-    exit
+
+    if { [file exists $errcode] } {
+        set fd [open $errcode r]
+        set exit_code [read $fd]
+        close $fd
+    } else {
+        set exit_code 0
+    }
+    puts "\n******************************************************************************"
+
+    exit -code $exit_code
 }
 #-------------------------------------------------------------------------------
 proc r { { wave_ena 1 } } {
@@ -202,21 +222,33 @@ proc r { { wave_ena 1 } } {
 }
 #-------------------------------------------------------------------------------
 proc rr {} {
-    transcript file ""; 
+    transcript file "";
     transcript file transcript;
     r
 }
 #-------------------------------------------------------------------------------
 proc show_res { res } {
+}
+#-------------------------------------------------------------------------------
+proc sres { res } {
     global CFG_DIR
 
     set res_name ${CFG_DIR}/sim/${res}
 
-    if {[file exists ${res_name}]} {    
+    if {[file exists ${res_name}]} {
         do ${res_name}
     } else {
-        puts "E: result script file does not exist"
+        echo "E: result script file does not exist"
     }
 }
 #-------------------------------------------------------------------------------
+proc swc { wave_cfg } {
+    global CFG_DIR
 
+    set wave_cfg_name "${CFG_DIR}/sim/${wave_cfg}.do"
+    
+    write format wave "${wave_cfg_name}"
+    
+    echo "waveform signals saved to $wave_cfg_name"
+}
+#-------------------------------------------------------------------------------
