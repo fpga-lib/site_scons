@@ -228,6 +228,9 @@ proc rr {} {
 }
 #-------------------------------------------------------------------------------
 proc show_res { res } {
+}
+#-------------------------------------------------------------------------------
+proc sres { res } {
     global CFG_DIR
 
     set res_name ${CFG_DIR}/sim/${res}
@@ -235,12 +238,8 @@ proc show_res { res } {
     if {[file exists ${res_name}]} {
         do ${res_name}
     } else {
-        puts "E: result script file does not exist"
+        echo "E: result script file does not exist"
     }
-}
-#-------------------------------------------------------------------------------
-proc sres { res } {
-    show_res $res
 }
 #-------------------------------------------------------------------------------
 proc swc { wave_cfg } {
