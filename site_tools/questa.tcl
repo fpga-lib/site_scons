@@ -248,5 +248,7 @@ proc swc { wave_cfg } {
     set wave_cfg_name "${CFG_DIR}/sim/${wave_cfg}.do"
     
     write format wave "${wave_cfg_name}"
+    
+    echo "waveform signals saved to $wave_cfg_name"
 }
 #-------------------------------------------------------------------------------
