@@ -9,25 +9,25 @@ onerror {quit}
 #
 #     Info
 #
-puts "**************************************************************************"
-puts "*"
-puts "*    Info"
-puts "*"
-puts "Available commands:\n"
-puts "    * 'c'       : compile work library."
-puts "    * 's'       : launch simulation run."
-puts "    * 'r'       : restart simulation run."
-puts "    * 'rr'      : restart simulation run with reset transcript file."
-puts "    * 'show_res': show results of existing simulation run (see below)."
-puts "    * 'swc'     : save waveform configuration to file (see below)."
-puts "\n"
-puts "Memo:\n"
-puts "    'vsim -view <log-name>.wlf' can be used to view resutls of completed run."
-puts "         Use 'show_res <cfg-name> to view waveform, memory view, etc of "
-puts "         specified simulation run log."
-puts "         Use 'swc <wave-cfg-name>' to save waveform config in the file "
-puts "         <wave-cfg-name>.do"
-puts "**************************************************************************"
+echo "**************************************************************************"
+echo "*"
+echo "*    Info"
+echo "*"
+echo "Available commands:\n"
+echo "    * 'c'       : compile work library."
+echo "    * 's'       : launch simulation run."
+echo "    * 'r'       : restart simulation run."
+echo "    * 'rr'      : restart simulation run with reset transcript file."
+echo "    * 'sres'    : show results of existing simulation run (see below)."
+echo "    * 'swc'     : save waveform configuration to file (see below)."
+echo "\n"
+echo "Memo:\n"
+echo "    'vsim -view <log-name>.wlf' can be used to view resutls of completed run."
+echo "         Use 'show_res <cfg-name> to view waveform, memory view, etc of "
+echo "         specified simulation run log."
+echo "         Use 'swc <wave-cfg-name>' to save waveform config in the file "
+echo "         <wave-cfg-name>.do"
+echo "**************************************************************************"
 
 #-------------------------------------------------------------------------------
 #
@@ -228,6 +228,9 @@ proc rr {} {
 }
 #-------------------------------------------------------------------------------
 proc show_res { res } {
+}
+#-------------------------------------------------------------------------------
+proc sres { res } {
     global CFG_DIR
 
     set res_name ${CFG_DIR}/sim/${res}
@@ -235,12 +238,8 @@ proc show_res { res } {
     if {[file exists ${res_name}]} {
         do ${res_name}
     } else {
-        puts "E: result script file does not exist"
+        echo "E: result script file does not exist"
     }
-}
-#-------------------------------------------------------------------------------
-proc sres { res } {
-    show_res $res
 }
 #-------------------------------------------------------------------------------
 proc swc { wave_cfg } {
@@ -249,5 +248,7 @@ proc swc { wave_cfg } {
     set wave_cfg_name "${CFG_DIR}/sim/${wave_cfg}.do"
     
     write format wave "${wave_cfg_name}"
+    
+    echo "waveform signals saved to $wave_cfg_name"
 }
 #-------------------------------------------------------------------------------
