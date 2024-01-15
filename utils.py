@@ -4,7 +4,7 @@
 #*
 #*    Version 2.0
 #*
-#*    Copyright (c) 2016-2022, Harry E. Zhurov
+#*    Copyright (c) 2016-2023, Harry E. Zhurov
 #*
 #*******************************************************************************
 
@@ -28,6 +28,23 @@ if 'SCONS_COLORING_DISABLE' in os.environ and os.environ['SCONS_COLORING_DISABLE
     COLORING_DISABLE = True
 else:
     COLORING_DISABLE = False
+
+#-------------------------------------------------------------------------------
+class ParamStore:
+
+    def __init__(self):
+        self.store = {}
+
+    def read(self, key):
+        if not key in self.store:
+            with open(key) as f:
+                contents = yaml.safe_load(f)
+                
+            self.store[key] = contents
+
+        return self.store[key]
+
+param_store = ParamStore()
 
 #-------------------------------------------------------------------------------
 # 
@@ -294,10 +311,7 @@ def eval_cfg_dict(cfg_file_path: str, cfg_dict: dict, imps=None) -> dict:
 def read_config(fn: str, param_sect='parameters', search_path=[]):
 
     path = search_file(fn, search_path)
-    #path = search_file(fn)
-    with open( path ) as f:
-        cfg = yaml.safe_load(f)
-        
+    cfg  = param_store.read(path)
     imps = {}
     if 'import' in cfg and cfg['import']:
         imports = cfg['import'].split()
@@ -319,8 +333,8 @@ def read_ip_config(fn, param_sect, search_path=[]):
 
     cfg_params = read_config(fn, param_sect, search_path)
     
-    with open( search_file(fn) ) as f:
-        cfg = yaml.safe_load(f)
+    path = search_file(fn)
+    cfg  = param_store.read(path)
         
     ip_cfg = {}
     ip_cfg['type']     = cfg['type']
@@ -332,9 +346,7 @@ def read_ip_config(fn, param_sect, search_path=[]):
 def read_src_list(fn: str, search_path=[]):
 
     path = search_file(fn, search_path)
-    
-    with open( path ) as f:
-        cfg = yaml.safe_load(f)
+    cfg  = param_store.read(path)
     
     if 'parameters' in cfg:
         params = read_config(fn, 'parameters', search_path)
@@ -412,8 +424,7 @@ def get_dirs(flist):
 def prefix_suffix(fn, params):
     prefix = ''
     suffix = ''
-    with open( fn ) as f:
-        cfg = yaml.safe_load(f)
+    cfg    = param_store.read(fn)
         
     if 'options' in cfg:
         opt = cfg['options']
