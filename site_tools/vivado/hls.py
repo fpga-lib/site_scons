@@ -12,7 +12,7 @@ import re
 
 from utils import *
 
-top_path = os.path.abspath(str(Dir('#'))) # <- scons-chdir fix!!!
+root_path = os.path.abspath(str(Dir('#'))) # <- scons-chdir fix!!!
 
 #-------------------------------------------------------------------------------
 class Params:
@@ -294,7 +294,7 @@ def add_sim_stuff(name, env):
 #
 def hls_csynth_script(target, source, env):
 
-    os.chdir(top_path)   # <- scons-chdir fix!!!
+    os.chdir(root_path)   # <- scons-chdir fix!!!
 
     src         = source[0]
     trg         = target[0]

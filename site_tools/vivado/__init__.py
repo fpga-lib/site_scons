@@ -35,8 +35,7 @@ def scan_cfg_files(node, env, path):
     if get_suffix(fname) != env['CONFIG_SUFFIX']:
         return env.File([])
         
-    with open(fname) as f:
-        cfg = yaml.safe_load(f)
+    cfg = param_store.read(fname)
         
     if 'import' in cfg and cfg['import']:
         imports = []
