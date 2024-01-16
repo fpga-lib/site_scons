@@ -34,10 +34,10 @@ class ParamStore:
 
     def __init__(self):
         self.store = {}
-        self.top_path = os.path.abspath(str(Dir('#')))
+        self.root_path = os.path.abspath(str(Dir('#')))
 
     def read(self, key):
-        key = os.path.join(self.top_path, key)
+        key = os.path.join(self.root_path, key)
         if not key in self.store:
             with open(key) as f:
                 contents = yaml.safe_load(f)
