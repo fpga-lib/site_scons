@@ -190,10 +190,6 @@ def make_abspath_list(path):
         else:
             apath = p
 
-        if not os.path.exists(apath):
-            msg = 'path "' + apath + '" not not exists' + os.linesep
-            raise SearchFileException(msg)
-
         plist.append(apath)
         
     return plist
