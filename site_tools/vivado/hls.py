@@ -294,7 +294,9 @@ def add_sim_stuff(name, env):
 #
 def hls_csynth_script(target, source, env):
 
+    root_path = env['ROOT_PATH']
     os.chdir(root_path)   # <- scons-chdir fix!!!
+    
 
     src         = source[0]
     trg         = target[0]

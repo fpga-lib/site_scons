@@ -31,7 +31,7 @@ from site_scons.site_tools.vivado.hls     import *
 #
 def scan_cfg_files(node, env, path):
 
-    root_dir = os.path.abspath(str(env.Dir('#')))
+    root_path = env['ROOT_PATH']
     fname    = str(node)
     if get_suffix(fname) != env['CONFIG_SUFFIX']:
         return env.File([])
@@ -44,7 +44,7 @@ def scan_cfg_files(node, env, path):
             fn = i + '.' + env['CONFIG_SUFFIX']
             found = False
             for p in path:
-                full_path = os.path.join(root_dir, p.path, fn)
+                full_path = os.path.join(root_path, p.path, fn)
                 if os.path.exists(full_path):
                     imports.append(full_path)
                     found = True

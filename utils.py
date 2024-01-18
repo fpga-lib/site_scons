@@ -178,13 +178,31 @@ class SearchFileException(Exception):
         self.msg = msg
         
 #-------------------------------------------------------------------------------
+def make_abspath_list(path):
+    plist = []
+    if not SCons.Util.is_List(path):
+        path = path.split()
+
+    for p in path:
+
+        if not os.path.isabs(p):
+            apath = os.path.join(param_store.root_path, p)
+        else:
+            apath = p
+
+        if not os.path.exists(apath):
+            msg = 'path "' + apath + '" not not exists' + os.linesep
+            raise SearchFileException(msg)
+
+        plist.append(apath)
+        
+    return plist
+
+#-------------------------------------------------------------------------------
 def add_search_path(path):
     global config_search_path
     
-    if SCons.Util.is_List(path):
-        config_search_path += path
-    else:
-        config_search_path.append(path)
+    config_search_path += make_abspath_list(path)
                 
 #-------------------------------------------------------------------------------
 def get_search_path():
@@ -194,26 +212,25 @@ def get_search_path():
 def add_check_exclude_path(path):
     global check_exclude_path
 
-    if SCons.Util.is_List(path):
-        check_exclude_path += path
-    else:
-        check_exclude_path.append(path)
+    check_exclude_path += make_abspath_list(path)
 
 #-------------------------------------------------------------------------------
 def search_file(fn, search_path=[]):
     
-    if os.path.exists(fn):
-        return os.path.abspath(fn)
+    if os.path.isabs(fn):
+
+        if not os.path.exists(fn):
+            msg = 'search_file: path "' + fn + '" not exists' + os.linesep
+            raise SearchFileException(msg)
+
+        return fn
         
-    if not SCons.Util.is_List(search_path):
-        search_path = str.split(search_path)
-        
-    spath = search_path + config_search_path
+    spath = make_abspath_list(search_path) + config_search_path
     
     for p in spath:
         path = os.path.join(p, fn)
         if os.path.exists(path):
-            return os.path.abspath(path)
+            return path
     
     msg = 'file "' + fn + '" not found at search path list:' + os.linesep
     for p in spath:
@@ -384,7 +401,7 @@ def read_src_list(fn: str, search_path=[]):
 #
 def read_sources(fn, search_path='', get_usedin = False):
     
-    prefix_path = [search_path, os.getcwd()] + get_search_path() + [os.path.abspath(str(Dir('#')))]
+    prefix_path = make_abspath_list([search_path, os.getcwd()] + get_search_path() + [param_store.root_path])
     src, usedin, fn_path = read_src_list(fn, search_path)
     
     path_list = []
@@ -392,7 +409,7 @@ def read_sources(fn, search_path='', get_usedin = False):
         for s in src:
             path_exists = False
             for pp in prefix_path:
-                path = os.path.abspath( os.path.join(pp, s) )
+                path = os.path.join(pp, s)
                 if os.path.exists(path):
                     path_list.append(path)
                     path_exists = True
