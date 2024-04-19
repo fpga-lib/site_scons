@@ -51,7 +51,7 @@ def bd_create_script(env, trg, bd_config_path):
     text += 'puts "-------- Export simulation for \\\"$bd_name\\\" --------"'                           + os.linesep
     text += 'set_property top ${bd_name}_wrapper [get_filesets sim_1]'                                  + os.linesep
     text += 'generate_target simulation [get_files ${bd_path}] -force'                                  + os.linesep
-    text += 'export_simulation -of_objects [get_files ${bd_wrapper}]' + \
+    text += 'export_simulation ' + \
             ' -simulator questa -absolute_path -force -directory ${SIM_SCRIPT_DIR}/${bd_name}'          + os.linesep
     
     out = generate_title(title_text, '#')
