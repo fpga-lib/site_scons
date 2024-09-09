@@ -327,6 +327,35 @@ def read_config(fn: str, param_sect='parameters', search_path=[]):
 
     path = search_file(fn, search_path)
     cfg  = param_store.read(path)
+    
+    #-------------------------------------------------------
+    #
+    #    Load modules
+    #
+    if 'load' in cfg and cfg['load']:
+        loads = cfg['load'].split()
+        
+        try:
+            for lm in loads:
+                load_path = os.path.dirname(search_file(lm + '.py') )
+                if not load_path in sys.path:
+                    #print_warning('append module search path ' + load_path)
+                    sys.path.append(load_path)
+                    
+                if not lm in globals():
+                    #print_warning('add module ' + lm + ' to global imports')
+                    globals()[lm] = __import__(lm)
+                    
+        except Exception as e:
+            print_error('E: ' + str(e) +'\nCannot load module while processing file:')
+            print_error('    ' + path)
+            print_info('\ntip: ensure "sys.path" contain path to module directory\n')
+            Exit(-1)
+
+    #-------------------------------------------------------
+    #
+    #    Imports
+    #
     imps = {}
     if 'import' in cfg and cfg['import']:
         imports = cfg['import'].split()
