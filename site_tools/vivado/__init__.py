@@ -237,7 +237,7 @@ def generate(env):
                        function      = scan_hdl_files,
                        skeys         = ['.' + env['V_SUFFIX'], '.' + env['SV_SUFFIX']],
                        recursive     = True,
-                       path_function = SCons.Scanner.FindPathDirs('INC_PATH')
+                       path_function = SCons.Scanner.FindPathDirs('SIM_INC_PATH')
                       )
     TclSourceScanner = Scanner(name  = 'TclSourceScanner',
                        function      = scan_tcl_files,
