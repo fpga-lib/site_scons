@@ -81,10 +81,6 @@ def scan_hdl_files(node, env, path):
                 found = True
                 break
     
-        if not found:
-            full_path = os.path.join(env['BUILD_SRC_PATH'], i)
-            inclist.append(full_path)
-    
     return env.File(inclist)
     
 #---------------------------------------------------------------------
