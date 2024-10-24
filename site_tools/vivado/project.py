@@ -113,6 +113,8 @@ def vivado_project(target, source, env):
     text += os.linesep
     text += '# Project structure'                                                                      + os.linesep
     text += 'create_project ' + ' '.join(project_create_args)                                          + os.linesep*2
+
+    text += 'set_property part ${DEVICE} [current_project]'                                            + os.linesep
     text += 'set_property FLOW "Vivado Synthesis ' + env['VIVADO_VERNUM'] + '" [get_runs synth_1]'     + os.linesep
     text += 'set_property FLOW "Vivado Implementation ' + env['VIVADO_VERNUM'] + '" [get_runs impl_1]' + os.linesep*2
 
@@ -165,7 +167,6 @@ def vivado_project(target, source, env):
     text += '# Properties'                                                     + os.linesep
     text += 'puts "------------------------------------------------------------"' + os.linesep
     text += 'puts "set project properties"' + os.linesep
-    text += 'set_property part ${DEVICE} [current_project]'                    + os.linesep
     text += 'set_property TARGET_SIMULATOR "Questa" [current_project]'         + os.linesep
     text += 'set_property include_dirs [lsort -unique [lappend incpath ' + \
              ' '.join(incpath) + ']] [get_filesets sources_1]'                 + os.linesep
