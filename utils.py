@@ -224,7 +224,7 @@ def search_file(fn, search_path=[]):
     spath = make_abspath_list(search_path) + config_search_path
     
     for p in spath:
-        path = os.path.join(p, fn)
+        path = os.path.join(p, fn) if os.path.basename(fn) == fn else os.path.join(param_store.root_path, fn)
         if os.path.exists(path):
             return path
     
