@@ -353,9 +353,6 @@ def generate(env):
         print_error('E: "BUILD_VARIANT" construction environment variable must be defined and specifed build variant relative to "cfg" path')
         Exit(-2)
 
-    build_variant         = env['BUILD_VARIANT']
-    root_dir              = str(env.Dir('#'))
-                          
     env['TESTBENCH_NAME'] = 'top_tb'
     env['VLOGCOM']        = os.path.join(env['QUESTABIN'], 'vlog')
     env['VCOMCOM']        = os.path.join(env['QUESTABIN'], 'vcom')
@@ -378,8 +375,8 @@ def generate(env):
                              
     env['SIM_SCRIPT_SUFFIX'] = 'do'
                              
-    env['BUILD_SIM_PATH']    = os.path.join(root_dir, 'build', build_variant, 'sim')
-    env['SIM_CMD_SCRIPT']    = os.path.abspath(os.path.join(root_dir, 'site_scons', 'site_tools', 'questa.tcl' ))
+    env['BUILD_SIM_PATH']    = os.path.join(env['BUILD_PATH'], 'sim')
+    env['SIM_CMD_SCRIPT']    = os.path.join(env['ROOT_PATH'], 'site_scons', 'site_tools', 'questa.tcl' )
     
     env['VOPT_FILTER_RULES'] = []
     

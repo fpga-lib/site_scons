@@ -153,10 +153,6 @@ def generate(env):
         print_error('E: "BUILD_VARIANT" construction environment variable must be defined and specifed build variant relative to "cfg" path')
         Exit(-2)
         
-    build_variant                = env['BUILD_VARIANT']
-    root_dir                     = str(env.Dir('#'))
-    
-    
     env['VIVADO_VERNUM']         = version_number(env['XILINX_VIVADO'])
     env['VIVADO_PROJECT_NAME']   = 'vivado_project'
     env['TOP_NAME']              = 'top'
@@ -179,13 +175,12 @@ def generate(env):
 
     env['VERBOSE']               = True
 
-    env['ROOT_PATH']             = os.path.abspath(str(Dir('#')))
     env['CFG_PATH']              = os.path.abspath(os.curdir)  # current configuration path
     env['CONFIG_SEARCH_PATH']    = []
-    env['BUILD_SRC_PATH']        = os.path.join(root_dir, 'build', build_variant, 'src')
-    env['BUILD_SYN_PATH']        = os.path.join(root_dir, 'build', build_variant, 'syn')
+    env['BUILD_SRC_PATH']        = os.path.join(env['BUILD_PATH'], 'src')
+    env['BUILD_SYN_PATH']        = os.path.join(env['BUILD_PATH'], 'syn')
     env['IP_OOC_PATH']           = os.path.join(env['BUILD_SYN_PATH'], 'ip_ooc')
-    env['BD_OOC_PATH']           = os.path.join(root_dir, 'build', build_variant, 'bd')
+    env['BD_OOC_PATH']           = os.path.join(env['BUILD_PATH'], 'bd')
     env['BUILD_HLS_PATH']        = os.path.join(env['BUILD_SYN_PATH'], 'hls')
     env['INC_PATH']              = ''
 
