@@ -18,7 +18,7 @@ echo "    * 'c'       : compile work library."
 echo "    * 's'       : launch simulation run."
 echo "    * 'r'       : restart simulation run."
 echo "    * 'rr'      : restart simulation run with reset transcript file."
-echo "    * 'sres'    : show results of existing simulation run (see below)."
+echo "    * 'sr  '    : show results of existing simulation run (see below)."
 echo "    * 'swc'     : save waveform configuration to file (see below)."
 echo "\n"
 echo "Memo:\n"
@@ -230,10 +230,10 @@ proc rr {} {
 proc show_res { res } {
 }
 #-------------------------------------------------------------------------------
-proc sres { res } {
+proc sr { res } {
     global CFG_DIR
 
-    set res_name ${CFG_DIR}/sim/${res}
+    set res_name "${CFG_DIR}/sim/${res}.do"
 
     if {[file exists ${res_name}]} {
         do ${res_name}
