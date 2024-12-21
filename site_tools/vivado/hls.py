@@ -344,7 +344,7 @@ def hls_csynth(target, source, env):
     with open(src_path, 'r') as sf:
         src_contents = sf.read();
         
-    pattern = 'export_design.+-ipname\s(\w+)\s+-version\s(\d+\.\d+)\s+-vendor\s(\w+)\s+-library\s(\w+)'
+    pattern = r'export_design.+-ipname\s(\w+)\s+-version\s(\d+\.\d+)\s+-vendor\s(\w+)\s+-library\s(\w+)'
     res = re.search(pattern, src_contents)
     
     if not res:

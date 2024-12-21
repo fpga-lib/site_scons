@@ -89,7 +89,7 @@ def scan_hdl_files(node, env, path):
 #
 def scan_tcl_files(node, env, path):
 
-    pattern = '^\s*source\s+\$\w+\/([\w\-]+\.\w+)'
+    pattern = r'^\s*source\s+\$\w+\/([\w\-]+\.\w+)'
 
     inclist = [] 
     contents = node.get_text_contents()

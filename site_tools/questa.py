@@ -34,9 +34,9 @@ def simlib(target, source, env):
         Execute( Mkdir(trg_path) )
 
     # process sources and compile target lib
-    lib_pattern  = 'vmap\s+(\w+)\s+[\w\/]+'
-    vlog_pattern = 'vlog((?:.+\n)+)'
-    vcom_pattern = 'vcom((?:.+\n)+)'
+    lib_pattern  = r'vmap\s+(\w+)\s+[\w\/]+'
+    vlog_pattern = r'vlog((?:.+\n)+)'
+    vcom_pattern = r'vcom((?:.+\n)+)'
 
     map_vendor_libs = True
 
