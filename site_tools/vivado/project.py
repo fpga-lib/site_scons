@@ -254,7 +254,7 @@ def synth_vivado_project(target, source, env):
 
     text += os.linesep
     text += 'puts ""' + os.linesep
-    text += 'puts "' + r'\033\[1;33m>>>>>>>> Run Synthesis: Compiling and Mapping <<<<<<<<\\033\[0m' + '"' + os.linesep
+    text += 'puts "' + r'\033\[1;33m>>>>>>>> Run Synthesis: Compiling and Mapping <<<<<<<<\033\[0m' + '"' + os.linesep
     text += 'puts ""' + os.linesep
 
     text += os.linesep
@@ -334,7 +334,7 @@ def impl_vivado_project(target, source, env):
 
     text += os.linesep
     text += 'puts ""' + os.linesep
-    text += 'puts "' + r'\033\[1;33m>>>>>>>> Run Implementation: Place and Route <<<<<<<<\\033\[0m' + '"' + os.linesep
+    text += 'puts "' + r'\033\[1;33m>>>>>>>> Run Implementation: Place and Route <<<<<<<<\033\[0m' + '"' + os.linesep
     text += 'puts ""' + os.linesep
 
     text += os.linesep
