@@ -31,11 +31,10 @@ def generate_hdl_header(guard_name : str) -> str:
 def cfg_params_header(target, source, env):
 
     def_name = get_name(target[0].name) # header with macro definitins
-    pkg_name = get_name(target[1].name) # header with SV package
+    pkg_name = f'{def_name}_pkg'
     
     print_action(f'create cfg params headers: \'{def_name}\'.svh' )
     params = {}
-    params_pkg = {}
     for src in source:
         try:
             cfg_params = read_config(str(src))
@@ -160,10 +159,7 @@ def create_cfg_params_header(env, trg, src):
             
         source.append(ss)
 
-    trg0_name = get_name(trg)
-    trg1_name = trg0_name + '_pkg'
-    trg1      = trg.replace(trg0_name, trg1_name)
-    target = [trg, trg1]
+    target = trg
 
     env.CfgParamsHeader(target, source)
 
