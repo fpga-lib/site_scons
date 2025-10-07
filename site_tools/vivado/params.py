@@ -33,7 +33,7 @@ def cfg_params_header(target, source, env):
     def_name = get_name(target[0].name) # header with macro definitins
     pkg_name = get_name(target[1].name) # header with SV package
     
-    print_action('create cfg params headers: \'' + def_name + '.svh, ' + pkg_name + '.svh\'' )
+    print_action(f'create cfg params headers: \'{def_name}\'.svh' )
     params = {}
     params_pkg = {}
     for src in source:
@@ -66,7 +66,6 @@ def cfg_params_header(target, source, env):
     #
     #    Package section
     #
-    guard_name_pkg, text = generate_hdl_header(pkg_name)
     max_len   = max_str_len(params.keys()) + 2
     val_types = [type(i) for i in params.values()]
     nalign    = [4, 3] if str in val_types else [2, 1] if float in val_types else [1]
@@ -96,18 +95,12 @@ def cfg_params_header(target, source, env):
     text += os.linesep + 'endpackage : ' + pkg_name + os.linesep
     #-----------------------------------------------------------------
     
-    footer_def  = os.linesep + '`endif // ' + guard_name_def + os.linesep
-    footer_pkg  = os.linesep + '`endif // ' + guard_name_pkg + os.linesep
+    footer  = os.linesep + '`endif // ' + guard_name_def + os.linesep
     
-    text_def += footer_def
-    text     += footer_pkg
+    text     += footer
     
     def_hdr_path = str(target[0])
     with open(def_hdr_path, 'w') as ofile:
-        ofile.write(text_def)
-        
-    pkg_hdr_path = str(target[1])
-    with open(pkg_hdr_path, 'w') as ofile:
         ofile.write(text)
 
     return None
