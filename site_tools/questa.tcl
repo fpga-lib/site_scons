@@ -23,7 +23,7 @@ echo "    * 'swc'     : save waveform configuration to file (see below)."
 echo "\n"
 echo "Memo:\n"
 echo "    'vsim -view <log-name>.wlf' can be used to view resutls of completed run."
-echo "         Use 'show_res <cfg-name> to view waveform, memory view, etc of "
+echo "         Use 'sr <cfg-name> to view waveform, memory view, etc of "
 echo "         specified simulation run log."
 echo "         Use 'swc <wave-cfg-name>' to save waveform config in the file "
 echo "         <wave-cfg-name>.do"
@@ -189,13 +189,13 @@ proc s { { res empty} { wave_ena 1 } } {
 proc run_sim {} {
 
     sim_begin;
-    
+
     set errcode sim_error_status_code
-    
+
     if { [file exists $errcode] } {
         file delete $errcode
-    } 
-        
+    }
+
     onfinish final
     run -all
 
@@ -246,9 +246,9 @@ proc swc { wave_cfg } {
     global CFG_DIR
 
     set wave_cfg_name "${CFG_DIR}/sim/${wave_cfg}.do"
-    
+
     write format wave "${wave_cfg_name}"
-    
+
     echo "waveform signals saved to $wave_cfg_name"
 }
 #-------------------------------------------------------------------------------
